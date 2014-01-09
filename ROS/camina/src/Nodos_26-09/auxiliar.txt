@@ -1,0 +1,99 @@
+
+void CalculoTrayectoria_Cuadrada (int Npata, float t_Trayectoria) {
+
+//    int seleccionTramo=0;
+    float velocidadApoyo=0.0, velocidadTransferencia=0.0;
+    float t_TramoABC=0.0, t_TramoABCD=0.0, t_Tramo=0.0;
+
+    velocidadApoyo = lambda_Apoyo[Npata]/beta;
+	velocidadTransferencia = (2*dh+lambda_Apoyo[Npata])/(1-beta);
+    /* Divisiones de tiempo trayectoria A-B-C-D-A*/
+    t_TramoABC = (dh/velocidadTransferencia)+beta;
+    t_TramoABCD = ((dh+lambda_Apoyo[Npata])/velocidadTransferencia)+beta;
+
+     /* Nota Mental:
+        Prueba con trayectoria rectangular: existen 4 tramos/casos.
+        Para cada tramo es necesario reiniciar el tiempo para pasarlo
+        ..a la función que calcula la trayectoria (en base a la velocidad)
+     */
+    //---Caso parte 1 trayectoria----
+    // Periodo A-B
+    if (0<=t_Trayectoria && t_Trayectoria<beta)
+        {
+            t_Tramo = t_Trayectoria;
+            x_Tray = -lambda_Apoyo[Npata]/2 + velocidadApoyo*t_Tramo;
+            y_Tray =0.0;
+            z_Tray = -dh/2;
+        }
+    //---Caso parte 2 trayectoria------
+    // Periodo B-C
+     if (beta<=t_Trayectoria && t_Trayectoria<t_TramoABC)
+    	{
+            t_Tramo = t_Trayectoria-beta;
+            x_Tray = lambda_Apoyo[Npata]/2;
+            y_Tray = 0.0;
+            z_Tray = -dh/2 + velocidadTransferencia*t_Tramo;
+        }
+    //---Caso parte 3 trayectoria------
+    // Periodo C-D
+     if (t_TramoABC<=t_Trayectoria && t_Trayectoria<t_TramoABCD)
+    	{
+            t_Tramo = t_Trayectoria-t_TramoABC;
+            x_Tray = lambda_Apoyo[Npata]/2 - velocidadTransferencia*t_Tramo;
+            y_Tray = 0.0;
+            z_Tray = dh/2;
+        }
+    //---Caso parte 4 trayectoria---------
+    //Periodo D-A
+     if (t_TramoABCD<=t_Trayectoria && t_Trayectoria<1)
+    	{
+            t_Tramo = t_Trayectoria-t_TramoABCD;
+            x_Tray = -lambda_Apoyo[Npata]/2;
+            y_Tray = 0.0;
+            z_Tray = dh/2 - velocidadTransferencia*t_Tramo;
+        }
+}
+
+void CalculoTrayectoria_Eliptica (int Npata, float t_Trayectoria) {
+
+//    int seleccionTramo=0;
+    float velocidadApoyo=0.0;//, velocidadTransferencia=0.0;
+    float t_Tramo=0.0;
+    float alfa_arg=0.0, t_aux=0.0;
+    float delta_lambda = 0.0;
+
+    velocidadApoyo = lambda_Apoyo[Npata]/beta;
+    t_Tramo = t_Trayectoria;
+    delta_lambda = fabs(lambda_Transferencia[Npata]-lambda_Apoyo[Npata])/2;
+     /* Nota Mental:
+        Existen 2 partes, la parte de apoyo que es una linea
+        recta, y la eliptica que es el arco descrito en el
+        aire
+     */
+    //---Caso parte 1 trayectoria----
+    // Periodo A-B
+    if (0<=t_Trayectoria && t_Trayectoria<beta)
+        {
+            x_Tray = (-lambda_Apoyo[Npata]/2 + velocidadApoyo*t_Tramo) - delta_lambda;
+            y_Tray = 0.0;
+            z_Tray = 0.0;
+        }
+    //---Caso parte 2 trayectoria------
+    // Elipsis
+        if (beta<=t_Trayectoria)
+        {
+            t_aux = (t_Tramo-beta)/(1-beta);
+            alfa_arg = pi*t_aux;
+//                    a = lambda_Transferencia/2;
+//                    b = dh;
+//                    x = a*cos(alfa);
+//                    z = b*sin(alfa);
+            x_Tray = lambda_Transferencia[Npata]/2*cos(alfa_arg);
+            y_Tray = 0.0;
+            z_Tray = dh*sin(alfa_arg);
+        }
+//        ROS_INFO("Nodoo: salida tray: x=%.3f,y=%.3f,z=%.3f",x_Tray, y_Tray, z_Tray);
+}
+
+
+

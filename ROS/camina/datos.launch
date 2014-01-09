@@ -1,0 +1,5 @@
+<launch>
+  <node name="datos1" pkg="camina" type="datos">
+    <param name="beta" value="0.1" type="double"/>
+  </node>
+</launch>
