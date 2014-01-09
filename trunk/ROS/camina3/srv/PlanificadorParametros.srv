@@ -1,0 +1,17 @@
+# Servicio para calculo de cinematica inversa
+# -->>Entra coordenadas cartesianas
+# <<--Salen posiciones de motores
+
+# Request
+int32 Tripode
+float32 T
+float32[] tripode
+---
+# Response
+int32 result
+float32 modificacion_T
+float32[] modificacion_beta
+float32 modificacion_lambda
+
+
+
