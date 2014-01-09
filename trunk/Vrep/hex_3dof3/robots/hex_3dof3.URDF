@@ -1,0 +1,1051 @@
+<robot
+  name="hex_3dof3">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-1.64206023475073E-08 0.000123630818338306 0.0246798703986125"
+        rpy="0 0 0" />
+      <mass
+        value="0.26521497951128" />
+      <inertia
+        ixx="0.00128880223466245"
+        ixy="9.4403405586295E-10"
+        ixz="-1.14637829642888E-10"
+        iyy="0.00129590987287225"
+        iyz="8.6310894060199E-07"
+        izz="0.00226088647094822" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="Pata1_Link1">
+    <inertial>
+      <origin
+        xyz="-0.0147023365508669 0.0147320000003078 -0.0219667365508234"
+        rpy="0 0 0" />
+      <mass
+        value="0.0978490661101912" />
+      <inertia
+        ixx="3.90311715487353E-05"
+        ixy="-7.3451350074464E-06"
+        ixz="-2.11444037248737E-06"
+        iyy="3.2542534708457E-05"
+        iyz="7.34513500825979E-06"
+        izz="3.90311715486204E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata1_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata1_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata1_Motor1"
+    type="revolute">
+    <origin
+      xyz="-0.069155 0.11974 0.052603"
+      rpy="-1.5704E-15 1.1888E-15 0.52373" />
+    <parent
+      link="base_link" />
+    <child
+      link="Pata1_Link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata1_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0294639999999996 -5.48172618408671E-16 0.0263369972586891"
+        rpy="0 0 0" />
+      <mass
+        value="0.0134335530937499" />
+      <inertia
+        ixx="7.28667975286697E-06"
+        ixy="9.43949694901604E-20"
+        ixz="1.71524171818996E-20"
+        iyy="1.07187767306611E-05"
+        iyz="-9.64255433388266E-22"
+        izz="5.00969243766273E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata1_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata1_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata1_Motor2"
+    type="revolute">
+    <origin
+      xyz="0.005564 0.029464 -0.0072644"
+      rpy="1.5708 2.8061E-14 -1.5708" />
+    <parent
+      link="Pata1_Link1" />
+    <child
+      link="Pata1_Link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata1_Link3">
+    <inertial>
+      <origin
+        xyz="7.62534067935139E-05 -0.0178927767861349 -0.0254199334896364"
+        rpy="0 0 0" />
+      <mass
+        value="0.0678527630710707" />
+      <inertia
+        ixx="5.21475503641025E-05"
+        ixy="-1.05142217153954E-07"
+        ixz="7.99547359234005E-09"
+        iyy="9.73676724364494E-06"
+        iyz="-1.7601264755518E-06"
+        izz="4.79198001430386E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata1_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.0980392156862745 0.0980392156862745 0.0980392156862745 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata1_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata1_Motor3"
+    type="revolute">
+    <origin
+      xyz="-0.058928 0 0"
+      rpy="-3.1416 -8.7153E-15 -3.1416" />
+    <parent
+      link="Pata1_Link2" />
+    <child
+      link="Pata1_Link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata2_Link1">
+    <inertial>
+      <origin
+        xyz="0.0143015047173041 -0.00814374734476582 -0.0219667365508186"
+        rpy="0 0 0" />
+      <mass
+        value="0.0978490661101912" />
+      <inertia
+        ixx="2.97794186801701E-05"
+        ixy="2.23879464219151E-06"
+        ixz="7.43387412102741E-06"
+        iyy="3.93090690513093E-05"
+        iyz="1.37168712799058E-06"
+        izz="3.654595302288E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata2_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata2_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata2_Motor1"
+    type="revolute">
+    <origin
+      xyz="0.069123 0.11976 0.052603"
+      rpy="-4.9765E-18 1.145E-15 1.1029" />
+    <parent
+      link="base_link" />
+    <child
+      link="Pata2_Link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata2_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0294640000000002 -4.85722573273506E-17 -0.0262630027413116"
+        rpy="0 0 0" />
+      <mass
+        value="0.0134335530937499" />
+      <inertia
+        ixx="7.28667975286697E-06"
+        ixy="-1.28025298899783E-20"
+        ixz="-4.2351647362715E-22"
+        iyy="1.07187767306611E-05"
+        iyz="8.89808379051447E-22"
+        izz="5.00969243766275E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata2_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata2_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata2_Motor2"
+    type="revolute">
+    <origin
+      xyz="0.030546 0.018627 -0.0072644"
+      rpy="1.5708 -2.1498E-15 3.086" />
+    <parent
+      link="Pata2_Link1" />
+    <child
+      link="Pata2_Link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata2_Link3">
+    <inertial>
+      <origin
+        xyz="7.62534067932086E-05 -0.0178927767861277 0.0254199334896364"
+        rpy="0 0 0" />
+      <mass
+        value="0.0678527630710707" />
+      <inertia
+        ixx="5.21475503641191E-05"
+        ixy="-1.04125809135677E-07"
+        ixz="-7.99547359230278E-09"
+        iyy="9.73676724364494E-06"
+        iyz="1.76012647554368E-06"
+        izz="4.79198001430553E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata2_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.933333333333333 0.133333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata2_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata2_Motor3"
+    type="revolute">
+    <origin
+      xyz="-0.058928 0 0"
+      rpy="-3.1416 4.4409E-16 3.1416" />
+    <parent
+      link="Pata2_Link2" />
+    <child
+      link="Pata2_Link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata3_Link1">
+    <inertial>
+      <origin
+        xyz="-0.0147023365511221 0.014732 -0.0219667365511221"
+        rpy="0 0 0" />
+      <mass
+        value="0.0978490661081873" />
+      <inertia
+        ixx="3.90311715478484E-05"
+        ixy="-7.34513500782051E-06"
+        ixz="-2.11444037285162E-06"
+        iyy="3.25425347077116E-05"
+        iyz="7.34513500782051E-06"
+        izz="3.90311715478484E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata3_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata3_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata3_Motor1"
+    type="revolute">
+    <origin
+      xyz="-0.13828 -1.8366E-05 0.052603"
+      rpy="4.8859E-16 -4.9955E-16 1.5709" />
+    <parent
+      link="base_link" />
+    <child
+      link="Pata3_Link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata3_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0294639999999998 2.08166817117217E-16 0.0263369972586889"
+        rpy="0 0 0" />
+      <mass
+        value="0.0134335530937499" />
+      <inertia
+        ixx="7.28667975286698E-06"
+        ixy="-2.80432014892978E-21"
+        ixz="5.10784028251495E-22"
+        iyy="1.07187767306611E-05"
+        iyz="-4.54911747913286E-21"
+        izz="5.00969243766273E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata3_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata3_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata3_Motor2"
+    type="revolute">
+    <origin
+      xyz="0.005564 0.029464 -0.0072644"
+      rpy="1.5708 -4.8859E-16 -1.5708" />
+    <parent
+      link="Pata3_Link1" />
+    <child
+      link="Pata3_Link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata3_Link3">
+    <inertial>
+      <origin
+        xyz="-7.62534067867693E-05 0.0178927767866599 -0.0254199334901566"
+        rpy="0 0 0" />
+      <mass
+        value="0.0678527630690668" />
+      <inertia
+        ixx="5.21475503628396E-05"
+        ixy="-1.05142217161841E-07"
+        ixz="-7.99547358557878E-09"
+        iyy="9.73676724301517E-06"
+        iyz="1.76012647617929E-06"
+        izz="4.79198001423975E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata3_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 0.933333333333333 0.133333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata3_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata3_Motor3"
+    type="revolute">
+    <origin
+      xyz="-0.058928 0 0"
+      rpy="-3.1416 1.583E-15 0" />
+    <parent
+      link="Pata3_Link2" />
+    <child
+      link="Pata3_Link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata4_Link1">
+    <inertial>
+      <origin
+        xyz="0.014732 -0.00733633655112207 -0.0219667365511221"
+        rpy="0 0 0" />
+      <mass
+        value="0.0978490661081873" />
+      <inertia
+        ixx="3.00573161814946E-05"
+        ixy="2.75376841130566E-06"
+        ixz="7.3461514158383E-06"
+        iyy="3.90311715478483E-05"
+        iyz="1.78271405202647E-06"
+        izz="3.65459530216313E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata4_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.0980392156862745 0.0980392156862745 0.0980392156862745 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata4_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata4_Motor1"
+    type="revolute">
+    <origin
+      xyz="0.13828 1.8366E-05 0.052603"
+      rpy="-3.053E-17 1.573E-15 0.00013282" />
+    <parent
+      link="base_link" />
+    <child
+      link="Pata4_Link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata4_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0294640000000002 -7.63278329429795E-17 -0.0262630027413109"
+        rpy="0 0 0" />
+      <mass
+        value="0.0134335530937499" />
+      <inertia
+        ixx="7.28667975286699E-06"
+        ixy="3.25554331429475E-21"
+        ixz="6.85452750964761E-21"
+        iyy="1.07187767306611E-05"
+        iyz="1.73457811646511E-20"
+        izz="5.00969243766274E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata4_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata4_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata4_Motor2"
+    type="revolute">
+    <origin
+      xyz="0.029464 0.020296 -0.0072644"
+      rpy="1.5708 1.573E-15 3.1416" />
+    <parent
+      link="Pata4_Link1" />
+    <child
+      link="Pata4_Link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata4_Link3">
+    <inertial>
+      <origin
+        xyz="7.6253406786464E-05 -0.0178927767866595 0.0254199334901565"
+        rpy="0 0 0" />
+      <mass
+        value="0.0678527630690668" />
+      <inertia
+        ixx="5.21475503628396E-05"
+        ixy="-1.04125809143983E-07"
+        ixz="-7.99547358555702E-09"
+        iyy="9.73676724301514E-06"
+        iyz="1.76012647617919E-06"
+        izz="4.79198001423975E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata4_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.0980392156862745 0.0980392156862745 0.0980392156862745 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata4_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata4_Motor3"
+    type="revolute">
+    <origin
+      xyz="-0.058928 0 0"
+      rpy="-3.1416 -2.1107E-15 3.1416" />
+    <parent
+      link="Pata4_Link2" />
+    <child
+      link="Pata4_Link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata5_Link1">
+    <inertial>
+      <origin
+        xyz="-0.0147023365508669 0.0147320000002955 -0.0219667365508186"
+        rpy="0 0 0" />
+      <mass
+        value="0.0978490661101913" />
+      <inertia
+        ixx="3.90311715487135E-05"
+        ixy="-7.34513500745903E-06"
+        ixz="-2.11444037248176E-06"
+        iyy="3.25425347084707E-05"
+        iyz="7.34513500824886E-06"
+        izz="3.90311715485848E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata5_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata5_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata5_Motor1"
+    type="revolute">
+    <origin
+      xyz="-0.069123 -0.11976 0.052603"
+      rpy="-1.3682E-15 8.8242E-17 2.6181" />
+    <parent
+      link="base_link" />
+    <child
+      link="Pata5_Link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata5_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0294639999999996 -5.96744875736022E-16 0.0263369972586891"
+        rpy="0 0 0" />
+      <mass
+        value="0.0134335530937499" />
+      <inertia
+        ixx="7.28667975286696E-06"
+        ixy="9.41441414847244E-20"
+        ixz="1.48230765769503E-21"
+        iyy="1.07187767306611E-05"
+        iyz="-1.85012746798404E-21"
+        izz="5.00969243766273E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata5_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata5_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata5_Motor2"
+    type="revolute">
+    <origin
+      xyz="0.005564 0.029464 -0.0072644"
+      rpy="1.5708 2.8687E-14 -1.5708" />
+    <parent
+      link="Pata5_Link1" />
+    <child
+      link="Pata5_Link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata5_Link3">
+    <inertial>
+      <origin
+        xyz="7.62534067756948E-05 -0.0178927767861281 -0.0254199334896364"
+        rpy="0 0 0" />
+      <mass
+        value="0.0678527630710707" />
+      <inertia
+        ixx="5.21475503641192E-05"
+        ixy="-1.05142217175689E-07"
+        ixz="7.99547357343766E-09"
+        iyy="9.73676724364513E-06"
+        iyz="-1.7601264755438E-06"
+        izz="4.79198001430555E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata5_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.0980392156862745 0.0980392156862745 0.0980392156862745 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata5_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata5_Motor3"
+    type="revolute">
+    <origin
+      xyz="-0.058928 0 0"
+      rpy="3.1416 -9.3814E-15 -3.1416" />
+    <parent
+      link="Pata5_Link2" />
+    <child
+      link="Pata5_Link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata6_Link1">
+    <inertial>
+      <origin
+        xyz="0.0147320000002955 -0.00733633655071602 -0.0219667365508234"
+        rpy="0 0 0" />
+      <mass
+        value="0.0978490661101911" />
+      <inertia
+        ixx="3.00573161827165E-05"
+        ixy="2.75376841188014E-06"
+        ixz="7.34615141626021E-06"
+        iyy="3.90311715486996E-05"
+        iyz="1.78271405260605E-06"
+        izz="3.65459530228443E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata6_Link1.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata6_Link1.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata6_Motor1"
+    type="revolute">
+    <origin
+      xyz="0.069155 -0.11974 0.052603"
+      rpy="-1.4658E-15 0 -1.0471" />
+    <parent
+      link="base_link" />
+    <child
+      link="Pata6_Link1" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata6_Link2">
+    <inertial>
+      <origin
+        xyz="-0.0294640000000004 4.16333634234434E-16 -0.0262630027413108"
+        rpy="0 0 0" />
+      <mass
+        value="0.0134335530937499" />
+      <inertia
+        ixx="7.28667975286697E-06"
+        ixy="-5.46205312129302E-20"
+        ixz="1.63053842346453E-20"
+        iyy="1.07187767306611E-05"
+        iyz="-1.04197842091747E-20"
+        izz="5.00969243766275E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata6_Link2.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.294117647058824 0.294117647058824 0.294117647058824 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata6_Link2.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata6_Motor2"
+    type="revolute">
+    <origin
+      xyz="0.029464 0.020296 -0.0072644"
+      rpy="1.5708 -1.7384E-14 3.1416" />
+    <parent
+      link="Pata6_Link1" />
+    <child
+      link="Pata6_Link2" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="Pata6_Link3">
+    <inertial>
+      <origin
+        xyz="7.62534067754173E-05 -0.0178927767861346 0.0254199334896364"
+        rpy="0 0 0" />
+      <mass
+        value="0.0678527630710706" />
+      <inertia
+        ixx="5.21475503641024E-05"
+        ixy="-1.04125809157314E-07"
+        ixz="-7.99547357341903E-09"
+        iyy="9.73676724364509E-06"
+        iyz="1.76012647555169E-06"
+        izz="4.79198001430387E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata6_Link3.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.0980392156862745 0.0980392156862745 0.0980392156862745 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://meshes/Pata6_Link3.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="Pata6_Motor3"
+    type="revolute">
+    <origin
+      xyz="-0.058928 0 0"
+      rpy="3.1416 -7.0499E-15 3.1416" />
+    <parent
+      link="Pata6_Link2" />
+    <child
+      link="Pata6_Link3" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      effort="0"
+      velocity="0" />
+  </joint>
+</robot>
