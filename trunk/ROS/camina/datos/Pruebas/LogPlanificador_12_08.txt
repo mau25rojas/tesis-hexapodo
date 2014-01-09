@@ -1,0 +1,276 @@
+
+tiempo de simulacion: 3.000
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 3.000
+pata [1] coincide con obstaculo
+
+tiempo de simulacion: 3.000
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 3.000
+Correccion:[1] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 3.250
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 3.250
+pata [1] coincide con obstaculo
+
+tiempo de simulacion: 3.250
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 3.250
+Correccion:[1] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 3.500
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 3.500
+pata [1] coincide con obstaculo
+
+tiempo de simulacion: 3.500
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 3.500
+Correccion:[1] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 3.750
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 3.750
+pata [1] coincide con obstaculo
+
+tiempo de simulacion: 3.750
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 3.800
+Correccion:[1] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 4.750
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 4.750
+pata [2] coincide con obstaculo
+
+tiempo de simulacion: 4.750
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 4.750
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 4.750
+Correccion:[2] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 4.750
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 4.750
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 4.750
+Correccion:[3] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 5.050
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 5.050
+pata [2] coincide con obstaculo
+
+tiempo de simulacion: 5.050
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 5.050
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 5.050
+Correccion:[2] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 5.050
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 5.050
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 5.050
+Correccion:[3] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 5.350
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 5.350
+pata [2] coincide con obstaculo
+
+tiempo de simulacion: 5.350
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 5.350
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 5.350
+Correccion:[2] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 5.350
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 5.350
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 5.350
+Correccion:[3] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 5.550
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 5.550
+pata [2] coincide con obstaculo
+
+tiempo de simulacion: 5.550
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 5.550
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 5.550
+Correccion:[2] beta:0.333	 landa:0.040
+
+tiempo de simulacion: 5.550
+pata [3] coincide con obstaculo
+
+tiempo de simulacion: 5.550
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 5.550
+Correccion:[3] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 10.650
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 10.650
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 10.650
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 10.650
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 10.650
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 10.650
+Correccion:[6] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 10.850
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 10.850
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 10.850
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 10.850
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 10.850
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 10.850
+Correccion:[6] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 11.050
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 11.050
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 11.050
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 11.050
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 11.050
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 11.050
+Correccion:[6] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 11.300
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 11.300
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 11.300
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 11.350
+pata [6] coincide con obstaculo
+
+tiempo de simulacion: 11.350
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 11.350
+Correccion:[6] beta:0.250	 landa:0.030
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 0
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 1
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 2
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 3
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 4
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 5
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 6
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 7
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 8
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa
+
+tiempo de simulacion: 13.250
+Correccion de pisada ciclo: 9
+
+tiempo de simulacion: 13.250
+pata [6] error cinversa

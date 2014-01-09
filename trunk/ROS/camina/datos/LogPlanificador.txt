@@ -1,0 +1,33 @@
+
+tiempo de simulacion: 0.250
+server_Plan::T[1] v_y=0.016
+tiempo de simulacion: 0.300
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
+tiempo de simulacion: 1.700
+server_Plan::T[2] v_y=0.016
+tiempo de simulacion: 1.750
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000
+tiempo de simulacion: 3.550
+server_Plan::T[1] v_y=0.010
+tiempo de simulacion: 3.600
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
+tiempo de simulacion: 5.350
+server_Plan::T[2] v_y=0.012
+tiempo de simulacion: 5.400
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000
+tiempo de simulacion: 7.000
+server_Plan::T[1] v_y=0.011
+tiempo de simulacion: 7.050
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
+tiempo de simulacion: 8.250
+server_Plan::T[2] v_y=0.014
+tiempo de simulacion: 8.300
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000
+tiempo de simulacion: 9.500
+server_Plan::T[1] v_y=0.014
+tiempo de simulacion: 9.600
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
+tiempo de simulacion: 10.950
+server_Plan::T[2] v_y=0.016
+tiempo de simulacion: 10.950
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000

@@ -1,0 +1,12 @@
+<launch>
+	
+	<node name="joy_node" pkg="joy" type="joy_node" output="screen">
+	</node>
+	<node name="arana_connection" pkg="hexapodo" type="arana_connection" output="screen">
+	</node>
+	<node name="force3D_input" pkg="hexapodo" type="force3D_input" output="screen">
+	</node>
+	<node name="comm" pkg="hexapodo" type="comm" output="screen">
+	</node>
+
+</launch>
