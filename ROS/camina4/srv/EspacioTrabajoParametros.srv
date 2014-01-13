@@ -1,0 +1,24 @@
+# Servicio para calculo de espacio de trabajo
+# entra datos del robot y se devuelve el espacio
+# de trabajo de cada pata para ese momento
+
+# Request
+float32 PosicionCuerpo_x
+float32 PosicionCuerpo_y
+float32 theta_CuerpoRobot
+---
+# Response
+float32[] EspacioTrabajoPata1_x
+float32[] EspacioTrabajoPata2_x
+float32[] EspacioTrabajoPata3_x
+float32[] EspacioTrabajoPata4_x
+float32[] EspacioTrabajoPata5_x
+float32[] EspacioTrabajoPata6_x
+float32[] EspacioTrabajoPata1_y
+float32[] EspacioTrabajoPata2_y
+float32[] EspacioTrabajoPata3_y
+float32[] EspacioTrabajoPata4_y
+float32[] EspacioTrabajoPata5_y
+float32[] EspacioTrabajoPata6_y
+
+
