@@ -105,7 +105,7 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
     float PisadaProxima_x=0.0, PisadaProxima_y=0.0, PisadaProxima_z=0.0;
     float delta_x_S0=0.0, delta_y_S0=0.0, delta_x=0.0, delta_y=0.0;
     float modificacion_lambda[Npatas/2];
-    float T=0.0;
+    float T_actual=0.0, lambda_actual=0.0;
     int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
     p_ij = ij;    // Inicialización de apuntador
 
@@ -121,7 +121,8 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
     } else{
         for(int k=0;k<Npatas/2;k++) Tripode_Apoyo[k] = Tripode2[k];
     }
-    T = req.T;
+    T_actual = req.T;
+    lambda_actual = req.lambda;
 
     TodasPisadasOk = true;    // Todas las pisadas se asumen bien a la primera
     for(int k=0;k<Npatas/2;k++){
@@ -151,8 +152,8 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
 //            ROS_INFO("server_Plan: cinversaOK");
             ros::spinOnce();
         //-- Calculamos proximo movimiento en el sistema mundo
-                PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
-                PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
+                PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
+                PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                 transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
                 PisadaProxima_i=ij[0];
                 PisadaProxima_j=ij[1];
@@ -199,8 +200,8 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
         ciclosContraccion++;
         TodasPisadasOk = true;
     //-- Se corrige en tamaños de celda
-        lambda_paso = lambda_paso+0.01;
-        lambda_Correccion = lambda_maximo-lambda_paso;
+        lambda_paso = lambda_paso+0.02;
+        lambda_Correccion = lambda_actual-lambda_paso;
         ROS_WARN("server_PlanificadorPisada: lambda_Correccion: %.3f",lambda_Correccion);
         fprintf(fp2,"\ntiempo de simulacion: %.3f\n",simulationTime);
         fprintf(fp2,"lambda_Correccion: %.3f",lambda_Correccion);
@@ -396,7 +397,7 @@ void transformacion_yxTOij(int *ptr_ij, float y, float x){
 
 void Limpiar_matrizMapa(){
 
-    int i=0, j=0, k=0;
+    int i=0, j=0;
 
     for(i=0;i<nCeldas_i;i++){
         for(j=0;j<nCeldas_j;j++){

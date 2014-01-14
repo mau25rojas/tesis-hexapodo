@@ -5,6 +5,7 @@
 # Request
 int32 Tripode
 float32 T
+float32 lambda
 float32[] tripode
 ---
 # Response
