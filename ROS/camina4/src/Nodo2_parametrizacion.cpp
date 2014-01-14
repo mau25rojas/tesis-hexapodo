@@ -54,18 +54,18 @@ void datosCallback(const camina4::DatosTrayectoriaPata msg_datoTrayectoria)
     float x_S1=0.0, y_S1=0.0, z_S1=0.0;
     float PuntoInicio_x=0.0, PuntoInicio_y=0.0, PuntoInicio_z=0.0;
 
-    T = msg_datoTrayectoria.T[0];
+    T = msg_datoTrayectoria.T;
 	delta_t = T/msg_datoTrayectoria.divisionTrayectoriaPata;
 	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria;
-    lambda_Transferencia = msg_datoTrayectoria.lambda_Transferencia[0];
+    lambda_Transferencia = msg_datoTrayectoria.lambda_Transferencia;
     alfa = msg_datoTrayectoria.alfa;
-    desfasaje_t = msg_datoTrayectoria.desfasaje_t[0];
+    desfasaje_t = msg_datoTrayectoria.desfasaje_t;
 
     //---------------------------------
     if (Inicio){
     //-- La trayectoria inicial se hace con lambda de apoyo
         Inicio = false;
-        lambda_Apoyo = msg_datoTrayectoria.lambda_Apoyo[0];
+        lambda_Apoyo = msg_datoTrayectoria.lambda_Apoyo;
         finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
     }
     //--------Temporizacion----------

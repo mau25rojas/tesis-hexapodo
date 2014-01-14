@@ -18,15 +18,14 @@ camina4::PlanificadorParametros srv_Planificador;
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
-camina4::DatosTrayectoriaPata datosTrayectoriaPata;
-int Npata_arg=0,Tripode=0;
+camina4::DatosTrayectoriaPata datosTrayectoriaPata_T1, datosTrayectoriaPata_T2;
 bool modificacion = false;
-float divisionTrayectoriaPata=0.0, T=0.0, divisionTiempo=0.0, desfasaje_t=0.0, beta=0.0,t_aux=0.0;
+float divisionTrayectoriaPata=0.0, T=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0,t_aux=0.0;
 float modificacion_T = 0.0, modificacion_lambda =0.0;
 bool InicioTransf=true, FinTransf=false;
 float delta_t=0.0;
 FILE *fp1;
-ros::Publisher chatter_pub1;
+ros::Publisher chatter_pub1,chatter_pub2;
 
 // Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
@@ -49,8 +48,8 @@ void relojCallback(camina4::SenalesCambios msgSenal)
             srv_Planificador.request.Tripode = Tripode;
             srv_Planificador.request.T = T;
             if (client_Planificador.call(srv_Planificador)){
-                datosTrayectoriaPata.lambda_Transferencia[0] = srv_Planificador.response.modificacion_lambda;
-                T = datosTrayectoriaPata.T[0] = srv_Planificador.response.modificacion_T;
+                datosTrayectoriaPata.lambda_Transferencia = srv_Planificador.response.modificacion_lambda;
+                T = datosTrayectoriaPata.T = srv_Planificador.response.modificacion_T;
                 ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_aux=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_aux,datosTrayectoriaPata.lambda_Transferencia[0],datosTrayectoriaPata.T[0]);
                 divisionTrayectoriaPata = T/divisionTiempo;
             } else {
@@ -86,34 +85,24 @@ int main(int argc, char **argv)
   float lambda_Apoyo=0.0, lambda_Transferencia=0.0, alfa=0.0, f=0.0;
   int i=0, Narg=0;
 
-  Narg=9;
+  Narg=8;
 	if (argc>=Narg)
 	{
-        Npata_arg=atoi(argv[1]);
-        Tripode=atoi(argv[2]);
-        T=atof(argv[3]); // Periodo de trayectoria [seg]
-		divisionTrayectoriaPata=atof(argv[4]);  //N puntos
-		beta=atof(argv[5]);
-		lambda_Apoyo=atof(argv[6]);
-		lambda_Transferencia=atof(argv[7]);
-		alfa=atof(argv[8])*pi/180;
-        desfasaje_t=atof(argv[9]);
+        T=atof(argv[1]); // Periodo de trayectoria [seg]
+		divisionTrayectoriaPata=atof(argv[2]);  //N puntos
+		beta=atof(argv[3]);
+		lambda_Apoyo=atof(argv[4]);
+		lambda_Transferencia=atof(argv[5]);
+		alfa=atof(argv[6])*pi/180;
+        desfasaje_t_T1=atof(argv[7]);
+        desfasaje_t_T2=atof(argv[8]);
     } else {
 		ROS_ERROR("Nodo1: Indique argumentos!\n");
 		return 0;
 	}
 
-//    for(i=0;i<Npatas;i++) {
-        datosTrayectoriaPata.T.push_back(0);
-        datosTrayectoriaPata.lambda_Apoyo.push_back(0);
-        datosTrayectoriaPata.lambda_Transferencia.push_back(0);
-        datosTrayectoriaPata.desfasaje_t.push_back(0);
-//    }
-
 	/*Inicio nodo de ROS*/
     std::string nodeName("Nodo1_datosTrayectoriaPata");
-	std::string Id(boost::lexical_cast<std::string>(Tripode));
-	nodeName+=Id;
 	ros::init(argc,argv,nodeName.c_str());
     ros::NodeHandle node;
 
@@ -121,9 +110,10 @@ int main(int argc, char **argv)
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber subInfo2=node.subscribe("Reloj",100,relojCallback);
 //-- Manda topico especifico para cada pata
-    std::string topicName("datosTrayectoria_T");
-    topicName+=Id;
+    std::string topicName("datosTrayectoria_T1");
     chatter_pub1=node.advertise<camina4::DatosTrayectoriaPata>(topicName.c_str(), 100);
+    std::string topicName("datosTrayectoria_T2");
+    chatter_pub2=node.advertise<camina4::DatosTrayectoriaPata>(topicName.c_str(), 100);
 //-- Clientes y Servicios
     client_Planificador = node.serviceClient<camina4::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
@@ -134,12 +124,19 @@ int main(int argc, char **argv)
 //    fp1 = fopen(fileName.c_str(),"w+");
 
 //-- Datos de envio
-    datosTrayectoriaPata.T[0]=T;
-    datosTrayectoriaPata.divisionTrayectoriaPata=divisionTrayectoriaPata;
-    datosTrayectoriaPata.lambda_Apoyo[0]=lambda_Apoyo;
-    datosTrayectoriaPata.lambda_Transferencia[0]=lambda_Transferencia;
-    datosTrayectoriaPata.alfa=alfa;
-    datosTrayectoriaPata.desfasaje_t[0]=desfasaje_t;
+    datosTrayectoriaPata_T1.T=T;
+    datosTrayectoriaPata_T1.divisionTrayectoriaPata=divisionTrayectoriaPata;
+    datosTrayectoriaPata_T1.lambda_Apoyo=lambda_Apoyo;
+    datosTrayectoriaPata_T1.lambda_Transferencia=lambda_Transferencia;
+    datosTrayectoriaPata_T1.alfa=alfa;
+    datosTrayectoriaPata_T1.desfasaje_t=desfasaje_t_T1;
+    //-----------------------------------------------------------------
+    datosTrayectoriaPata_T2.T=T;
+    datosTrayectoriaPata_T2.divisionTrayectoriaPata=divisionTrayectoriaPata;
+    datosTrayectoriaPata_T2.lambda_Apoyo=lambda_Apoyo;
+    datosTrayectoriaPata_T2.lambda_Transferencia=lambda_Transferencia;
+    datosTrayectoriaPata_T2.alfa=alfa;
+    datosTrayectoriaPata_T2.desfasaje_t=desfasaje_t_T2;
 
 //-- Prepara variables para calculos de trayectoria de PATA
     //delta_t = 1/divisionTrayectoriaPata;

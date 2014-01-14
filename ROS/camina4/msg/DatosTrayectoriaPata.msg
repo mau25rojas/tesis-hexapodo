@@ -7,7 +7,7 @@ uint8     iteracion
 uint8     Tripode
 
 #Periodo de paso
-float32[] T
+float32 T
 
 #delta de tiempo de trayectoria (entre 0-1)
 float32   t_Trayectoria
@@ -16,16 +16,16 @@ float32   t_Trayectoria
 float32   divisionTrayectoriaPata
 
 #Desfasaje en tiempo de pata
-float32[] desfasaje_t
+float32 desfasaje_t
 
 #Factor de apoyo
 float32   beta
 
 #Distancia XY a recorrer en apoyo
-float32[] lambda_Apoyo
+float32 lambda_Apoyo
 
 #Distancia XY a recorrer en transferencia
-float32[] lambda_Transferencia
+float32 lambda_Transferencia
 
 #Velocidad de apoyo
 float32    velocidad_Apoyo
