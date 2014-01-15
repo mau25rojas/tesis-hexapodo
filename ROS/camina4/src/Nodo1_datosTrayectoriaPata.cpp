@@ -21,14 +21,14 @@ float simulationTime=0.0f;
 camina4::DatosTrayectoriaPata datosTrayectoriaPata_T1, datosTrayectoriaPata_T2;
 float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0;
 float modificacion_T = 0.0, modificacion_lambda =0.0;
-bool InicioTransf_T1=true, FinTransf_T1=false,InicioTransf_T2=true, FinTransf_T2=false;
+bool InicioTransf_T1=true, FinTransf_T1=false,InicioTransf_T2=true, FinTransf_T2=false, cambioPlan=false;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
 FILE *fp1;
 ros::Publisher chatter_pub1,chatter_pub2;
 
 // Funciones
-void LlamadaPlanificador_T1(float t_actual);
-void LlamadaPlanificador_T2(float t_actual);
+bool LlamadaPlanificador_T1(float t_actual);
+bool LlamadaPlanificador_T2(float t_actual);
 // Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 {
@@ -40,16 +40,30 @@ void relojCallback(camina4::SenalesCambios msgSenal)
 {
     if (!msgSenal.Stop){
 
+        cambioPlan=false;
         //------- T1 --------------------
         t_aux_T1=delta_t+desfasaje_t_T1*T;
         t_aux_T1=fmod(t_aux_T1,T);
-        LlamadaPlanificador_T1(t_aux_T1);
+        cambioPlan = LlamadaPlanificador_T1(t_aux_T1);
         //-------------------------------
         //------- T2 --------------------
         t_aux_T2=delta_t+desfasaje_t_T2*T;
         t_aux_T2=fmod(t_aux_T2,T);
-        LlamadaPlanificador_T2(t_aux_T2);
+//        cambioPlan = LlamadaPlanificador_T2(t_aux_T2);
         //-------------------------------
+        if(cambioPlan){
+            T = modificacion_T;
+            divisionTrayectoriaPata = T/divisionTiempo;
+            //-- datos a enviar
+            datosTrayectoriaPata_T1.T = modificacion_T;
+            datosTrayectoriaPata_T1.lambda_Transferencia = modificacion_lambda;
+            datosTrayectoriaPata_T1.divisionTrayectoriaPata=divisionTrayectoriaPata;
+            datosTrayectoriaPata_T2.T = modificacion_T;
+            datosTrayectoriaPata_T2.lambda_Transferencia = modificacion_lambda;
+            datosTrayectoriaPata_T2.divisionTrayectoriaPata = divisionTrayectoriaPata;
+            cambioPlan = false;
+        }
+
         if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
 //            ROS_INFO("reinicio trayectoria[%d]",Tripode);
             delta_t = 0.0;
@@ -147,9 +161,10 @@ int main(int argc, char **argv)
 
 /* Funciones */
 
-void LlamadaPlanificador_T1(float t_actual){
+bool LlamadaPlanificador_T1(float t_actual){
     int Tripode = T1;
-
+    bool salidaPlan = false;
+//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T1){
     if (t_actual>=(beta*T) && InicioTransf_T1){
 //            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
         InicioTransf_T1=false;
@@ -159,21 +174,13 @@ void LlamadaPlanificador_T1(float t_actual){
         srv_Planificador.request.T = T;
         if (client_Planificador.call(srv_Planificador)){
             modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-            T = modificacion_T = srv_Planificador.response.modificacion_T;
+            modificacion_T = srv_Planificador.response.modificacion_T;
             ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_actual=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_actual,modificacion_lambda,modificacion_T);
-            divisionTrayectoriaPata = T/divisionTiempo;
-            //-- datos a enviar
-            datosTrayectoriaPata_T1.T = modificacion_T;
-            datosTrayectoriaPata_T1.lambda_Transferencia = modificacion_lambda;
-            datosTrayectoriaPata_T1.divisionTrayectoriaPata=divisionTrayectoriaPata;
-            datosTrayectoriaPata_T2.T = modificacion_T;
-            datosTrayectoriaPata_T2.lambda_Transferencia = modificacion_lambda;
-            datosTrayectoriaPata_T2.divisionTrayectoriaPata = divisionTrayectoriaPata;
+            salidaPlan = true;
         } else {
             ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
             ROS_ERROR("result=%d", srv_Planificador.response.result);
         }
-//            delta_t = delta_t + T/divisionTrayectoriaPata;
     }
     if (t_actual>=(T*(1-1/divisionTrayectoriaPata)) && FinTransf_T1) {
 //            ROS_INFO("Nodo1::T[%d] reinicio trayectoria",Tripode);
@@ -183,9 +190,11 @@ void LlamadaPlanificador_T1(float t_actual){
 
 }
 
-void LlamadaPlanificador_T2(float t_actual){
+bool LlamadaPlanificador_T2(float t_actual){
 
     int Tripode = T2;
+    bool salidaPlan = false;
+//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T2){
     if (t_actual>=(beta*T) && InicioTransf_T2){
 //            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
         InicioTransf_T2=false;
@@ -196,26 +205,18 @@ void LlamadaPlanificador_T2(float t_actual){
         srv_Planificador.request.lambda = lambda_Transferencia;
         if (client_Planificador.call(srv_Planificador)){
             modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-            T = modificacion_T = srv_Planificador.response.modificacion_T;
+            modificacion_T = srv_Planificador.response.modificacion_T;
             ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_actual=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_actual,modificacion_lambda,modificacion_T);
-            divisionTrayectoriaPata = T/divisionTiempo;
-            //-- datos a enviar
-            datosTrayectoriaPata_T1.T = modificacion_T;
-            datosTrayectoriaPata_T1.lambda_Transferencia = modificacion_lambda;
-            datosTrayectoriaPata_T1.divisionTrayectoriaPata=divisionTrayectoriaPata;
-            datosTrayectoriaPata_T2.T = modificacion_T;
-            datosTrayectoriaPata_T2.lambda_Transferencia = modificacion_lambda;
-            datosTrayectoriaPata_T2.divisionTrayectoriaPata = divisionTrayectoriaPata;
+            salidaPlan = true;
         } else {
             ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
             ROS_ERROR("result=%d", srv_Planificador.response.result);
         }
-//            delta_t = delta_t + T/divisionTrayectoriaPata;
     }
     if (t_actual>=(T*(1-1/divisionTrayectoriaPata)) && FinTransf_T2) {
 //            ROS_INFO("Nodo1::T[%d] reinicio trayectoria",Tripode);
         FinTransf_T2=false;
         InicioTransf_T2=true;
     }
-
+    return salidaPlan;
 }
