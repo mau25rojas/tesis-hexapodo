@@ -1,6 +1,0 @@
-<package>
-  <description brief="hex_3dof">hex_3dof</description>
-  <depend package="gazebo" />
-  <author>me</author>
-  <license>BSD</license>
-</package>
