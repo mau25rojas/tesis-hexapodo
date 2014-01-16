@@ -1,0 +1,17 @@
+<package>
+  <description brief="hexacamina">
+
+     hexacamina
+
+  </description>
+  <author>Maureen Rojas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/hexacamina</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+
+</package>
+
+
