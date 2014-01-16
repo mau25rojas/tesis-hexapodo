@@ -202,7 +202,6 @@ bool LlamadaPlanificador_T2(float t_actual){
 //            ROS_INFO("Nodo1::T[%d] tiempo: %.3f, llamo planificacion",Tripode,t_actual);
         srv_Planificador.request.Tripode = Tripode;
         srv_Planificador.request.T = T;
-        srv_Planificador.request.lambda = lambda_Transferencia;
         if (client_Planificador.call(srv_Planificador)){
             modificacion_lambda = srv_Planificador.response.modificacion_lambda;
             modificacion_T = srv_Planificador.response.modificacion_T;

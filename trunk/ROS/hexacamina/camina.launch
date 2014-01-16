@@ -1,0 +1,5 @@
+<launch>
+ <node name="comm" pkg="hexacamina" type="comm" />
+  <node name="arana_connection" pkg="hexacamina" type="arana_connection" />
+  <node name="angulos_arana" pkg="hexacamina" type="angulos_arana" />
+</launch>

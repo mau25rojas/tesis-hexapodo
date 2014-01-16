@@ -1,52 +1,53 @@
+tiempo de simulacion: 0.350
+server_Plan::T[1] v_y=0.016
 
-tiempo de simulacion: 0.250
+tiempo de simulacion: 0.400
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 3.500
+server_Plan::T[1] v_y=0.009
+
+tiempo de simulacion: 3.550
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 6.500
 server_Plan::T[1] v_y=0.016
-tiempo de simulacion: 0.250
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
-tiempo de simulacion: 3.050
-server_Plan::T[1] v_y=0.012
-tiempo de simulacion: 3.050
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
-tiempo de simulacion: 6.050
-server_Plan::T[1] v_y=0.016
-tiempo de simulacion: 6.100
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
-tiempo de simulacion: 9.100
-server_Plan::T[1] v_y=0.016
-tiempo de simulacion: 9.100
+
+tiempo de simulacion: 6.550
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 9.350
+server_Plan::T[1] v_y=0.008
+tiempo de simulacion: 9.350
 pata [4] coincide con obstaculo[72][13]
-
-tiempo de simulacion: 9.100
+tiempo de simulacion: 9.350
+pata [5] coincide con obstaculo[72][6]
+tiempo de simulacion: 9.350
 server_PlanificadorPisada: Correccion de pisada ciclo: 0
-tiempo de simulacion: 9.100
-lambda_Correccion: -0.020
-tiempo de simulacion: 9.100
+tiempo de simulacion: 9.350
+lambda_Correccion: 0.070
+tiempo de simulacion: 9.350
 revisando pata[4]
-tiempo de simulacion: 9.100
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.030, T_correccion=2.667
-tiempo de simulacion: 9.900
-server_Plan::T[1] v_y=0.016
-tiempo de simulacion: 9.950
-pata [4] coincide con obstaculo[72][13]
-
-tiempo de simulacion: 9.950
-pata [5] coincide con obstaculo[72][5]
-
-tiempo de simulacion: 9.950
-server_PlanificadorPisada: Correccion de pisada ciclo: 0
-tiempo de simulacion: 9.950
-lambda_Correccion: -0.020
-tiempo de simulacion: 9.950
-revisando pata[4]
-tiempo de simulacion: 9.950
+tiempo de simulacion: 9.400
 revisando pata[5]
-tiempo de simulacion: 9.950
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.030, T_correccion=2.667
-tiempo de simulacion: 10.650
-server_Plan::T[1] v_y=0.012
-tiempo de simulacion: 10.650
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
-tiempo de simulacion: 13.300
+tiempo de simulacion: 9.400
+pata [5] coincide con obstaculo [72][6]
+tiempo de simulacion: 9.400
+server_PlanificadorPisada: Correccion de pisada ciclo: 1
+tiempo de simulacion: 9.400
+lambda_Correccion: 0.050
+tiempo de simulacion: 9.400
+revisando pata[5]
+
+tiempo de simulacion: 9.400
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.050, T_correccion=4.444tiempo de simulacion: 10.950
+server_Plan::T[1] v_y=0.016
+
+tiempo de simulacion: 10.950
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 14.150
+server_Plan::T[1] v_y=0.013
+
+tiempo de simulacion: 14.200
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 16.850
 server_Plan::T[1] v_y=0.014
-tiempo de simulacion: 13.350
+
+tiempo de simulacion: 16.850
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 19.650
+server_Plan::T[1] v_y=0.004
+
+tiempo de simulacion: 19.650
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
