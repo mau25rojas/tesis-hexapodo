@@ -44,7 +44,7 @@ Lynxmotion:
 #define Npatas 6
 #define Neslabones 3
 #define lambda_maximo 0.09
-#define lambda_minimo 0.03
+#define lambda_minimo 0.02
 #define teta_Offset -30*pi/180
 #define umbralFuerzaApoyo 0.009
 #define umbral_Z_Apoyo 0.004
