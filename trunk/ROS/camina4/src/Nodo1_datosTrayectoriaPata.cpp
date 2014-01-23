@@ -44,12 +44,12 @@ void relojCallback(camina4::SenalesCambios msgSenal)
         //------- T1 --------------------
         t_aux_T1=delta_t+desfasaje_t_T1*T;
         t_aux_T1=fmod(t_aux_T1,T);
-        cambioPlan = LlamadaPlanificador_T1(t_aux_T1);
+//        cambioPlan = LlamadaPlanificador_T1(t_aux_T1);
         //-------------------------------
         //------- T2 --------------------
         t_aux_T2=delta_t+desfasaje_t_T2*T;
         t_aux_T2=fmod(t_aux_T2,T);
-//        cambioPlan = LlamadaPlanificador_T2(t_aux_T2);
+        cambioPlan = LlamadaPlanificador_T2(t_aux_T2);
         //-------------------------------
         if(cambioPlan){
             T = modificacion_T;
@@ -164,8 +164,10 @@ int main(int argc, char **argv)
 bool LlamadaPlanificador_T1(float t_actual){
     int Tripode = T1;
     bool salidaPlan = false;
-//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T1){
+//-- tiempo de seleccion: (1)tiempo(b*T)
     if (t_actual>=(beta*T) && InicioTransf_T1){
+//-- tiempo de seleccion: (2)tiempo(b*T-1)
+//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T1){
 //            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
         InicioTransf_T1=false;
         FinTransf_T1=true;
@@ -187,15 +189,17 @@ bool LlamadaPlanificador_T1(float t_actual){
         FinTransf_T1=false;
         InicioTransf_T1=true;
     }
-
+    return salidaPlan;
 }
 
 bool LlamadaPlanificador_T2(float t_actual){
 
     int Tripode = T2;
     bool salidaPlan = false;
-//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T2){
+//-- tiempo de seleccion: (1)tiempo(b*T)
     if (t_actual>=(beta*T) && InicioTransf_T2){
+//-- tiempo de seleccion: (2)tiempo(b*T-1)
+//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T2){
 //            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
         InicioTransf_T2=false;
         FinTransf_T2=true;
