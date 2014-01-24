@@ -1,37 +1,25 @@
-tiempo de simulacion: 0.250
+tiempo de simulacion: 0.150
 server_Plan::T[1] v_y=0.016
 
-tiempo de simulacion: 0.250
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 3.500
-server_Plan::T[1] v_y=0.015
-
-tiempo de simulacion: 3.500
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 6.500
-server_Plan::T[1] v_y=0.007
-tiempo de simulacion: 6.500
-pata [1] coincide con obstaculo[66][9]
-tiempo de simulacion: 6.550
-server_PlanificadorPisada: Correccion de pisada ciclo: 0
-tiempo de simulacion: 6.550
-lambda_Correccion: 0.070
-tiempo de simulacion: 6.550
-revisando pata[1]
-
-tiempo de simulacion: 6.550
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.070, T_correccion=6.222tiempo de simulacion: 7.850
+tiempo de simulacion: 0.150
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 1.900
 server_Plan::T[1] v_y=0.010
 
-tiempo de simulacion: 7.850
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 12.150
-server_Plan::T[1] v_y=0.016
+tiempo de simulacion: 1.900
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 3.600
+server_Plan::T[1] v_y=0.002
 
-tiempo de simulacion: 12.200
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 14.800
-server_Plan::T[1] v_y=0.014
+tiempo de simulacion: 3.600
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 5.150
+server_Plan::T[1] v_y=0.006
 
-tiempo de simulacion: 14.850
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 17.500
-server_Plan::T[1] v_y=0.012
+tiempo de simulacion: 5.200
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 6.700
+server_Plan::T[1] v_y=0.001
 
-tiempo de simulacion: 17.550
+tiempo de simulacion: 6.750
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 8.000
+server_Plan::T[1] v_y=0.006
+
+tiempo de simulacion: 8.050
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=8.000
