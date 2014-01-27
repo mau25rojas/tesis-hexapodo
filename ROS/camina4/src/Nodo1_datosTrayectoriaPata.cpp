@@ -165,9 +165,9 @@ bool LlamadaPlanificador_T1(float t_actual){
     int Tripode = T1;
     bool salidaPlan = false;
 //-- tiempo de seleccion: (1)tiempo(b*T)
-//    if (t_actual>=(beta*T) && InicioTransf_T1){
+    if (t_actual>=(beta*T) && InicioTransf_T1){
 //-- tiempo de seleccion: (2)tiempo(b*T-1)
-    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T1){
+//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T1){
 //            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
         InicioTransf_T1=false;
         FinTransf_T1=true;
@@ -197,9 +197,9 @@ bool LlamadaPlanificador_T2(float t_actual){
     int Tripode = T2;
     bool salidaPlan = false;
 //-- tiempo de seleccion: (1)tiempo(b*T)
-//    if (t_actual>=(beta*T) && InicioTransf_T2){
+    if (t_actual>=(beta*T) && InicioTransf_T2){
 //-- tiempo de seleccion: (2)tiempo(b*T-1)
-    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T2){
+//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T2){
 //            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
         InicioTransf_T2=false;
         FinTransf_T2=true;
