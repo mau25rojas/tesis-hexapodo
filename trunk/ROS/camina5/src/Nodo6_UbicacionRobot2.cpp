@@ -192,7 +192,7 @@ int main(int argc,char* argv[])
         float vel1=0.0, vel2=0.0;
 
     /* Velocidad de transmision */
-    Periodo = 0.1;
+    Periodo = 0.25;
     f=1/Periodo;
     ros::Rate loop_rate(f);  //Frecuencia [Hz]
 	while (ros::ok() && simulationRunning)

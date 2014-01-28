@@ -38,7 +38,7 @@ float LongitudCeldaY=0, LongitudCeldaX=0;
 double tiempo_ahora=0.0, tiempo_anterior=0.0;
 float ajuste_Vel=vel_esperada/vel_teorica;
 float velocidadCuerpo_y=0.0, delta_x=0.0, delta_y=0.0, x_anterior=0.0, y_anterior=0.0, x_actual=0.0, y_actual=0.0;
-float posicionActualPata_y[Npatas], posicionActualPata_x[Npatas];
+float posicionActualPata_y[Npatas], posicionActualPata_x[Npatas], posicionActualPata_z[Npatas];
 int posicionActualPata_i[Npatas], posicionActualPata_j[Npatas];
 float posicionActualPataSistemaPata_y[Npatas],posicionActualPataSistemaPata_x[Npatas], posicionActualPataSistemaPata_z[Npatas];
 float teta_CuerpoRobot=0.0;
@@ -82,6 +82,7 @@ void ubicacionRobCallback(camina5::UbicacionRobot msgUbicacionRobot)
     for(int k=0; k<Npatas;k++) {
         posicionActualPata_x[k] = msgUbicacionRobot.coordenadaPata_x[k];
         posicionActualPata_y[k] = msgUbicacionRobot.coordenadaPata_y[k];
+        posicionActualPata_z[k] = msgUbicacionRobot.coordenadaPata_z[k];
         posicionActualPataSistemaPata_x[k] = msgUbicacionRobot.coordenadaPataSistemaPata_x[k];
         posicionActualPataSistemaPata_y[k] = msgUbicacionRobot.coordenadaPataSistemaPata_y[k];
         posicionActualPata_i[k] = msgUbicacionRobot.coordenadaPata_i[k];
@@ -157,7 +158,7 @@ bool PlanificadorPisada(camina5::PlanificadorParametros::Request  &req,
 //                posicionActualPata_i=ij[0];
 //                posicionActualPata_j=ij[1];
                 fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-                fprintf(fp2,"server_Plan::T[%d] y_actual=%.3f, x_actual=%.3f, i_actual=%d, j_actual=%d\n",Tripode,posicionActualPata_y[Tripode_Apoyo[k]],posicionActualPata_x[Tripode_Apoyo[k]],posicionActualPata_i[Tripode_Apoyo[k]],posicionActualPata_j[Tripode_Apoyo[k]]);
+                fprintf(fp2,"server_Plan::T[%d] y_actual=%.3f,x_actual=%.3f,z_actual=%.3f, i_actual=%d, j_actual=%d\n",Tripode,posicionActualPata_y[Tripode_Apoyo[k]],posicionActualPata_x[Tripode_Apoyo[k]],posicionActualPata_z[Tripode_Apoyo[k]],posicionActualPata_i[Tripode_Apoyo[k]],posicionActualPata_j[Tripode_Apoyo[k]]);
                 PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
                 PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                 transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
@@ -166,10 +167,10 @@ bool PlanificadorPisada(camina5::PlanificadorParametros::Request  &req,
                 PisadaInvalida[k] = false;
 //                ROS_INFO("Pisada revisar: i=%d,j=%d",PisadaProxima_i,PisadaProxima_j);
                 if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
-                //-- La pisada COINCIDE con obstaculo
-                    ROS_WARN("server_PlanificadorPisada: pata [%d] coincide con obstaculo [%d][%d]",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
+                //-- La pisada coincidira con obstaculo
+                    ROS_WARN("server_PlanificadorPisada: pata [%d] coincidira con obstaculo [%d][%d]",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
                     fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-                    fprintf(fp2,"pata [%d] coincide con obstaculo[%d][%d]\n",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
+                    fprintf(fp2,"pata [%d] coincidira con obstaculo[%d][%d]\n",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
                     PisadaInvalida[k] = true;
                     TodasPisadasOk = false;
 //                    break;
@@ -243,7 +244,7 @@ bool PlanificadorPisada(camina5::PlanificadorParametros::Request  &req,
 //                    posicionActualPata_i=ij[0];
 //                    posicionActualPata_j=ij[1];
                     fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-                    fprintf(fp2,"server_Plan::T[%d] y_actual=%.3f, x_actual=%.3f, i_actual=%d, j_actual=%d\n",Tripode,posicionActualPata_y[Tripode_Apoyo[k]],posicionActualPata_x[Tripode_Apoyo[k]],posicionActualPata_i[Tripode_Apoyo[k]],posicionActualPata_j[Tripode_Apoyo[k]]);
+                    fprintf(fp2,"server_Plan::T[%d] y_actual=%.3f,x_actual=%.3f,z_actual=%.3f, i_actual=%d, j_actual=%d\n",Tripode,posicionActualPata_y[Tripode_Apoyo[k]],posicionActualPata_x[Tripode_Apoyo[k]],posicionActualPata_z[Tripode_Apoyo[k]],posicionActualPata_i[Tripode_Apoyo[k]],posicionActualPata_j[Tripode_Apoyo[k]]);
                     PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*(1-beta)*T_Correccion)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
                     PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*(1-beta)*T_Correccion)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                     transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
@@ -251,10 +252,10 @@ bool PlanificadorPisada(camina5::PlanificadorParametros::Request  &req,
                     PisadaProxima_j=ij[1];
                     PisadaInvalida[k] = false;
                     if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
-                    //-- La pisada COINCIDE con obstaculo
-                        ROS_WARN("server_PlanificadorPisada: pata [%d] coincide con obstaculo [%d][%d]",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
+                    //-- La pisada coincidira con obstaculo
+                        ROS_WARN("server_PlanificadorPisada: pata [%d] coincidira con obstaculo [%d][%d]",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
                         fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-                        fprintf(fp2,"pata [%d] coincide con obstaculo [%d][%d]\n",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
+                        fprintf(fp2,"pata [%d] coincidira con obstaculo [%d][%d]\n",Tripode_Apoyo[k]+1,PisadaProxima_i,PisadaProxima_j);
                         PisadaInvalida[k] = true;
                         TodasPisadasOk = false;
                         break;
