@@ -18,8 +18,6 @@
 //Definiciones
 #define VentanaY 700
 #define VentanaX 200
-#define LongitudY 3
-#define LongitudX 1
 
 // Global variables:
 bool simulationRunning=true;
@@ -134,7 +132,6 @@ void ubicacionCuerpoCallback(camina5::UbicacionRobot msgUbicacionCuerpo)
 // Main code:
 int main(int argc,char* argv[])
 {
-	int Narg=0;
 	float periodo=0.0, f=0.0;
 
 	for(int k=0;k<Npatas;k++){

@@ -23,6 +23,8 @@ float32[] coordenadaPataSistemaPata_z
 float32[] coordenadaMotor1Pata_x
 float32[] coordenadaMotor1Pata_y
 float32[] coordenadaMotor1Pata_z
+uint8[] coordenadaPata_i
+uint8[] coordenadaPata_j
 #fuerza patas
 float32[]  pataTipFuerza_x
 float32[]  pataTipFuerza_y
