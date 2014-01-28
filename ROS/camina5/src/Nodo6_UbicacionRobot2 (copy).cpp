@@ -26,8 +26,6 @@ camina5::TransTrayectoriaParametros srv_Trans_MundoPata;
 bool simulationRunning=true;
 bool sensorTrigger=false;
 bool infoCuerpo=false, infoPatas=false, infoVel=false;
-int nCeldas_i=0, nCeldas_j=0;
-float LongitudCeldaY=0, LongitudCeldaX=0;
 float simulationTime=0.0f;
 float Veloy_twist=0.0;
 double tiempo_ahora2=0.0, tiempo_anterior2=0.0;
@@ -36,9 +34,6 @@ FILE *fp;
 camina5::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
-
-//-- Funciones
-void transformacion_yxTOij(int *ptr_ij, float y, float x);
 
 // Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
@@ -49,9 +44,6 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 
 void ubicacionCallback(const vrep_common::ObjectGroupData msgUbicacionPatas)
 {
-	int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
-	p_ij = ij;    // Inicialización de apuntador
-
 	for(int k=1; k<Npatas+1; k++){
         ubicacionRobot.coordenadaPata_x[k-1]=msgUbicacionPatas.floatData.data[0+k*Npatas/2];
         ubicacionRobot.coordenadaPata_y[k-1]=msgUbicacionPatas.floatData.data[1+k*Npatas/2];
@@ -75,9 +67,6 @@ void ubicacionCallback(const vrep_common::ObjectGroupData msgUbicacionPatas)
             ROS_ERROR("Nodo6:[%d] servicio de Trans_MundoPata no funciona\n",k-1);
     //        return;
         }
-        transformacion_yxTOij(p_ij,ubicacionRobot.coordenadaPata_y[k-1],ubicacionRobot.coordenadaPata_x[k-1]);
-        ubicacionRobot.coordenadaPata_i[k-1]=ij[0];
-        ubicacionRobot.coordenadaPata_j[k-1]=ij[1];
 
 //    ROS_INFO("Nodo6: pata[%d], x=%.3f, y=%.3f",k-1,ubicacionRobot.coordenadaPata_x[k-1],ubicacionRobot.coordenadaPata_y[k-1]);
     }
@@ -127,7 +116,7 @@ int main(int argc,char* argv[])
 	int window_size=10;
     boost::circular_buffer<float> cb(window_size);
 
-	Narg=8;
+	Narg=4;
 
 	if (argc>=Narg)
 	{
@@ -135,10 +124,6 @@ int main(int argc,char* argv[])
 	    cuerpo = argv[2];
 	    vel = argv[3];
 	    fuerza = argv[4];
-        nCeldas_i = atoi(argv[5]);
-        nCeldas_j = atoi(argv[6]);
-        LongitudCeldaY = atof(argv[7]);
-        LongitudCeldaX = atof(argv[8]);
 //	    printf("%s\n",dummys_topicName.c_str());
 	} else {
 		ROS_ERROR("Nodo6:Indique argumentos completos!\n");
@@ -161,8 +146,6 @@ int main(int argc,char* argv[])
         ubicacionRobot.coordenadaPataSistemaPata_x.push_back(0);
         ubicacionRobot.coordenadaPataSistemaPata_y.push_back(0);
         ubicacionRobot.coordenadaPataSistemaPata_z.push_back(0);
-        ubicacionRobot.coordenadaPata_i.push_back(0);
-        ubicacionRobot.coordenadaPata_j.push_back(0);
         ubicacionRobot.pataTipFuerza_z.push_back(0);
         ubicacionRobot.pataApoyo.push_back(0);
     }
@@ -257,10 +240,4 @@ int main(int argc,char* argv[])
 	ROS_INFO("Adios6!");
 	ros::shutdown();
 	return(0);
-}
-
-/*En matriz de mapa las coordenadas van de i=[0,99], j=[0,19] */
-void transformacion_yxTOij(int *ptr_ij, float y, float x){
-    ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
-    ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
 }

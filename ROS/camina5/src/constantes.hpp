@@ -50,6 +50,9 @@ Lynxmotion:
 #define umbral_Z_Apoyo 0.004
 #define vel_teorica 0.0225
 #define vel_esperada 0.01625
+//Mapa
+#define LongitudY 3
+#define LongitudX 1
 //Constantes para envio serial
 #define Nmotores 18
 #define NmotorP 3
@@ -74,3 +77,4 @@ Lynxmotion:
 //Tripodes
 #define T1 1
 #define T2 2
+

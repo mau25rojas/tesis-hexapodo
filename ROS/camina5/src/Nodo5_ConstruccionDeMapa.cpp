@@ -350,18 +350,11 @@ void FilePrint_matrizMapa(FILE *fp, int nFilas, int nColumnas)
     }
 }
 
-void transformacion_yxTOij(int *ptr_ij, float y, float x){
-    if (y>=0){
-        ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
-    }else{
-        ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
-    }
 
-    if (x>=0){
-        ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
-    }else{
-        ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
-    }
+/*En matriz de mapa las coordenadas van de i=[0,99], j=[0,19] */
+void transformacion_yxTOij(int *ptr_ij, float y, float x){
+    ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
+    ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
 }
 
 void IniciaGrafica(){
