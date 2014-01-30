@@ -1,0 +1,19 @@
+
+# Request
+float32 x_Offset
+float32 y_Offset
+float32 z_Offset
+float32 t_Trayectoria
+float32 beta
+float32 lambda_Apoyo
+float32 lambda_Transferencia
+float32 dh
+float32 alfa
+float32 phi
+---
+# Response
+float32 x_S1
+float32 y_S1
+float32 z_S1
+
+
