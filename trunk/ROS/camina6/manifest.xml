@@ -1,0 +1,21 @@
+<package>
+  <description brief="camina6">
+
+     camina6
+
+  </description>
+  <author>Maureen</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/camina6</url>
+  <depend package="std_msgs"/>
+  <depend package="rospy"/>
+  <depend package="roscpp"/>
+  <depend package="sensor_msgs"/>
+  <depend package="vrep_common"/>
+  <depend package="joy"/>
+  <depend package="tf"/>
+
+</package>
+
+
