@@ -8,12 +8,12 @@
 #include <allegro.h>
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
 #include "std_msgs/String.h"
-#include "camina4/InfoMapa.h"
-#include "camina4/UbicacionRobot.h"
-#include "camina4/EspacioTrabajoParametros.h"
+#include "camina6/InfoMapa.h"
+#include "camina6/UbicacionRobot.h"
+#include "camina6/EspacioTrabajoParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/simRosEnableSubscriber.h"
@@ -22,13 +22,13 @@
 #define VentanaX 640
 //Clientes y Servicios
 ros::ServiceClient client_EspacioTrabajo;
-camina4::EspacioTrabajoParametros srv_EspacioTrabajo;
+camina6::EspacioTrabajoParametros srv_EspacioTrabajo;
 
 // Global variables (modified by topic subscribers):
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
-camina4::InfoMapa infoMapa;
+camina6::InfoMapa infoMapa;
 int matrizMapa[100][100];
 bool bool_matrizMapa[100][100];
 int nCeldas_i=0, nCeldas_j=0;
@@ -62,7 +62,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void ubicacionRobCallback(camina4::UbicacionRobot msgUbicacionRobot)
+void ubicacionRobCallback(camina6::UbicacionRobot msgUbicacionRobot)
 {
 //    srv_EspacioTrabajo.request.PosicionCuerpo_y = msgUbicacionRobot.coordenadaCuerpo_y;
 //    srv_EspacioTrabajo.request.PosicionCuerpo_x = msgUbicacionRobot.coordenadaCuerpo_x;
@@ -98,7 +98,7 @@ void ubicacionRobCallback(camina4::UbicacionRobot msgUbicacionRobot)
 //    print_matrizMapa(nCeldas_y,nCeldas_x);
 }
 
-void ajusteCallback(camina4::InfoMapa msgInfoMapa)
+void ajusteCallback(camina6::InfoMapa msgInfoMapa)
 {
 	for(int k=0; k<Npatas; k++){
 	    coordenadaPreAjuste_i[k]=msgInfoMapa.coordenadaPreAjuste_i[k];
@@ -172,9 +172,9 @@ int main(int argc, char **argv)
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber subInfo2=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
     ros::Subscriber subInfo3=node.subscribe("Plan",100,ajusteCallback);
-    chatter_pub = node.advertise<camina4::InfoMapa>("GraficaMapa", 100);
+    chatter_pub = node.advertise<camina6::InfoMapa>("GraficaMapa", 100);
     //Clientes y Servicios
-//    client_EspacioTrabajo=node.serviceClient<camina4::EspacioTrabajoParametros>("EspacioTrabajo");
+//    client_EspacioTrabajo=node.serviceClient<camina6::EspacioTrabajoParametros>("EspacioTrabajo");
 
 //--- Inicializacion de variables
     LongitudCeldaY = infoMapa.tamanoCelda_i = Ly/(float) nCeldas_i;
@@ -209,8 +209,8 @@ int main(int argc, char **argv)
 //--- Inicializacion de grafica
 //    IniciaGrafica();
 //--- Inicializacion de archivo de salida
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/SalidaMapa_robot.txt","w+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/SalidaMapa_ajuste.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/SalidaMapa_robot.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/SalidaMapa_ajuste.txt","w+");
 //--- Ciclo de ROS
 //	periodo=1.5;
 //    f=1/periodo;

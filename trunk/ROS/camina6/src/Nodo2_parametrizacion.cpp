@@ -3,21 +3,21 @@
 #include "string.h"
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
-#include "camina4/DatosTrayectoriaPata.h"
-#include "camina4/AngulosMotor.h"
-#include "camina4/CinversaParametros.h"
-#include "camina4/TransHomogeneaParametros.h"
+#include "camina6/DatosTrayectoriaPata.h"
+#include "camina6/AngulosMotor.h"
+#include "camina6/CinversaParametros.h"
+#include "camina6/TransHomogeneaParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 //Definiciones
 //#define TrayInicio -0.05
 //Clientes y Servicios
 ros::ServiceClient client_Cinversa;
-camina4::CinversaParametros srv_Cinversa;
+camina6::CinversaParametros srv_Cinversa;
 ros::ServiceClient client_TransHomogenea;
-camina4::TransHomogeneaParametros srv_TransHomogenea;
+camina6::TransHomogeneaParametros srv_TransHomogenea;
 
 //-- Global variables (modified by topic subscribers):
 bool simulationRunning=true;
@@ -30,7 +30,7 @@ float T=0.0, delta_t=0.0, beta=0.0, lambda_Apoyo=0.0, lambda_Transferencia=0.0, 
 float x_S0=0.0, y_S0=0.0, z_S0=0.0;
 float finTransferencia_x=0.0;
 float x_Offset=0.0, y_Offset=0.0, z_Offset=0.0;   //matriz de transformacion homogenea
-camina4::AngulosMotor qMotor;
+camina6::AngulosMotor qMotor;
 ros::Publisher chatter_pub;
 FILE *fp1, *fp2;
 //-- Funciones
@@ -47,7 +47,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 /* Callback que escucha el topico DatosDeTrayectoria calcula la trayectoria
    deseaday cinematica inversa para de motores y los publica
 */
-void datosCallback(const camina4::DatosTrayectoriaPata msg_datoTrayectoria)
+void datosCallback(const camina6::DatosTrayectoriaPata msg_datoTrayectoria)
 {
     float t_Trayectoria=0.0;
     float alfa=0.0;
@@ -145,7 +145,7 @@ int main(int argc, char **argv){
     //ROS_INFO("Nodo2_Parametrizacion just started\n");
 
 //-- Topicos susbcritos y publicados
-    chatter_pub = node.advertise<camina4::AngulosMotor>("DatosDeMotores", 100);
+    chatter_pub = node.advertise<camina6::AngulosMotor>("DatosDeMotores", 100);
     ros::Subscriber subInfo = node.subscribe("/vrep/info",1,infoCallback);
 //-- Recibe topico especifico
     std::string topicName("datosTrayectoria_T");
@@ -153,16 +153,16 @@ int main(int argc, char **argv){
     topicName+=Trip;
     ros::Subscriber sub = node.subscribe(topicName.c_str(), 100, datosCallback);
 //-- Clientes y Servicios
-    client_Cinversa = node.serviceClient<camina4::CinversaParametros>("Cinversa");
-    client_TransHomogenea = node.serviceClient<camina4::TransHomogeneaParametros>("TransHomogenea");
+    client_Cinversa = node.serviceClient<camina6::CinversaParametros>("Cinversa");
+    client_TransHomogenea = node.serviceClient<camina6::TransHomogeneaParametros>("TransHomogenea");
 
-    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/SalidaX");
+    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/SalidaX");
     std::string texto(".txt");
     fileName+=Id;
     fileName+=texto;
     fp1 = fopen(fileName.c_str(),"w+");
 
-    std::string fileName2("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/SalidaQ");
+    std::string fileName2("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/SalidaQ");
     fileName2+=Id;
     fileName2+=texto;
     fp2 = fopen(fileName2.c_str(),"w+");

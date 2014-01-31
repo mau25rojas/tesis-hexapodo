@@ -1,9 +1,9 @@
 #include "ros/ros.h"
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
-#include "camina4/EspacioTrabajoParametros.h"
+#include "camina6/EspacioTrabajoParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Global variables (modified by topic subscribers):
@@ -29,8 +29,8 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-bool EspacioTrabajoPatas(camina4::EspacioTrabajoParametros::Request  &req,
-                        camina4::EspacioTrabajoParametros::Response &res)
+bool EspacioTrabajoPatas(camina6::EspacioTrabajoParametros::Request  &req,
+                        camina6::EspacioTrabajoParametros::Response &res)
 {
     for(int k=0;k<Npuntos;k++){
         res.EspacioTrabajoPata1_x.push_back(0);

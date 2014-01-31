@@ -4,20 +4,20 @@
 #include <algorithm>    // std::sort
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
-#include "camina4/InfoMapa.h"
-#include "camina4/CinversaParametros.h"
-#include "camina4/UbicacionRobot.h"
-#include "camina4/PlanificadorParametros.h"
-#include "camina4/SenalesCambios.h"
+#include "camina6/InfoMapa.h"
+#include "camina6/CinversaParametros.h"
+#include "camina6/UbicacionRobot.h"
+#include "camina6/PlanificadorParametros.h"
+#include "camina6/SenalesCambios.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
 #define MAX_CICLOS 5
 //Clientes y Servicios
 ros::ServiceClient client_Cinversa1;
-camina4::CinversaParametros srv_Cinversa1;
+camina6::CinversaParametros srv_Cinversa1;
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -29,7 +29,7 @@ FILE *fp2;
 int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
 float velocidad_Apoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
-camina4::InfoMapa infoMapa;
+camina6::InfoMapa infoMapa;
 std::vector<int> coordenadaObstaculo_i(1000,0), coordenadaObstaculo_j(1000,0);
 bool matrizMapa[100][100];
 int nCeldas_i=0, nCeldas_j=0;
@@ -43,7 +43,7 @@ float posicionActualPataSistemaPata_y[Npatas],posicionActualPataSistemaPata_x[Np
 float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
 ros::Publisher chatter_pub1;
-camina4::SenalesCambios senales;
+camina6::SenalesCambios senales;
 //-- Generales
 //int k=0;
 ros::Publisher chatter_pub2;
@@ -63,7 +63,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 }
 
 
-void ubicacionRobCallback(camina4::UbicacionRobot msgUbicacionRobot)
+void ubicacionRobCallback(camina6::UbicacionRobot msgUbicacionRobot)
 {
     float vel_aux=0.0;
 
@@ -88,8 +88,8 @@ void ubicacionRobCallback(camina4::UbicacionRobot msgUbicacionRobot)
     }
 }
 
-bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
-                        camina4::PlanificadorParametros::Response &res)
+bool PlanificadorPisada(camina6::PlanificadorParametros::Request  &req,
+                        camina6::PlanificadorParametros::Response &res)
 {
 //    ROS_INFO("Llamado a servicio planificador");
 //    fprintf(fp2,"\ntiempo de simulacion: %.3f\t",simulationTime);
@@ -334,16 +334,16 @@ int main(int argc, char **argv)
     ROS_INFO("server_PlanificadorPisada just started\n");
 
 //-- Topicos susbcritos y publicados
-    chatter_pub1=node.advertise<camina4::SenalesCambios>("Senal", 100);
-    chatter_pub2=node.advertise<camina4::InfoMapa>("Plan", 100);
+    chatter_pub1=node.advertise<camina6::SenalesCambios>("Senal", 100);
+    chatter_pub2=node.advertise<camina6::InfoMapa>("Plan", 100);
     ros::Subscriber sub1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber sub2=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
 //-- Clientes y Servicios
     ros::ServiceServer service = node.advertiseService("PlanificadorPisada", PlanificadorPisada);
-    client_Cinversa1=node.serviceClient<camina4::CinversaParametros>("Cinversa");
+    client_Cinversa1=node.serviceClient<camina6::CinversaParametros>("Cinversa");
 
     /* Log de planificador */
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/LogPlanificador.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/LogPlanificador.txt","w+");
 
     for(int k=0;k<Npatas;k++) {
         infoMapa.coordenadaPreAjuste_i.push_back(0);

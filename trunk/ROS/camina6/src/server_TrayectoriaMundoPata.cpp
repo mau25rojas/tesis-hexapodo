@@ -1,9 +1,9 @@
 #include "ros/ros.h"
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
-#include "camina4/TransTrayectoriaParametros.h"
+#include "camina6/TransTrayectoriaParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Global variables (modified by topic subscribers):
@@ -23,8 +23,8 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
     en el MUNDO hacia una PATA determinada del robot
 */
 
-bool TrayectoriaMundoPata(camina4::TransTrayectoriaParametros::Request  &req,
-                        camina4::TransTrayectoriaParametros::Response &res)
+bool TrayectoriaMundoPata(camina6::TransTrayectoriaParametros::Request  &req,
+                        camina6::TransTrayectoriaParametros::Response &res)
 {
     float x_Robot=0.0,y_Robot=0.0;
 

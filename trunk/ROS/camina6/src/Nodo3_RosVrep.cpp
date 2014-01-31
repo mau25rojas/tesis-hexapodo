@@ -4,11 +4,11 @@
 #include <ros/ros.h>
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/JointState.h>
-#include "../msg_gen/cpp/include/camina4/AngulosMotor.h"
+#include "camina6/AngulosMotor.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/JointSetStateData.h"
@@ -31,7 +31,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void motoresCallback(const camina4::AngulosMotor qMotor)
+void motoresCallback(const camina6::AngulosMotor qMotor)
 {
     q[0]=qMotor.q1;
     q[1]=qMotor.q2;

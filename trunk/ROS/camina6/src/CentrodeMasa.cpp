@@ -7,10 +7,10 @@
 #include "Convexhull/vector3d.hpp"
 #include "Convexhull/convexhull.cpp"
 #include "Convexhull/analisis.cpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 #include <allegro.h>
 // Used data structures:
-#include "camina4/UbicacionRobot.h"
+#include "camina6/UbicacionRobot.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/simRosEnableSubscriber.h"
@@ -32,7 +32,7 @@ float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_
 float teta_CuerpoRobot=0.0, PosicionCuerpo_x=0.0, PosicionCuerpo_y=0.0;
 punto3d CM1, CM2, CM3, CM_Pata[Npatas], CM_Hexapodo, COG;
 recta3d recta_ME[2];
-camina4::UbicacionRobot cm_Robot;
+camina6::UbicacionRobot cm_Robot;
 BITMAP *buffer;
 FILE *fp, *fp1;
 int NPuntos_hull=0;
@@ -56,7 +56,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void ubicacionCuerpoCallback(camina4::UbicacionRobot msgUbicacionCuerpo)
+void ubicacionCuerpoCallback(camina6::UbicacionRobot msgUbicacionCuerpo)
 {
 //    ROS_INFO("recibe mensaje ubicacion");
 
@@ -155,7 +155,7 @@ int main(int argc,char* argv[])
     //Subscripciones y publicaciones
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",1,infoCallback);
     ros::Subscriber subInfo2=node.subscribe("UbicacionRobot",100,ubicacionCuerpoCallback);
-    chatter_pub = node.advertise<camina4::UbicacionRobot>("CentrodeMasa", 100);
+    chatter_pub = node.advertise<camina6::UbicacionRobot>("CentrodeMasa", 100);
     //Clientes y servicios
     client_GetJointStates=node.serviceClient<vrep_common::simRosGetJointState>("/vrep/simRosGetJointState");
     srv_GetJointStates.request.handle=sim_handle_all;
@@ -172,8 +172,8 @@ int main(int argc,char* argv[])
 //--- Inicializacion de grafica
 //    IniciaGrafica();
 
-    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/CM_ME.txt","w+");
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/convexhull.txt","w+");
+    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/CM_ME.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/convexhull.txt","w+");
 
 	while (ros::ok() && simulationRunning)
 	{
