@@ -199,7 +199,7 @@ bool PlanificadorPisada(camina6::PlanificadorParametros::Request  &req,
         ciclosContraccion++;
         TodasPisadasOk = true;
     //-- Se corrige en tamaños de celda
-        lambda_paso = lambda_paso+0.02;
+        lambda_paso = lambda_paso+0.025;
         lambda_Correccion = lambda_maximo-lambda_paso;
         ROS_WARN("server_PlanificadorPisada: lambda_Correccion: %.3f",lambda_Correccion);
         fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);

@@ -18,7 +18,6 @@ camina6::PlanificadorParametros srv_Planificador;
 // variables Globales
 bool simulationRunning=true;
 bool sensorTrigger=false;
-
 bool InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false, cambioPlan=false;
 camina6::DatosTrayectoriaPata datosTrayectoriaPata_T1, datosTrayectoriaPata_T2;
 float simulationTime=0.0f;
@@ -94,7 +93,7 @@ int main(int argc, char **argv)
   float lambda_Apoyo=0.0, alfa=0.0, f=0.0;
   int i=0, Narg=0;
 
-  Narg=8;
+  Narg=14;
 	if (argc>=Narg)
 	{
         T=atof(argv[1]); // Periodo de trayectoria [seg]
@@ -143,7 +142,7 @@ int main(int argc, char **argv)
             cuenta_T2++;
         }
     }
-
+    ROS_INFO("Nodo1: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
 //-- Datos de envio
     datosTrayectoriaPata_T1.T=T;
     datosTrayectoriaPata_T1.divisionTrayectoriaPata=divisionTrayectoriaPata;
@@ -188,8 +187,8 @@ int main(int argc, char **argv)
 bool LlamadaPlanificador_T1(float t_actual){
     int Tripode = T1;
     bool salidaPlan = false;
-
     if ((pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) and FinApoyo_T1) {
+            ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
         InicioApoyo_T1=true;
         FinApoyo_T1=false;
     }
@@ -217,8 +216,8 @@ bool LlamadaPlanificador_T1(float t_actual){
 bool LlamadaPlanificador_T2(float t_actual){
     int Tripode = T2;
     bool salidaPlan = false;
-
-    if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T1) {
+    if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T2) {
+            ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
         InicioApoyo_T2=true;
         FinApoyo_T2=false;
     }
