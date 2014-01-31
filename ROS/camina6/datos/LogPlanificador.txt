@@ -1,33 +1,29 @@
-tiempo de simulacion: 4.450
+tiempo de simulacion: 3.900
 server_Plan::T[2] v_y=0.016
 
-tiempo de simulacion: 4.450
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 7.650
+tiempo de simulacion: 3.900
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 7.200
 server_Plan::T[2] v_y=0.016
-
-tiempo de simulacion: 7.700
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 10.750
-server_Plan::T[2] v_y=0.016
-
-tiempo de simulacion: 10.800
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 14.250
-server_Plan::T[2] v_y=0.016
-tiempo de simulacion: 14.350
-pata [6] coincide con obstaculo[66][10]
-tiempo de simulacion: 14.350
+tiempo de simulacion: 7.200
+pata [3] coincide con obstaculo[66][5]
+tiempo de simulacion: 7.200
 server_PlanificadorPisada: Correccion de pisada ciclo: 0
-tiempo de simulacion: 14.350
+tiempo de simulacion: 7.200
 lambda_Correccion: 0.065
-tiempo de simulacion: 14.350
-revisando pata[6]
+tiempo de simulacion: 7.200
+revisando pata[3]
 
-tiempo de simulacion: 14.350
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.065, T_correccion=5.778tiempo de simulacion: 16.750
+tiempo de simulacion: 7.200
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.065, T_correccion=5.778tiempo de simulacion: 9.350
+server_Plan::T[2] v_y=0.013
+
+tiempo de simulacion: 9.350
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 12.400
 server_Plan::T[2] v_y=0.016
 
-tiempo de simulacion: 16.800
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 20.200
-server_Plan::T[2] v_y=0.015
+tiempo de simulacion: 12.400
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000tiempo de simulacion: 15.700
+server_Plan::T[2] v_y=0.012
 
-tiempo de simulacion: 20.250
+tiempo de simulacion: 15.750
 server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=8.000
