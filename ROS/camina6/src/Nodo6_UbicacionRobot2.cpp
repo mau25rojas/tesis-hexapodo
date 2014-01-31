@@ -8,20 +8,20 @@
 #include <boost/circular_buffer_fwd.hpp>
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <tf/transform_datatypes.h>
-#include "camina4/UbicacionRobot.h"
-#include "camina4/TransTrayectoriaParametros.h"
+#include "camina6/UbicacionRobot.h"
+#include "camina6/TransTrayectoriaParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/ObjectGroupData.h"
 //-- Clientes y servicios
 ros::ServiceClient client_Trans_MundoPata;
-camina4::TransTrayectoriaParametros srv_Trans_MundoPata;
+camina6::TransTrayectoriaParametros srv_Trans_MundoPata;
 //-- Global variables:
 bool simulationRunning=true;
 bool sensorTrigger=false;
@@ -31,7 +31,7 @@ float Veloy_twist=0.0;
 double tiempo_ahora2=0.0, tiempo_anterior2=0.0;
 ros::Time time_stamp;
 FILE *fp;
-camina4::UbicacionRobot ubicacionRobot;
+camina6::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
 
@@ -164,10 +164,10 @@ int main(int argc,char* argv[])
     ros::Subscriber subInfo2=node.subscribe(topicCuerpo,100,ubicacionCuerpoCallback);
     ros::Subscriber subInfo3=node.subscribe(topicVelCuerpo,100,velocidadCuerpoCallback);
     ros::Subscriber subInfo4=node.subscribe(topicFuerza,100,fuerzaCallback);
-    ros::Publisher chatter_pub = node.advertise<camina4::UbicacionRobot>("UbicacionRobot", 100);
-    client_Trans_MundoPata = node.serviceClient<camina4::TransTrayectoriaParametros>("TrayectoriaMundoPata");
+    ros::Publisher chatter_pub = node.advertise<camina6::UbicacionRobot>("UbicacionRobot", 100);
+    client_Trans_MundoPata = node.serviceClient<camina6::TransTrayectoriaParametros>("TrayectoriaMundoPata");
 
-    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/Nodo6.txt","w+");
+    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/Nodo6.txt","w+");
 
         double tiempo_ahora=0.0, tiempo_anterior=0.0;
         float delta_t=0.0,delta_t2=0.0;

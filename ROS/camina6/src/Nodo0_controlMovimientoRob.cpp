@@ -3,10 +3,10 @@
 #include "math.h"
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
-#include "camina4/DatosTrayectoriaPata.h"
-#include "camina4/SenalesCambios.h"
+#include "camina6/DatosTrayectoriaPata.h"
+#include "camina6/SenalesCambios.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 
@@ -14,7 +14,7 @@
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
-camina4::SenalesCambios senales;
+camina6::SenalesCambios senales;
 ros::Publisher chatter_pub1;
 
 // Topic subscriber callbacks:
@@ -23,7 +23,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationTime=info->simulationTime.data;
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
-void senalesCallback(camina4::SenalesCambios msgSenal)
+void senalesCallback(camina6::SenalesCambios msgSenal)
 {
     senales.Stop=msgSenal.Stop;
     ROS_INFO("Nodo0 recibe senal de Planificador");
@@ -51,7 +51,7 @@ int main(int argc, char **argv){
     ROS_INFO("Nodo0_controlMovimientoRob just started\n");
 
 //-- Topicos susbcritos y publicados
-    chatter_pub1=node.advertise<camina4::SenalesCambios>("Reloj", 100);
+    chatter_pub1=node.advertise<camina6::SenalesCambios>("Reloj", 100);
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber subInfo2=node.subscribe("Senal",100,senalesCallback);
 

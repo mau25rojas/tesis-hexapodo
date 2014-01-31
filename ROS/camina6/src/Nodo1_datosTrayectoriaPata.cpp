@@ -3,26 +3,29 @@
 #include "math.h"
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina4/v_repConst.h"
+#include "camina6/v_repConst.h"
 // Used data structures:
-#include "camina4/DatosTrayectoriaPata.h"
-#include "camina4/PlanificadorParametros.h"
-#include "camina4/SenalesCambios.h"
+#include "camina6/DatosTrayectoriaPata.h"
+#include "camina6/PlanificadorParametros.h"
+#include "camina6/SenalesCambios.h"
+#include "camina6/UbicacionRobot.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 //Clientes y Servicios
 ros::ServiceClient client_Planificador;
-camina4::PlanificadorParametros srv_Planificador;
+camina6::PlanificadorParametros srv_Planificador;
 
 // variables Globales
 bool simulationRunning=true;
 bool sensorTrigger=false;
+
+bool InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false, cambioPlan=false;
+camina6::DatosTrayectoriaPata datosTrayectoriaPata_T1, datosTrayectoriaPata_T2;
 float simulationTime=0.0f;
-camina4::DatosTrayectoriaPata datosTrayectoriaPata_T1, datosTrayectoriaPata_T2;
 float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0;
 float modificacion_T = 0.0, modificacion_lambda =0.0;
-bool InicioTransf_T1=true, FinTransf_T1=false,InicioTransf_T2=true, FinTransf_T2=false, cambioPlan=false;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
+int pataApoyo[Npatas], tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
 FILE *fp1;
 ros::Publisher chatter_pub1,chatter_pub2;
 
@@ -36,7 +39,14 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void relojCallback(camina4::SenalesCambios msgSenal)
+void ubicacionRobCallback(camina6::UbicacionRobot msgUbicacionRobot)
+{
+     for(int k=0; k<Npatas;k++) {
+        pataApoyo[k] = msgUbicacionRobot.pataApoyo[k];
+    }
+}
+
+void relojCallback(camina6::SenalesCambios msgSenal)
 {
     if (!msgSenal.Stop){
 
@@ -95,6 +105,7 @@ int main(int argc, char **argv)
 		alfa=atof(argv[6])*pi/180;
         desfasaje_t_T1=atof(argv[7]);
         desfasaje_t_T2=atof(argv[8]);
+        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[9+k]);
     } else {
 		ROS_ERROR("Nodo1: Indique argumentos!\n");
 		return 0;
@@ -108,17 +119,30 @@ int main(int argc, char **argv)
 //-- Topicos susbcritos y publicados
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber subInfo2=node.subscribe("Reloj",100,relojCallback);
+    ros::Subscriber subInfo3=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
 //-- Manda topico especifico para cada pata
-    chatter_pub1=node.advertise<camina4::DatosTrayectoriaPata>("datosTrayectoria_T1", 100);
-    chatter_pub2=node.advertise<camina4::DatosTrayectoriaPata>("datosTrayectoria_T2", 100);
+    chatter_pub1=node.advertise<camina6::DatosTrayectoriaPata>("datosTrayectoria_T1", 100);
+    chatter_pub2=node.advertise<camina6::DatosTrayectoriaPata>("datosTrayectoria_T2", 100);
 //-- Clientes y Servicios
-    client_Planificador = node.serviceClient<camina4::PlanificadorParametros>("PlanificadorPisada");
+    client_Planificador = node.serviceClient<camina6::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
-//    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina4/datos/SalidaDatos");
+//    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/SalidaDatos");
 //    std::string texto(".txt");
 //    fileName+=Id;
 //    fileName+=texto;
 //    fp1 = fopen(fileName.c_str(),"w+");
+
+//-- Patas de [0-5]
+    int cuenta_T1=0, cuenta_T2=0;
+    for(int k=0;k<Npatas;k++) {
+        if(tripode[k]==1){
+            Tripode1[cuenta_T1]=k;
+            cuenta_T1++;
+        } else {
+            Tripode2[cuenta_T2]=k;
+            cuenta_T2++;
+        }
+    }
 
 //-- Datos de envio
     datosTrayectoriaPata_T1.T=T;
@@ -164,14 +188,17 @@ int main(int argc, char **argv)
 bool LlamadaPlanificador_T1(float t_actual){
     int Tripode = T1;
     bool salidaPlan = false;
-//-- tiempo de seleccion: (1)tiempo(b*T)
-    if (t_actual>=(beta*T) && InicioTransf_T1){
-//-- tiempo de seleccion: (2)tiempo(b*T-1)
-//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T1){
-//            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
-        InicioTransf_T1=false;
-        FinTransf_T1=true;
-//            ROS_INFO("Nodo1::T[%d] tiempo: %.3f, llamo planificacion",Tripode,t_actual);
+
+    if ((pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) and FinApoyo_T1) {
+        InicioApoyo_T1=true;
+        FinApoyo_T1=false;
+    }
+    if (pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) {
+        FinApoyo_T1=true;
+    }
+
+    if (InicioApoyo_T1){
+        InicioApoyo_T1=false;
         srv_Planificador.request.Tripode = Tripode;
         srv_Planificador.request.T = T;
         if (client_Planificador.call(srv_Planificador)){
@@ -183,27 +210,24 @@ bool LlamadaPlanificador_T1(float t_actual){
             ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
             ROS_ERROR("result=%d", srv_Planificador.response.result);
         }
-    }
-    if (t_actual>=(T*(1-1/divisionTrayectoriaPata)) && FinTransf_T1) {
-//            ROS_INFO("Nodo1::T[%d] reinicio trayectoria",Tripode);
-        FinTransf_T1=false;
-        InicioTransf_T1=true;
     }
     return salidaPlan;
 }
 
 bool LlamadaPlanificador_T2(float t_actual){
-
     int Tripode = T2;
     bool salidaPlan = false;
-//-- tiempo de seleccion: (1)tiempo(b*T)
-    if (t_actual>=(beta*T) && InicioTransf_T2){
-//-- tiempo de seleccion: (2)tiempo(b*T-1)
-//    if (t_actual>=(beta*T*(1-1/divisionTrayectoriaPata)) && InicioTransf_T2){
-//            ROS_INFO("Nodo1::T[%d] Periodo=%.3f, (t_actual)=%.3f>=%.3f=(beta*T)",Tripode,T,t_actual,beta*T);
-        InicioTransf_T2=false;
-        FinTransf_T2=true;
-//            ROS_INFO("Nodo1::T[%d] tiempo: %.3f, llamo planificacion",Tripode,t_actual);
+
+    if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T1) {
+        InicioApoyo_T2=true;
+        FinApoyo_T2=false;
+    }
+    if (pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) {
+        FinApoyo_T2=true;
+    }
+
+    if (InicioApoyo_T2){
+        InicioApoyo_T2=false;
         srv_Planificador.request.Tripode = Tripode;
         srv_Planificador.request.T = T;
         if (client_Planificador.call(srv_Planificador)){
@@ -215,11 +239,6 @@ bool LlamadaPlanificador_T2(float t_actual){
             ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
             ROS_ERROR("result=%d", srv_Planificador.response.result);
         }
-    }
-    if (t_actual>=(T*(1-1/divisionTrayectoriaPata)) && FinTransf_T2) {
-//            ROS_INFO("Nodo1::T[%d] reinicio trayectoria",Tripode);
-        FinTransf_T2=false;
-        InicioTransf_T2=true;
     }
     return salidaPlan;
 }
