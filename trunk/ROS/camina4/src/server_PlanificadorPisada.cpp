@@ -100,7 +100,7 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
     res.result = 0;
 //-- Variables locales
     int Tripode_Apoyo[Npatas/2];
-    int PisadaProxima_i=0, PisadaProxima_j=0;
+    int PisadaProxima_i=0, PisadaProxima_j=0, PisadaActual_i=0, PisadaActual_j=0;
     bool PisadaInvalida[Npatas/2], TodasPisadasOk, cinversaOK;
     float PisadaProxima_x=0.0, PisadaProxima_y=0.0, PisadaProxima_z=0.0;
     float delta_x_S0=0.0, delta_y_S0=0.0, delta_x=0.0, delta_y=0.0;
@@ -112,8 +112,8 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
     Tripode=req.Tripode;
 
     ROS_INFO("server_Plan::T[%d] v_y=%.3f",Tripode,velocidadCuerpo_y);
-    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-    fprintf(fp2,"server_Plan::T[%d] v_y=%.3f\n",Tripode,velocidadCuerpo_y);
+    fprintf(fp2,"\ntiempo de simulacion: %.3f\n",simulationTime);
+    fprintf(fp2,"server_Plan::T[%d]: Inicio Plan - v_y=%.3f\n",Tripode,velocidadCuerpo_y);
 
 
     if (req.Tripode == 1){
@@ -151,6 +151,9 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
 //            ROS_INFO("server_Plan: cinversaOK");
             ros::spinOnce();
         //-- Calculamos proximo movimiento en el sistema mundo
+                transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode_Apoyo[k]], posicionActualPata_x[Tripode_Apoyo[k]]);
+                PisadaActual_i = ij[0];
+                PisadaActual_j = ij[1];
                 PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
                 PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                 transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
@@ -174,9 +177,9 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
             //-- Pisada maxima
                 infoMapa.coordenadaAjuste_i[Tripode_Apoyo[k]] = PisadaProxima_i;
                 infoMapa.coordenadaAjuste_j[Tripode_Apoyo[k]] = PisadaProxima_j;
-                transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode_Apoyo[k]], posicionActualPata_x[Tripode_Apoyo[k]]);
-                infoMapa.coordenadaPreAjuste_i[Tripode_Apoyo[k]] = ij[0];
-                infoMapa.coordenadaPreAjuste_j[Tripode_Apoyo[k]] = ij[1];
+
+                infoMapa.coordenadaPreAjuste_i[Tripode_Apoyo[k]] = PisadaActual_i;
+                infoMapa.coordenadaPreAjuste_j[Tripode_Apoyo[k]] = PisadaActual_j;
             }
         } else {
             ROS_WARN("server_PlanificadorPisada: pata [%d] error cinversa",k+1);
@@ -233,6 +236,9 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
                 if (cinversaOK){
                     ros::spinOnce();
                 //-- Calculamos proximo movimiento en el sistema mundo
+                    transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode_Apoyo[k]], posicionActualPata_x[Tripode_Apoyo[k]]);
+                    PisadaActual_i = ij[0];
+                    PisadaActual_j = ij[1];
                     PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*(1-beta)*T_Correccion)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
                     PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*(1-beta)*T_Correccion)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                     transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
@@ -254,9 +260,8 @@ bool PlanificadorPisada(camina4::PlanificadorParametros::Request  &req,
                     //-- Pisada corregida
                         infoMapa.coordenadaAjuste_i[Tripode_Apoyo[k]] = PisadaProxima_i;
                         infoMapa.coordenadaAjuste_j[Tripode_Apoyo[k]] = PisadaProxima_j;
-                        transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode_Apoyo[k]], posicionActualPata_x[Tripode_Apoyo[k]]);
-                        infoMapa.coordenadaPreAjuste_i[Tripode_Apoyo[k]] = ij[0];
-                        infoMapa.coordenadaPreAjuste_j[Tripode_Apoyo[k]] = ij[1];
+                        infoMapa.coordenadaPreAjuste_i[Tripode_Apoyo[k]] = PisadaActual_i;
+                        infoMapa.coordenadaPreAjuste_j[Tripode_Apoyo[k]] = PisadaActual_j;
                     }
                 } else {
                 //-- La pisada no es factible
