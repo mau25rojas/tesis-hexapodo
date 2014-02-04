@@ -49,7 +49,7 @@ Lynxmotion:
 #define umbralFuerzaApoyo 0.009
 #define umbral_Z_Apoyo 0.004
 #define vel_teorica 0.0225
-#define vel_esperada 0.018
+#define vel_esperada 0.01875
 //Constantes para envio serial
 #define Nmotores 18
 #define NmotorP 3
