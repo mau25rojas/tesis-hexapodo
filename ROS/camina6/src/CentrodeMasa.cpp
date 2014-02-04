@@ -4,9 +4,9 @@
 #include <ros/ros.h>
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "Convexhull/vector3d.hpp"
-#include "Convexhull/convexhull.cpp"
-#include "Convexhull/analisis.cpp"
+#include "/home/maureenr/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.hpp"
+#include "/home/maureenr/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/convexhull.cpp"
+#include "/home/maureenr/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/analisis.cpp"
 #include "camina6/v_repConst.h"
 #include <allegro.h>
 // Used data structures:

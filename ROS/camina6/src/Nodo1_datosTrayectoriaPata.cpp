@@ -53,7 +53,7 @@ void relojCallback(camina6::SenalesCambios msgSenal)
         //------- T1 --------------------
         t_aux_T1=delta_t+desfasaje_t_T1*T;
         t_aux_T1=fmod(t_aux_T1,T);
-//        cambioPlan = LlamadaPlanificador_T1(t_aux_T1);
+        cambioPlan = LlamadaPlanificador_T1(t_aux_T1);
         //-------------------------------
         //------- T2 --------------------
         t_aux_T2=delta_t+desfasaje_t_T2*T;
