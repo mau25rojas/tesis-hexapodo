@@ -18,19 +18,20 @@ camina7::PlanificadorParametros srv_Planificador;
 // variables Globales
 bool simulationRunning=true;
 bool sensorTrigger=false;
-bool InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false, cambioPlan=false;
+bool InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false, llamadaPlan=false;
 camina7::DatosTrayectoriaPata datosTrayectoriaPata_T1, datosTrayectoriaPata_T2;
 float simulationTime=0.0f;
 float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0;
 float modificacion_T = 0.0, modificacion_lambda =0.0;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
 int pataApoyo[Npatas], tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
+int Tripode=0;
 FILE *fp1;
 ros::Publisher chatter_pub1,chatter_pub2;
 
 // Funciones
-bool LlamadaPlanificador_T1(float t_actual);
-bool LlamadaPlanificador_T2(float t_actual);
+bool Apoyo_T1();
+bool Apoyo_T2();
 // Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 {
@@ -49,18 +50,31 @@ void relojCallback(camina7::SenalesCambios msgSenal)
 {
     if (!msgSenal.Stop){
 
-        cambioPlan=false;
+        llamadaPlan=false;
         //------- T1 --------------------
         t_aux_T1=delta_t+desfasaje_t_T1*T;
         t_aux_T1=fmod(t_aux_T1,T);
-        cambioPlan = LlamadaPlanificador_T1(t_aux_T1);
+        llamadaPlan = Apoyo_T1();
         //-------------------------------
         //------- T2 --------------------
         t_aux_T2=delta_t+desfasaje_t_T2*T;
         t_aux_T2=fmod(t_aux_T2,T);
-        cambioPlan = LlamadaPlanificador_T2(t_aux_T2);
+        llamadaPlan = Apoyo_T2();
         //-------------------------------
-        if(cambioPlan){
+        if(llamadaPlan){
+
+            srv_Planificador.request.Tripode = Tripode;
+            srv_Planificador.request.T = T;
+            if (client_Planificador.call(srv_Planificador)){
+                modificacion_lambda = srv_Planificador.response.modificacion_lambda;
+                modificacion_T = srv_Planificador.response.modificacion_T;
+            ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_T1=%.3f, t_T2=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_aux_T1,t_aux_T2,modificacion_lambda,modificacion_T);
+
+            } else {
+                ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
+                ROS_ERROR("result=%d", srv_Planificador.response.result);
+            }
+
             T = modificacion_T;
             divisionTrayectoriaPata = T/divisionTiempo;
             //-- datos a enviar
@@ -70,7 +84,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
             datosTrayectoriaPata_T2.T = modificacion_T;
             datosTrayectoriaPata_T2.lambda_Transferencia = modificacion_lambda;
             datosTrayectoriaPata_T2.divisionTrayectoriaPata = divisionTrayectoriaPata;
-            cambioPlan = false;
+            llamadaPlan = false;
         }
 
         if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
@@ -184,9 +198,8 @@ int main(int argc, char **argv)
 
 /* Funciones */
 
-bool LlamadaPlanificador_T1(float t_actual){
-    int Tripode = T1;
-    bool salidaPlan = false;
+bool Apoyo_T1(){
+    bool apoyo = false;
     if ((pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) and FinApoyo_T1) {
             ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
         InicioApoyo_T1=true;
@@ -197,25 +210,14 @@ bool LlamadaPlanificador_T1(float t_actual){
     }
 
     if (InicioApoyo_T1){
-        InicioApoyo_T1=false;
-        srv_Planificador.request.Tripode = Tripode;
-        srv_Planificador.request.T = T;
-        if (client_Planificador.call(srv_Planificador)){
-            modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-            modificacion_T = srv_Planificador.response.modificacion_T;
-            ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_actual=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_actual,modificacion_lambda,modificacion_T);
-            salidaPlan = true;
-        } else {
-            ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
-            ROS_ERROR("result=%d", srv_Planificador.response.result);
-        }
+        Tripode = T1;
+        apoyo = true;
     }
-    return salidaPlan;
+    return apoyo;
 }
 
-bool LlamadaPlanificador_T2(float t_actual){
-    int Tripode = T2;
-    bool salidaPlan = false;
+bool Apoyo_T2(){
+    bool apoyo = false;
     if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T2) {
             ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
         InicioApoyo_T2=true;
@@ -226,18 +228,8 @@ bool LlamadaPlanificador_T2(float t_actual){
     }
 
     if (InicioApoyo_T2){
-        InicioApoyo_T2=false;
-        srv_Planificador.request.Tripode = Tripode;
-        srv_Planificador.request.T = T;
-        if (client_Planificador.call(srv_Planificador)){
-            modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-            modificacion_T = srv_Planificador.response.modificacion_T;
-            ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_actual=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_actual,modificacion_lambda,modificacion_T);
-            salidaPlan = true;
-        } else {
-            ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
-            ROS_ERROR("result=%d", srv_Planificador.response.result);
-        }
+        Tripode = T2;
+        apoyo = true;
     }
-    return salidaPlan;
+    return apoyo;
 }
