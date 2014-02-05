@@ -18,7 +18,7 @@ camina6::PlanificadorParametros srv_Planificador;
 // variables Globales
 bool simulationRunning=true;
 bool sensorTrigger=false;
-bool InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false, cambioPlan=false;
+bool InicioTranf_T1=false, FinTranf_T1=false, InicioTranf_T2=false, FinTranf_T2=false, cambioPlan=false;
 camina6::DatosTrayectoriaPata datosTrayectoriaPata_T1, datosTrayectoriaPata_T2;
 float simulationTime=0.0f;
 float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0;
@@ -187,17 +187,17 @@ int main(int argc, char **argv)
 bool LlamadaPlanificador_T1(float t_actual){
     int Tripode = T1;
     bool salidaPlan = false;
-    if ((pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) and FinApoyo_T1) {
+    if ((pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) and FinTranf_T1 and t_actual>beta*T) {
             ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
-        InicioApoyo_T1=true;
-        FinApoyo_T1=false;
+        InicioTranf_T1=true;
+        FinTranf_T1=false;
     }
-    if (pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) {
-        FinApoyo_T1=true;
+    if (pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) {
+        FinTranf_T1=true;
     }
 
-    if (InicioApoyo_T1){
-        InicioApoyo_T1=false;
+    if (InicioTranf_T1){
+        InicioTranf_T1=false;
         srv_Planificador.request.Tripode = Tripode;
         srv_Planificador.request.T = T;
         if (client_Planificador.call(srv_Planificador)){
@@ -216,17 +216,17 @@ bool LlamadaPlanificador_T1(float t_actual){
 bool LlamadaPlanificador_T2(float t_actual){
     int Tripode = T2;
     bool salidaPlan = false;
-    if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T2) {
-            ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
-        InicioApoyo_T2=true;
-        FinApoyo_T2=false;
+    if ((pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) and FinTranf_T2 and t_actual>beta*T) {
+//            ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
+        InicioTranf_T2=true;
+        FinTranf_T2=false;
     }
-    if (pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) {
-        FinApoyo_T2=true;
+    if (pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) {
+        FinTranf_T2=true;
     }
 
-    if (InicioApoyo_T2){
-        InicioApoyo_T2=false;
+    if (InicioTranf_T2){
+        InicioTranf_T2=false;
         srv_Planificador.request.Tripode = Tripode;
         srv_Planificador.request.T = T;
         if (client_Planificador.call(srv_Planificador)){
