@@ -71,6 +71,11 @@ void relojCallback(camina6::SenalesCambios msgSenal)
             datosTrayectoriaPata_T2.lambda_Transferencia = modificacion_lambda;
             datosTrayectoriaPata_T2.divisionTrayectoriaPata = divisionTrayectoriaPata;
             cambioPlan = false;
+
+            t_aux_T1=delta_t+desfasaje_t_T1*T;
+            t_aux_T1=fmod(t_aux_T1,T);
+            t_aux_T2=delta_t+desfasaje_t_T2*T;
+            t_aux_T2=fmod(t_aux_T2,T);
         }
 
         if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
@@ -187,8 +192,8 @@ int main(int argc, char **argv)
 bool LlamadaPlanificador_T1(float t_actual){
     int Tripode = T1;
     bool salidaPlan = false;
-    if ((pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) and FinTranf_T1 and t_actual>beta*T) {
-            ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
+    if ((pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) and FinTranf_T1) {
+//            ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
         InicioTranf_T1=true;
         FinTranf_T1=false;
     }
@@ -216,7 +221,7 @@ bool LlamadaPlanificador_T1(float t_actual){
 bool LlamadaPlanificador_T2(float t_actual){
     int Tripode = T2;
     bool salidaPlan = false;
-    if ((pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) and FinTranf_T2 and t_actual>beta*T) {
+    if ((pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) and FinTranf_T2) {
 //            ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
         InicioTranf_T2=true;
         FinTranf_T2=false;

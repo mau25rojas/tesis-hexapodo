@@ -30,7 +30,7 @@ float simulationTime=0.0f;
 float Veloy_twist=0.0;
 double tiempo_ahora2=0.0, tiempo_anterior2=0.0;
 ros::Time time_stamp;
-FILE *fp;
+FILE *fp, *fp1;
 camina6::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
@@ -101,8 +101,8 @@ void velocidadCuerpoCallback(geometry_msgs::TwistStamped msgVelocidadCuerpo)
 
 void fuerzaCallback(const vrep_common::ObjectGroupData msgFuerzaPatas)
 {
-	for(int k=1; k<Npatas+1; k++){
-        ubicacionRobot.pataTipFuerza_z[k]=msgFuerzaPatas.floatData.data[3+k*Npatas];
+	for(int k=0; k<Npatas; k++){
+        ubicacionRobot.pataTipFuerza_z[k]=msgFuerzaPatas.floatData.data[2+k*Npatas];
 	}
 }
 
@@ -168,6 +168,7 @@ int main(int argc,char* argv[])
     client_Trans_MundoPata = node.serviceClient<camina6::TransTrayectoriaParametros>("TrayectoriaMundoPata");
 
     fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/Nodo6.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina6/datos/Nodo6_2.txt","w+");
 
         double tiempo_ahora=0.0, tiempo_anterior=0.0;
         float delta_t=0.0,delta_t2=0.0;
@@ -183,10 +184,11 @@ int main(int argc,char* argv[])
 		loop_rate.sleep();
 		ros::spinOnce();
         for (int k=0;k<Npatas;k++) {
-            if (ubicacionRobot.coordenadaPata_z[k]<=umbral_Z_Apoyo)
-            {
+            fprintf(fp1,"%.5f\t",ubicacionRobot.coordenadaPata_z[k]);
+//            if (ubicacionRobot.coordenadaPata_z[k]<=umbral_Z_Apoyo)
+//            {
 //                 and (ubicacionRobot.pataTipFuerza_z[k]>=umbralFuerzaApoyo)){
-            //    if (ubicacionRobot.pataTipFuerza_z[k]>=umbralFuerzaApoyo) {
+                if (ubicacionRobot.pataTipFuerza_z[k]>=umbralFuerzaApoyo) {
                 //-- La pata esta en apoyo
                     ubicacionRobot.pataApoyo[k]=1;
                 } else {
@@ -194,6 +196,11 @@ int main(int argc,char* argv[])
                     ubicacionRobot.pataApoyo[k]=0;
                 }
         }
+
+        for (int k=0;k<Npatas;k++) {
+            fprintf(fp1,"%.5f\t",ubicacionRobot.pataTipFuerza_z[k]);
+        }
+        fprintf(fp1,"\n");
 
     //-- Calculo de velocidad de robot
     //    x_anterior = x_actual;
