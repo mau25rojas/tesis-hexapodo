@@ -112,7 +112,7 @@ bool PlanificadorPisada(camina6::PlanificadorParametros::Request  &req,
     Tripode=req.Tripode;
 
     ROS_INFO("server_Plan::T[%d] v_y=%.3f",Tripode,velocidadCuerpo_y);
-    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+    fprintf(fp2,"\ntiempo de simulacion: %.3f\n",simulationTime);
     fprintf(fp2,"server_Plan::T[%d] v_y=%.3f\n",Tripode,velocidadCuerpo_y);
 
 
