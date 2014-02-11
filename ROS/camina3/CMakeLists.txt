@@ -37,7 +37,7 @@ rosbuild_add_executable(Nodo5_ConstruccionDeMapa src/Nodo5_ConstruccionDeMapa.cp
 target_link_libraries(Nodo5_ConstruccionDeMapa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2.2)
 rosbuild_add_boost_directories()
 rosbuild_add_executable(Nodo6_UbicacionRobot src/Nodo6_UbicacionRobot2.cpp)
-rosbuild_add_library(CentroMasa src/Convexhull/vector3d.cpp)
+rosbuild_add_library(CentroMasa ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
 rosbuild_add_executable(CentroMasa src/CentrodeMasa.cpp)
 target_link_libraries(CentroMasa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2.2)
 #CLientes y servicios
