@@ -10,25 +10,28 @@ uint8     Tripode
 float32 T
 
 #delta de tiempo de trayectoria (entre 0-1)
-float32   t_Trayectoria
+float32[]   t_Trayectoria
 
 #Npuntos de trayectorias
-float32   divisionTrayectoriaPata
+float32[]   divisionTrayectoriaPata
 
 #Desfasaje en tiempo de pata
-float32 desfasaje_t
+float32[] desfasaje_t
 
 #Factor de apoyo
 float32   beta
 
 #Distancia XY a recorrer en apoyo
-float32 lambda_Apoyo
+float32[] lambda_Apoyo
 
 #Distancia XY a recorrer en transferencia
-float32 lambda_Transferencia
+float32[] lambda_Transferencia
 
 #Velocidad de apoyo
 float32    velocidad_Apoyo
+
+#Vector de estados: 0-apoyo, 1-transferencia
+uint8[] vector_estados
 
 #Distancia en Z a recorrer en transferencia
 float32   dh
@@ -42,7 +45,7 @@ float32   z_Offset
 float32[] phi
 
 #Angulo de giro de trayectoria
-float32   alfa
+float32[]   alfa
 
 #Bandera de cambio en trayectoria
 bool      cambioTrayectoria

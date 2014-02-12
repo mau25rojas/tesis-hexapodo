@@ -23,12 +23,12 @@ camina7::TransHomogeneaParametros srv_TransHomogenea;
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
-int Npata_arg=0;
-bool Inicio=true, finTransferencia=true;
+int Npata_arg=0, Tripode=0, Estado=0, prevEstado=0;
+bool Inicio=true;
 //-- Calculo de trayectoria
-float T=0.0, delta_t=0.0, beta=0.0, lambda_Apoyo=0.0, lambda_Transferencia=0.0, dh=0.0, desfasaje_t=0.0, phi=0.0;
+float T=0.0, beta=0.0, lambda_Apoyo=0.0, lambda_Transferencia=0.0, dh=0.0, desfasaje_t=0.0, phi=0.0;
 float x_S0=0.0, y_S0=0.0, z_S0=0.0;
-float finTransferencia_x=0.0;
+float finTransferencia_x=0.0, finApoyo_x;
 float x_Offset=0.0, y_Offset=0.0, z_Offset=0.0;   //matriz de transformacion homogenea
 camina7::AngulosMotor qMotor;
 ros::Publisher chatter_pub;
@@ -55,27 +55,40 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     float PuntoInicio_x=0.0, PuntoInicio_y=0.0, PuntoInicio_z=0.0;
 
     T = msg_datoTrayectoria.T;
-	delta_t = T/msg_datoTrayectoria.divisionTrayectoriaPata;
-	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria;
-    lambda_Transferencia = msg_datoTrayectoria.lambda_Transferencia;
-    alfa = msg_datoTrayectoria.alfa;
-    desfasaje_t = msg_datoTrayectoria.desfasaje_t;
+	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[Tripode-1];
+    lambda_Transferencia = msg_datoTrayectoria.lambda_Transferencia[Tripode-1];
+    alfa = msg_datoTrayectoria.alfa[Tripode-1];
+    desfasaje_t = msg_datoTrayectoria.desfasaje_t[Tripode-1];
+    Estado = msg_datoTrayectoria.vector_estados[Tripode-1];
 
     //---------------------------------
     if (Inicio){
     //-- La trayectoria inicial se hace con lambda de apoyo
         Inicio = false;
-        lambda_Apoyo = msg_datoTrayectoria.lambda_Apoyo;
+        lambda_Apoyo = lambda_Transferencia;
         finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
+        finApoyo_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
     }
     //--------Temporizacion----------
 //    t_Trayectoria=t_Trayectoria+desfasaje_t;
 //    t_Trayectoria=fmod(t_Trayectoria,T);
+
+    if(prevEstado<Estado){
+    //--- Se pasa de estado de apoyo a estado de transferencia
+    //--- inicia transferencia
+        finApoyo_x = x_S0;
+    }
+    if(prevEstado>Estado){
+    //--- Se pasa de estado de transferencia a estado de apoyo
+    //--- inicia apoyo
+        finTransferencia_x = x_S0;
+    }
+
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
-    //---Apoyo----
     // Periodo A-B
-    if (0<t_Trayectoria && t_Trayectoria<=beta*T)
+    if (0<=t_Trayectoria and t_Trayectoria<beta*T)
     {
+    //---Apoyo------
         PuntoInicio_x=finTransferencia_x;
         PuntoInicio_y=0.0;
         PuntoInicio_z=0.0;
@@ -83,12 +96,14 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     } else {
     //---Transferencia------
     // Elipsis
-        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
+//        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
+        PuntoInicio_x=finApoyo_x;
         PuntoInicio_y=0.0;
         PuntoInicio_z=0.0;
         Trayectoria_FaseTrans_Eliptica(t_Trayectoria,PuntoInicio_x,PuntoInicio_y,PuntoInicio_z);
     }
 
+    prevEstado = Estado;
     //-----Transformacion de trayectoria a Sistema de Pata
     x_S1 = x_Offset + x_S0*cos(phi+alfa) - y_S0*sin(phi+alfa);
     y_S1 = y_Offset + x_S0*sin(phi+alfa) + y_S0*cos(phi+alfa);
@@ -117,7 +132,6 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
 
 int main(int argc, char **argv){
 
-	int Tripode=0;
 	if (argc>=8)
 	{
 		Npata_arg=atoi(argv[1]);
@@ -148,10 +162,7 @@ int main(int argc, char **argv){
     chatter_pub = node.advertise<camina7::AngulosMotor>("DatosDeMotores", 100);
     ros::Subscriber subInfo = node.subscribe("/vrep/info",1,infoCallback);
 //-- Recibe topico especifico
-    std::string topicName("datosTrayectoria_T");
-    std::string Trip(boost::lexical_cast<std::string>(Tripode));
-    topicName+=Trip;
-    ros::Subscriber sub = node.subscribe(topicName.c_str(), 100, datosCallback);
+    ros::Subscriber sub = node.subscribe("datosTrayectoria", 100, datosCallback);
 //-- Clientes y Servicios
     client_Cinversa = node.serviceClient<camina7::CinversaParametros>("Cinversa");
     client_TransHomogenea = node.serviceClient<camina7::TransHomogeneaParametros>("TransHomogenea");
@@ -206,11 +217,4 @@ void Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,float PuntoInicio_x,floa
     x_S0 = PuntoInicio_x + (lambda_Transferencia/2)*cos(theta);
     y_S0 = PuntoInicio_y;
     z_S0 = PuntoInicio_z + dh*sin(theta);
-    if (fabs(t_Trayectoria-T)<(delta_t)){
-//        if (Npata_arg==1) ROS_INFO("Fin transferencia Pata[%d]",Npata_arg);
-        finTransferencia = true;
-        finTransferencia_x = x_S0;
-        lambda_Apoyo = lambda_Transferencia;
-//        ROS_INFO("Nodo2: Fin transferencia Pata[%d] - lambda_Apoyo=%.3f",Npata_arg,lambda_Transferencia);
-    }
 }
