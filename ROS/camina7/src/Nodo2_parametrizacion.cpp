@@ -56,6 +56,7 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
 
     T = msg_datoTrayectoria.T;
 	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[Tripode-1];
+    lambda_Apoyo = msg_datoTrayectoria.lambda_Apoyo[Tripode-1];
     lambda_Transferencia = msg_datoTrayectoria.lambda_Transferencia[Tripode-1];
     alfa = msg_datoTrayectoria.alfa[Tripode-1];
     desfasaje_t = msg_datoTrayectoria.desfasaje_t[Tripode-1];
@@ -76,12 +77,12 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     if(prevEstado<Estado){
     //--- Se pasa de estado de apoyo a estado de transferencia
     //--- inicia transferencia
-        finApoyo_x = x_S0;
+        finApoyo_x = x_S0-lambda_Apoyo/2;
     }
     if(prevEstado>Estado){
     //--- Se pasa de estado de transferencia a estado de apoyo
     //--- inicia apoyo
-        finTransferencia_x = x_S0;
+        finTransferencia_x = finApoyo_x-lambda_Transferencia/2;
     }
 
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot

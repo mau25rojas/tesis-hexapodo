@@ -61,33 +61,27 @@ void relojCallback(camina7::SenalesCambios msgSenal)
         t_aux_T2=fmod(t_aux_T2,T);
         llamadaPlan = Apoyo_T2();
         //-------------------------------
-        if(llamadaPlan){
-
-            srv_Planificador.request.Tripode = Tripode;
-            srv_Planificador.request.T = T;
-            if (client_Planificador.call(srv_Planificador)){
-                modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-                modificacion_T = srv_Planificador.response.modificacion_T;
-            ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_T1=%.3f, t_T2=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_aux_T1,t_aux_T2,modificacion_lambda,modificacion_T);
-
-            } else {
-                ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
-                ROS_ERROR("result=%d", srv_Planificador.response.result);
-            }
-
-            T = modificacion_T;
-            divisionTrayectoriaPata = T/divisionTiempo;
-            //-- datos a enviar
-            datosTrayectoriaPata.T = modificacion_T;
-            datosTrayectoriaPata.lambda_Transferencia[0]=datosTrayectoriaPata.lambda_Transferencia[1]=modificacion_lambda;
-            llamadaPlan = false;
-        }
-
-        if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
-//            ROS_INFO("reinicio trayectoria[%d]",Tripode);
-            delta_t = 0.0;
-//            t_aux = 0.0;
-        }
+//        if(llamadaPlan){
+//
+//            srv_Planificador.request.Tripode = Tripode;
+//            srv_Planificador.request.T = T;
+//            if (client_Planificador.call(srv_Planificador)){
+//                modificacion_lambda = srv_Planificador.response.modificacion_lambda;
+//                modificacion_T = srv_Planificador.response.modificacion_T;
+//            ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_T1=%.3f, t_T2=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_aux_T1,t_aux_T2,modificacion_lambda,modificacion_T);
+//
+//            } else {
+//                ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
+//                ROS_ERROR("result=%d", srv_Planificador.response.result);
+//            }
+//
+//            T = modificacion_T;
+//            divisionTrayectoriaPata = T/divisionTiempo;
+//            //-- datos a enviar
+//            datosTrayectoriaPata.T = modificacion_T;
+//            datosTrayectoriaPata.lambda_Transferencia[0]=datosTrayectoriaPata.lambda_Transferencia[1]=modificacion_lambda;
+//            llamadaPlan = false;
+//        }
 
         datosTrayectoriaPata.t_Trayectoria[0] = t_aux_T1;
         datosTrayectoriaPata.t_Trayectoria[1] = t_aux_T2;
@@ -103,8 +97,14 @@ void relojCallback(camina7::SenalesCambios msgSenal)
             datosTrayectoriaPata.vector_estados[1]=1;
         }
 
-        //-- Esta linea es muy importante
         chatter_pub1.publish(datosTrayectoriaPata);
+//        delta_t = delta_t + T/divisionTrayectoriaPata;
+        if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
+//            ROS_INFO("reinicio trayectoria[%d]",Tripode);
+            delta_t = 0.0;
+//            t_aux = 0.0;
+        }
+
         delta_t = delta_t + T/divisionTrayectoriaPata;
     }
 }
@@ -165,6 +165,7 @@ int main(int argc, char **argv)
     ROS_INFO("Nodo1: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
 //-- Datos de envio
     for(int i=0;i<2;i++){
+        datosTrayectoriaPata.t_Trayectoria.push_back(0);
         datosTrayectoriaPata.lambda_Apoyo.push_back(0);
         datosTrayectoriaPata.lambda_Transferencia.push_back(0);
         datosTrayectoriaPata.alfa.push_back(0);
