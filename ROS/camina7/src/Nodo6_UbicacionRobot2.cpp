@@ -30,7 +30,7 @@ float simulationTime=0.0f;
 float Veloy_twist=0.0;
 double tiempo_ahora2=0.0, tiempo_anterior2=0.0;
 ros::Time time_stamp;
-FILE *fp;
+FILE *fp, *fp1, *fp2;
 camina7::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
@@ -168,6 +168,8 @@ int main(int argc,char* argv[])
     client_Trans_MundoPata = node.serviceClient<camina7::TransTrayectoriaParametros>("TrayectoriaMundoPata");
 
     fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_apoyo.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_Z.txt","w+");
 
         double tiempo_ahora=0.0, tiempo_anterior=0.0;
         float delta_t=0.0,delta_t2=0.0;
@@ -233,6 +235,10 @@ int main(int argc,char* argv[])
             infoCuerpo=false;
             infoPatas=false;
 //            infoVel=false;
+            for (int k=0;k<Npatas;k++) fprintf(fp1,"%d\t",ubicacionRobot.pataApoyo[k]);
+            fprintf(fp1,"\n");
+            for (int k=0;k<Npatas;k++) fprintf(fp2,"%.3f\t",ubicacionRobot.coordenadaPata_z[k]);
+            fprintf(fp2,"\n");
             chatter_pub.publish(ubicacionRobot);
         }
 	}
