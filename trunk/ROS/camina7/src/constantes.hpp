@@ -47,7 +47,7 @@ Lynxmotion:
 #define lambda_minimo 0.02
 #define teta_Offset -30*pi/180
 #define umbralFuerzaApoyo 0.009
-#define umbral_Z_Apoyo 0.004
+#define umbral_Z_Apoyo 0.006
 #define vel_teorica 0.0225
 #define vel_esperada 0.018
 //Constantes para envio serial
