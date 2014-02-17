@@ -62,14 +62,6 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     desfasaje_t = msg_datoTrayectoria.desfasaje_t[Tripode-1];
     Estado = msg_datoTrayectoria.vector_estados[Tripode-1];
 
-    //---------------------------------
-    if (Inicio){
-    //-- La trayectoria inicial se hace con lambda de apoyo
-        Inicio = false;
-        lambda_Apoyo = lambda_Transferencia;
-        finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
-        finApoyo_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
-    }
     //--------Temporizacion----------
 //    t_Trayectoria=t_Trayectoria+desfasaje_t;
 //    t_Trayectoria=fmod(t_Trayectoria,T);
@@ -83,6 +75,15 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     //--- Se pasa de estado de transferencia a estado de apoyo
     //--- inicia apoyo
         finTransferencia_x = finApoyo_x-lambda_Transferencia/2;
+    }
+
+    //---------------------------------
+    if (Inicio){
+    //-- La trayectoria inicial se hace con lambda de apoyo
+        Inicio = false;
+        lambda_Apoyo = lambda_Transferencia;
+        finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
+        finApoyo_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
     }
 
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
