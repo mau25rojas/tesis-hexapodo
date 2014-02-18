@@ -116,7 +116,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     fprintf(fp2,"server_Plan::T[%d] v_y=%.3f\n",Tripode,velocidadCuerpo_y);
 
 
-    if (req.Tripode == 1){
+    if (req.Tripode == T1){
         for(int k=0;k<Npatas/2;k++) Tripode_Apoyo[k] = Tripode1[k];
     } else{
         for(int k=0;k<Npatas/2;k++) Tripode_Apoyo[k] = Tripode2[k];
@@ -293,7 +293,11 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
         res.modificacion_lambda = modificacion_lambda[0];
     }
 
-    res.modificacion_T = res.modificacion_lambda/(beta*velocidad_Apoyo);
+    if (Tripode==T1){
+        res.modificacion_T = res.modificacion_lambda/(beta*velocidad_Apoyo);
+    } else {
+        res.modificacion_T = T_actual;
+    }
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
 //    ROS_INFO("server_PlanificadorPisada: Tripode=%d, landa_correccion=%.3f, T_correccion=%.3f",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 //-- Envio datos de planificacion al mapa
