@@ -79,22 +79,26 @@ void relojCallback(camina7::SenalesCambios msgSenal)
             divisionTrayectoriaPata = T/divisionTiempo;
             //-- datos a enviar
             datosTrayectoriaPata.T = modificacion_T;
-            datosTrayectoriaPata.lambda_Transferencia[0]=datosTrayectoriaPata.lambda_Transferencia[1]=modificacion_lambda;
-            datosTrayectoriaPata.lambda_Apoyo[0]=datosTrayectoriaPata.lambda_Apoyo[1]=modificacion_lambda;
+            if (Tripode==T1){
+                datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
+                datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Apoyo[T2-1]=modificacion_lambda;
+            } else {
+                datosTrayectoriaPata.lambda_Transferencia[T2-1]=modificacion_lambda;
+            }
         }
 
-        datosTrayectoriaPata.t_Trayectoria[0] = t_aux_T1;
-        datosTrayectoriaPata.t_Trayectoria[1] = t_aux_T2;
+        datosTrayectoriaPata.t_Trayectoria[T1-1] = t_aux_T1;
+        datosTrayectoriaPata.t_Trayectoria[T2-1] = t_aux_T2;
 
         if (0<=t_aux_T1 and t_aux_T1<beta*T){
-            datosTrayectoriaPata.vector_estados[0]=0;
+            datosTrayectoriaPata.vector_estados[T1-1]=0;
         }else{
-            datosTrayectoriaPata.vector_estados[0]=1;
+            datosTrayectoriaPata.vector_estados[T1-1]=1;
         }
         if (0<=t_aux_T2 and t_aux_T2<beta*T){
-            datosTrayectoriaPata.vector_estados[1]=0;
+            datosTrayectoriaPata.vector_estados[T2-1]=0;
         }else{
-            datosTrayectoriaPata.vector_estados[1]=1;
+            datosTrayectoriaPata.vector_estados[T2-1]=1;
         }
 
         chatter_pub1.publish(datosTrayectoriaPata);
@@ -174,17 +178,17 @@ int main(int argc, char **argv)
     }
     datosTrayectoriaPata.T = T;
 //-- Tripode 1
-    datosTrayectoriaPata.lambda_Apoyo[0]=lambda_Apoyo;
-    datosTrayectoriaPata.lambda_Transferencia[0]=lambda_Transferencia;
-    datosTrayectoriaPata.alfa[0]=alfa;
-    datosTrayectoriaPata.desfasaje_t[0]=desfasaje_t_T1;
-    datosTrayectoriaPata.vector_estados[0]=0;
+    datosTrayectoriaPata.lambda_Apoyo[T1-1]=lambda_Apoyo;
+    datosTrayectoriaPata.lambda_Transferencia[T1-1]=lambda_Transferencia;
+    datosTrayectoriaPata.alfa[T1-1]=alfa;
+    datosTrayectoriaPata.desfasaje_t[T1-1]=desfasaje_t_T1;
+    datosTrayectoriaPata.vector_estados[T1-1]=0;
 //-- Tripode 2
-    datosTrayectoriaPata.lambda_Apoyo[1]=lambda_Apoyo;
-    datosTrayectoriaPata.lambda_Transferencia[1]=lambda_Transferencia;
-    datosTrayectoriaPata.alfa[1]=alfa;
-    datosTrayectoriaPata.desfasaje_t[1]=desfasaje_t_T2;
-    datosTrayectoriaPata.vector_estados[1]=1;
+    datosTrayectoriaPata.lambda_Apoyo[T2-1]=lambda_Apoyo;
+    datosTrayectoriaPata.lambda_Transferencia[T2-1]=lambda_Transferencia;
+    datosTrayectoriaPata.alfa[T2-1]=alfa;
+    datosTrayectoriaPata.desfasaje_t[T2-1]=desfasaje_t_T2;
+    datosTrayectoriaPata.vector_estados[T2-1]=1;
 
 //-- Prepara variables para calculos de trayectoria de PATA
     //delta_t = 1/divisionTrayectoriaPata;
