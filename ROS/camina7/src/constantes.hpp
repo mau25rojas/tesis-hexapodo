@@ -74,3 +74,6 @@ Lynxmotion:
 //Tripodes
 #define T1 1
 #define T2 2
+//Estados
+#define Apoyo 0
+#define Transferencia 1

@@ -54,7 +54,7 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     float x_S1=0.0, y_S1=0.0, z_S1=0.0;
     float PuntoInicio_x=0.0, PuntoInicio_y=0.0, PuntoInicio_z=0.0;
 
-    T = msg_datoTrayectoria.T_apoyo[Tripode-1];
+    T = msg_datoTrayectoria.T;
 	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[Tripode-1];
     lambda_Apoyo = msg_datoTrayectoria.lambda_Apoyo[Tripode-1];
     lambda_Transferencia = msg_datoTrayectoria.lambda_Transferencia[Tripode-1];
@@ -62,29 +62,36 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     desfasaje_t = msg_datoTrayectoria.desfasaje_t[Tripode-1];
     Estado = msg_datoTrayectoria.vector_estados[Tripode-1];
 
-//    if(prevEstado>Estado){
-//    //--- Se pasa de estado de transferencia a estado de apoyo
-//    //--- inicia apoyo
-////        finTransferencia_x = x_S0;
-//        finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
-//    }
+    //--------Temporizacion----------
+//    t_Trayectoria=t_Trayectoria+desfasaje_t;
+//    t_Trayectoria=fmod(t_Trayectoria,T);
+
+    if(prevEstado<Estado){
+    //--- Se pasa de estado de apoyo a estado de transferencia
+    //--- inicia transferencia
+        finApoyo_x = x_S0-lambda_Apoyo/2;
+    }
+    if(prevEstado>Estado){
+    //--- Se pasa de estado de transferencia a estado de apoyo
+    //--- inicia apoyo
+        finTransferencia_x = finApoyo_x-lambda_Transferencia/2;
+    }
 
     //---------------------------------
-//    if (Inicio){
-//    //-- La trayectoria inicial se hace con lambda de apoyo
-//        Inicio = false;
-//        lambda_Apoyo = lambda_Transferencia;
-//        finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
-//        finApoyo_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
-//    }
+    if (Inicio){
+    //-- La trayectoria inicial se hace con lambda de apoyo
+        Inicio = false;
+        lambda_Apoyo = lambda_Transferencia;
+        finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
+        finApoyo_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
+    }
 
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
     // Periodo A-B
-    if (Estado==Apoyo)
+    if (0<=t_Trayectoria and t_Trayectoria<beta*T)
     {
     //---Apoyo------
-//        PuntoInicio_x=finTransferencia_x;
-        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
+        PuntoInicio_x=finTransferencia_x;
         PuntoInicio_y=0.0;
         PuntoInicio_z=0.0;
         Trayectoria_FaseApoyo(t_Trayectoria,PuntoInicio_x,PuntoInicio_y,PuntoInicio_z);
@@ -92,13 +99,13 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     //---Transferencia------
     // Elipsis
 //        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
-        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
+        PuntoInicio_x=finApoyo_x;
         PuntoInicio_y=0.0;
         PuntoInicio_z=0.0;
         Trayectoria_FaseTrans_Eliptica(t_Trayectoria,PuntoInicio_x,PuntoInicio_y,PuntoInicio_z);
     }
 
-//    prevEstado = Estado;
+    prevEstado = Estado;
     //-----Transformacion de trayectoria a Sistema de Pata
     x_S1 = x_Offset + x_S0*cos(phi+alfa) - y_S0*sin(phi+alfa);
     y_S1 = y_Offset + x_S0*sin(phi+alfa) + y_S0*cos(phi+alfa);
@@ -130,12 +137,13 @@ int main(int argc, char **argv){
 	if (argc>=8)
 	{
 		Npata_arg=atoi(argv[1]);
-		dh=atof(argv[2]);
-        x_Offset=atof(argv[3]);
-        y_Offset=atof(argv[4]);
-        z_Offset=atof(argv[5]);
-        phi=atof(argv[6])*pi/180.0;
-        Tripode=atof(argv[7]);
+		beta=atof(argv[2]);
+		dh=atof(argv[3]);
+        x_Offset=atof(argv[4]);
+        y_Offset=atof(argv[5]);
+        z_Offset=atof(argv[6]);
+        phi=atof(argv[7])*pi/180.0;
+        Tripode=atof(argv[8]);
 	}
 	else
 	{
@@ -189,7 +197,7 @@ void Trayectoria_FaseApoyo(float t_Trayectoria,float PuntoInicio_x,float PuntoIn
 
     float velocidadApoyo=0.0;
 
-    velocidadApoyo = lambda_Apoyo/T;
+    velocidadApoyo = lambda_Apoyo/(beta*T);
 
     x_S0 = PuntoInicio_x + velocidadApoyo*t_Trayectoria;
     y_S0 = PuntoInicio_y;
@@ -205,7 +213,7 @@ void Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,float PuntoInicio_x,floa
 
     float theta=0.0, t_aux=0.0;
 
-    t_aux = t_Trayectoria/T;
+    t_aux = (t_Trayectoria-beta*T)/((1-beta)*T);
     theta = pi*t_aux;
 
     x_S0 = PuntoInicio_x + (lambda_Transferencia/2)*cos(theta);
