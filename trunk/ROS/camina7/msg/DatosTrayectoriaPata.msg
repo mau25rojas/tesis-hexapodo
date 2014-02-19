@@ -7,7 +7,7 @@ uint8     iteracion
 uint8     Tripode
 
 #Periodo de paso
-float32 T
+float32[] T_apoyo
 
 #delta de tiempo de trayectoria (entre 0-1)
 float32[]   t_Trayectoria

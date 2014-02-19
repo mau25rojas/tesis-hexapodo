@@ -52,10 +52,10 @@ void relojCallback(camina7::SenalesCambios msgSenal)
     if (!msgSenal.Stop){
 
         //------- T1 --------------------
-        t_aux_T1=delta_t+desfasaje_t_T1*T;
+        t_aux_T1=delta_t+desfasaje_t_T1;
         t_aux_T1=fmod(t_aux_T1,T);
         //------- T2 --------------------
-        t_aux_T2=delta_t+desfasaje_t_T2*T;
+        t_aux_T2=delta_t+desfasaje_t_T2;
         t_aux_T2=fmod(t_aux_T2,T);
         //-------------------------------
         llamadaPlan = CambioDeEstado_Trans();
@@ -78,12 +78,13 @@ void relojCallback(camina7::SenalesCambios msgSenal)
             T = modificacion_T;
             divisionTrayectoriaPata = T/divisionTiempo;
             //-- datos a enviar
-            datosTrayectoriaPata.T = modificacion_T;
             if (Tripode==T1){
-                datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
-                datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Apoyo[T2-1]=modificacion_lambda;
-            } else {
+                datosTrayectoriaPata.T_apoyo[T1-1]=modificacion_T;
                 datosTrayectoriaPata.lambda_Transferencia[T2-1]=modificacion_lambda;
+
+            } else {
+                datosTrayectoriaPata.T_apoyo[T2-1] = modificacion_T;
+                datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
             }
         }
 
@@ -169,6 +170,7 @@ int main(int argc, char **argv)
     ROS_INFO("Nodo1: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
 //-- Datos de envio
     for(int i=0;i<2;i++){
+        datosTrayectoriaPata.T_apoyo.push_back(0);
         datosTrayectoriaPata.t_Trayectoria.push_back(0);
         datosTrayectoriaPata.lambda_Apoyo.push_back(0);
         datosTrayectoriaPata.lambda_Transferencia.push_back(0);
@@ -176,14 +178,15 @@ int main(int argc, char **argv)
         datosTrayectoriaPata.desfasaje_t.push_back(0);
         datosTrayectoriaPata.vector_estados.push_back(0);
     }
-    datosTrayectoriaPata.T = T;
 //-- Tripode 1
+    datosTrayectoriaPata.T_apoyo[T1-1]=T;
     datosTrayectoriaPata.lambda_Apoyo[T1-1]=lambda_Apoyo;
     datosTrayectoriaPata.lambda_Transferencia[T1-1]=lambda_Transferencia;
     datosTrayectoriaPata.alfa[T1-1]=alfa;
     datosTrayectoriaPata.desfasaje_t[T1-1]=desfasaje_t_T1;
     datosTrayectoriaPata.vector_estados[T1-1]=0;
 //-- Tripode 2
+    datosTrayectoriaPata.T_apoyo[T2-1]=T;
     datosTrayectoriaPata.lambda_Apoyo[T2-1]=lambda_Apoyo;
     datosTrayectoriaPata.lambda_Transferencia[T2-1]=lambda_Transferencia;
     datosTrayectoriaPata.alfa[T2-1]=alfa;
