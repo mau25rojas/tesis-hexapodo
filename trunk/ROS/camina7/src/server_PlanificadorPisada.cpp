@@ -105,11 +105,13 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     float PisadaProxima_x=0.0, PisadaProxima_y=0.0, PisadaProxima_z=0.0;
     float delta_x_S0=0.0, delta_y_S0=0.0, delta_x=0.0, delta_y=0.0;
     float modificacion_lambda[Npatas/2];
-    float T_actual=0.0;
+    float T_actual=0.0,lambda_Apoyo_actual=0.0;
     int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
     p_ij = ij;    // Inicialización de apuntador
 
     Tripode=req.Tripode;
+    T_actual = req.T;
+    lambda_Apoyo_actual = req.lambda;
 
     ROS_INFO("server_Plan::T[%d] v_y=%.3f",Tripode,velocidadCuerpo_y);
     fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
@@ -121,7 +123,6 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     } else{
         for(int k=0;k<Npatas/2;k++) Tripode_Apoyo[k] = Tripode2[k];
     }
-    T_actual = req.T;
 
     TodasPisadasOk = true;    // Todas las pisadas se asumen bien a la primera
     for(int k=0;k<Npatas/2;k++){
@@ -151,8 +152,8 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
 //            ROS_INFO("server_Plan: cinversaOK");
             ros::spinOnce();
         //-- Calculamos proximo movimiento en el sistema mundo
-                PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
-                PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*(1-beta)*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
+                PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*T_actual)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
+                PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_maximo+velocidadCuerpo_y*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                 transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
                 PisadaProxima_i=ij[0];
                 PisadaProxima_j=ij[1];
@@ -204,7 +205,9 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
         ROS_WARN("server_PlanificadorPisada: lambda_Correccion: %.3f",lambda_Correccion);
         fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
         fprintf(fp2,"lambda_Correccion: %.3f\n",lambda_Correccion);
-        T_Correccion = lambda_Correccion/(beta*velocidad_Apoyo);
+
+        T_Correccion = lambda_Correccion/(velocidad_Apoyo);
+
         for (int k=0;k<Npatas/2;k++){
             ros::spinOnce();
             if(PisadaInvalida[k]){
@@ -233,8 +236,8 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
                 if (cinversaOK){
                     ros::spinOnce();
                 //-- Calculamos proximo movimiento en el sistema mundo
-                    PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*(1-beta)*T_Correccion)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
-                    PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*(1-beta)*T_Correccion)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
+                    PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_Correccion)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
+                    PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_Correccion)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                     transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
                     PisadaProxima_i=ij[0];
                     PisadaProxima_j=ij[1];
@@ -292,12 +295,8 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     } else {
         res.modificacion_lambda = modificacion_lambda[0];
     }
-
-    if (Tripode==T1){
-        res.modificacion_T = res.modificacion_lambda/(beta*velocidad_Apoyo);
-    } else {
-        res.modificacion_T = T_actual;
-    }
+//-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
+    res.modificacion_T = lambda_Apoyo_actual/velocidad_Apoyo;
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
 //    ROS_INFO("server_PlanificadorPisada: Tripode=%d, landa_correccion=%.3f, T_correccion=%.3f",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 //-- Envio datos de planificacion al mapa
