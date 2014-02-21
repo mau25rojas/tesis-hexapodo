@@ -206,7 +206,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
         fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
         fprintf(fp2,"lambda_Correccion: %.3f\n",lambda_Correccion);
 
-        T_Correccion = lambda_Correccion/(velocidad_Apoyo);
+        T_Correccion = lambda_Correccion/velocidad_Apoyo;
 
         for (int k=0;k<Npatas/2;k++){
             ros::spinOnce();
