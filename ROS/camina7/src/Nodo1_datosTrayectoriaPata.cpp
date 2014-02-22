@@ -52,7 +52,6 @@ void relojCallback(camina7::SenalesCambios msgSenal)
     if (!msgSenal.Stop){
 
         if (Inicio){
-
             cuenta++;
             datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
             chatter_pub1.publish(datosTrayectoriaPata);
@@ -65,7 +64,10 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                 if (datosTrayectoriaPata.vector_estados[T2-1]==0){ datosTrayectoriaPata.vector_estados[T2-1]=1;
                 } else { datosTrayectoriaPata.vector_estados[T2-1]=0;}
             }
-            if (cuenta==2*divisionTrayectoriaPata) Inicio=false;
+            if (cuenta==2*divisionTrayectoriaPata){
+                Inicio=false;
+                delta_t = T;
+            }
 
         } else {
             llamadaPlan = CambioDeEstado_Apoyo();
