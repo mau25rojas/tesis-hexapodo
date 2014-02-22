@@ -30,7 +30,7 @@ float simulationTime=0.0f;
 float Veloy_twist=0.0;
 double tiempo_ahora2=0.0, tiempo_anterior2=0.0;
 ros::Time time_stamp;
-FILE *fp, *fp1, *fp2;
+FILE *fp,*fp1,*fp2,*fp3,*fp4,*fp5,*fp6;
 camina7::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
@@ -239,12 +239,12 @@ int main(int argc,char* argv[])
             infoCuerpo=false;
             infoPatas=false;
 //            infoVel=false;
-            fprintf(fp1,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
-            fprintf(fp2,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
-            fprintf(fp3,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
-            fprintf(fp4,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
-            fprintf(fp5,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
-            fprintf(fp6,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
+            fprintf(fp1,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[0],ubicacionRobot.coordenadaPata_x[0],ubicacionRobot.coordenadaPata_y[0],ubicacionRobot.coordenadaPata_z[0]);
+            fprintf(fp2,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[1],ubicacionRobot.coordenadaPata_x[1],ubicacionRobot.coordenadaPata_y[1],ubicacionRobot.coordenadaPata_z[1]);
+            fprintf(fp3,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[2],ubicacionRobot.coordenadaPata_x[2],ubicacionRobot.coordenadaPata_y[2],ubicacionRobot.coordenadaPata_z[2]);
+            fprintf(fp4,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[3],ubicacionRobot.coordenadaPata_x[3],ubicacionRobot.coordenadaPata_y[3],ubicacionRobot.coordenadaPata_z[3]);
+            fprintf(fp5,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[4],ubicacionRobot.coordenadaPata_x[4],ubicacionRobot.coordenadaPata_y[4],ubicacionRobot.coordenadaPata_z[4]);
+            fprintf(fp6,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[5],ubicacionRobot.coordenadaPata_x[5],ubicacionRobot.coordenadaPata_y[5],ubicacionRobot.coordenadaPata_z[5]);
             chatter_pub.publish(ubicacionRobot);
         }
 	}
