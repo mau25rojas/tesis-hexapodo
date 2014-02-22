@@ -167,9 +167,13 @@ int main(int argc,char* argv[])
     ros::Publisher chatter_pub = node.advertise<camina7::UbicacionRobot>("UbicacionRobot", 100);
     client_Trans_MundoPata = node.serviceClient<camina7::TransTrayectoriaParametros>("TrayectoriaMundoPata");
 
-    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6.txt","w+");
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_apoyo.txt","w+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_Z.txt","w+");
+    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_vel.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P1.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P2.txt","w+");
+    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P3.txt","w+");
+    fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P4.txt","w+");
+    fp5 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P5.txt","w+");
+    fp6 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P6.txt","w+");
 
         double tiempo_ahora=0.0, tiempo_anterior=0.0;
         float delta_t=0.0,delta_t2=0.0;
@@ -235,14 +239,22 @@ int main(int argc,char* argv[])
             infoCuerpo=false;
             infoPatas=false;
 //            infoVel=false;
-            for (int k=0;k<Npatas;k++) fprintf(fp1,"%d\t",ubicacionRobot.pataApoyo[k]);
-            fprintf(fp1,"\n");
-            for (int k=0;k<Npatas;k++) fprintf(fp2,"%.3f\t",ubicacionRobot.coordenadaPata_z[k]);
-            fprintf(fp2,"\n");
+            fprintf(fp1,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
+            fprintf(fp2,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
+            fprintf(fp3,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
+            fprintf(fp4,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
+            fprintf(fp5,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
+            fprintf(fp6,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[k],ubicacionRobot.coordenadaPata_x[k],ubicacionRobot.coordenadaPata_y[k],ubicacionRobot.coordenadaPata_z[k]);
             chatter_pub.publish(ubicacionRobot);
         }
 	}
 	fclose(fp);
+	fclose(fp1);
+	fclose(fp2);
+	fclose(fp3);
+	fclose(fp4);
+	fclose(fp5);
+	fclose(fp6);
 	ROS_INFO("Adios6!");
 	ros::shutdown();
 	return(0);

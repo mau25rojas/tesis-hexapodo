@@ -18,14 +18,14 @@ camina7::PlanificadorParametros srv_Planificador;
 // variables Globales
 bool simulationRunning=true;
 bool sensorTrigger=false;
-bool InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false;
+bool Inicio=true, InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false;
 camina7::DatosTrayectoriaPata datosTrayectoriaPata;
 float simulationTime=0.0f;
 float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0, lambda_Apoyo_actual=0.0;
 float modificacion_T = 0.0, modificacion_lambda =0.0;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
 int pataApoyo[Npatas], tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
-int Tripode=0;
+int Tripode=0, cuenta=0;
 FILE *fp1;
 ros::Publisher chatter_pub1,chatter_pub2;
 
@@ -51,82 +51,84 @@ void relojCallback(camina7::SenalesCambios msgSenal)
 
     if (!msgSenal.Stop){
 
-        llamadaPlan = CambioDeEstado_Apoyo();
-        //-------------------------------
-        if(llamadaPlan){
-            ROS_INFO("Llama a plan tripode[%d]",Tripode);
-            llamadaPlan = false;
-        //-- reinicio cuenta para iniciar apoyo
-//            delta_t = 0.0;
-        //-- la distancia en apoyo se mantiene según la distancia recorrida en transferencia
-            if (Tripode==T1){
-                lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T1-1];
-                datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
-            }else{
-                lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T2-1];
-                datosTrayectoriaPata.lambda_Apoyo[T2-1]=datosTrayectoriaPata.lambda_Transferencia[T2-1];
-            }
-//            srv_Planificador.request.Tripode = Tripode;
-//            srv_Planificador.request.T = T;
-//            srv_Planificador.request.lambda = lambda_Apoyo_actual;
-//            if (client_Planificador.call(srv_Planificador)){
-//                modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-//                modificacion_T = srv_Planificador.response.modificacion_T;
-//                ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_T1=%.3f, t_T2=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_aux_T1,t_aux_T2,modificacion_lambda,modificacion_T);
-//
-//            } else {
-//                ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
-//                ROS_ERROR("result=%d", srv_Planificador.response.result);
-//            }
+        if (Inicio){
 
-            T = modificacion_T;
-            divisionTrayectoriaPata = T/divisionTiempo;
-            //-- datos a enviar
-            if (Tripode==T1){
-            //-- Correccion en T1 significa inicio de apoyo en T1 y transferencia en T2
-                datosTrayectoriaPata.vector_estados[T1-1]=0;
-                datosTrayectoriaPata.vector_estados[T2-1]=1;
-            //-------------------------------------------------------------------------
-                datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
-                datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
-            } else {
-            //-- Correccion en T2 significa inicio de apoyo en T2 y transferencia en T1
-                datosTrayectoriaPata.vector_estados[T1-1]=1;
-                datosTrayectoriaPata.vector_estados[T2-1]=0;
-            //-------------------------------------------------------------------------
-                datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
-                datosTrayectoriaPata.lambda_Transferencia[T2-1]=modificacion_lambda;
-            }
-        }
+            cuenta++;
+            datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
+            chatter_pub1.publish(datosTrayectoriaPata);
 
-//        if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
-////            ROS_INFO("reinicio trayectoria[%d]",Tripode);
-//            delta_t = 0.0;
-//            if (datosTrayectoriaPata.vector_estados[T1-1]==0){
-//                datosTrayectoriaPata.vector_estados[T1-1]=1;
-//            } else {
-//                datosTrayectoriaPata.vector_estados[T1-1]=0;
-//            }
-//            if (datosTrayectoriaPata.vector_estados[T2-1]==0){
-//                datosTrayectoriaPata.vector_estados[T2-1]=1;
-//            } else {
-//                datosTrayectoriaPata.vector_estados[T2-1]=0;
-//            }
-//        }
-
-        datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
-        fprintf(fp1,"%.3f,%.3f,%d,%d\n",datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.t_Trayectoria[T2-1], datosTrayectoriaPata.vector_estados[T1-1],datosTrayectoriaPata.vector_estados[T2-1]);
-
-        chatter_pub1.publish(datosTrayectoriaPata);
-//        delta_t = delta_t + T/divisionTrayectoriaPata;
-        if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
-            delta_t = delta_t;
-        } else {
             delta_t = delta_t + T/divisionTrayectoriaPata;
-        }
+            if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
+                delta_t = 0.0;
+                if (datosTrayectoriaPata.vector_estados[T1-1]==0){ datosTrayectoriaPata.vector_estados[T1-1]=1;
+                } else { datosTrayectoriaPata.vector_estados[T1-1]=0;}
+                if (datosTrayectoriaPata.vector_estados[T2-1]==0){ datosTrayectoriaPata.vector_estados[T2-1]=1;
+                } else { datosTrayectoriaPata.vector_estados[T2-1]=0;}
+            }
+            if (cuenta==2*divisionTrayectoriaPata) Inicio=false;
 
-    }
-}
+        } else {
+            llamadaPlan = CambioDeEstado_Apoyo();
+            //-------------------------------
+            if(llamadaPlan){
+//                ROS_INFO("Llama a plan tripode[%d]",Tripode);
+                llamadaPlan = false;
+            //-- reinicio cuenta para iniciar apoyo
+                delta_t = 0.0;
+            //-- la distancia en apoyo se mantiene según la distancia recorrida en transferencia
+                if (Tripode==T1){
+                    lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T1-1];
+                    datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
+                }else{
+                    lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T2-1];
+                    datosTrayectoriaPata.lambda_Apoyo[T2-1]=datosTrayectoriaPata.lambda_Transferencia[T2-1];
+                }
+                srv_Planificador.request.Tripode = Tripode;
+                srv_Planificador.request.T = T;
+                srv_Planificador.request.lambda = lambda_Apoyo_actual;
+                if (client_Planificador.call(srv_Planificador)){
+                    modificacion_lambda = srv_Planificador.response.modificacion_lambda;
+                    modificacion_T = srv_Planificador.response.modificacion_T;
+                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_T1=%.3f, t_T2=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_aux_T1,t_aux_T2,modificacion_lambda,modificacion_T);
+
+                } else {
+                    ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
+                    ROS_ERROR("result=%d", srv_Planificador.response.result);
+                }
+
+                T = modificacion_T;
+                divisionTrayectoriaPata = T/divisionTiempo;
+                //-- datos a enviar
+                if (Tripode==T1){
+                //-- Correccion en T1 significa inicio de apoyo en T1 y transferencia en T2
+                    datosTrayectoriaPata.vector_estados[T1-1]=0;
+                    datosTrayectoriaPata.vector_estados[T2-1]=1;
+                //-------------------------------------------------------------------------
+                    datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
+                    datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
+                } else {
+                //-- Correccion en T2 significa inicio de apoyo en T2 y transferencia en T1
+                    datosTrayectoriaPata.vector_estados[T1-1]=1;
+                    datosTrayectoriaPata.vector_estados[T2-1]=0;
+                //-------------------------------------------------------------------------
+                    datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
+                    datosTrayectoriaPata.lambda_Transferencia[T2-1]=modificacion_lambda;
+                }
+            }
+
+            datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
+//            fprintf(fp1,"%.3f,%.3f,%d,%d\n",datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.t_Trayectoria[T2-1], datosTrayectoriaPata.vector_estados[T1-1],datosTrayectoriaPata.vector_estados[T2-1]);
+
+            chatter_pub1.publish(datosTrayectoriaPata);
+    //        delta_t = delta_t + T/divisionTrayectoriaPata;
+            if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
+                delta_t = delta_t;
+            } else {
+                delta_t = delta_t + T/divisionTrayectoriaPata;
+            }
+        }
+    }//-- fin is !Stop
+} //-- fin de callback
 
 int main(int argc, char **argv)
 {
@@ -164,10 +166,10 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     client_Planificador = node.serviceClient<camina7::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
-    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaDatos");
-    std::string texto(".txt");
-    fileName+=texto;
-    fp1 = fopen(fileName.c_str(),"w+");
+//    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaDatos");
+//    std::string texto(".txt");
+//    fileName+=texto;
+//    fp1 = fopen(fileName.c_str(),"w+");
 
 //-- Patas de [0-5]
     int cuenta_T1=0, cuenta_T2=0;
@@ -227,7 +229,7 @@ int main(int argc, char **argv)
 //        fclose(fp1);
         ros::shutdown();
         return 0;
-    }
+}
 
 
 /* Funciones */
@@ -236,7 +238,7 @@ bool CambioDeEstado_Apoyo(){
     bool cambio = false;
 //--- Apoyo de Tripode 1
     if ((pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) and FinApoyo_T1) {
-            ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
+//            ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
         InicioApoyo_T1=true;
         FinApoyo_T1=false;
     }
@@ -251,7 +253,7 @@ bool CambioDeEstado_Apoyo(){
     }
 //--- Apoyo de Tripode 2
     if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T2) {
-            ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
+//            ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
         InicioApoyo_T2=true;
         FinApoyo_T2=false;
     }
