@@ -53,22 +53,22 @@ void relojCallback(camina7::SenalesCambios msgSenal)
 
         if (Inicio){
             cuenta++;
-            datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
-            chatter_pub1.publish(datosTrayectoriaPata);
-
-            delta_t = delta_t + T/divisionTrayectoriaPata;
-            if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
-                delta_t = 0.0;
-                if (datosTrayectoriaPata.vector_estados[T1-1]==0){ datosTrayectoriaPata.vector_estados[T1-1]=1;
-                } else { datosTrayectoriaPata.vector_estados[T1-1]=0;}
-                if (datosTrayectoriaPata.vector_estados[T2-1]==0){ datosTrayectoriaPata.vector_estados[T2-1]=1;
-                } else { datosTrayectoriaPata.vector_estados[T2-1]=0;}
-            }
             if (cuenta==2*divisionTrayectoriaPata){
                 Inicio=false;
                 delta_t = T;
-            }
+            } else {
+                datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
+                chatter_pub1.publish(datosTrayectoriaPata);
 
+                delta_t = delta_t + T/divisionTrayectoriaPata;
+                if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
+                    delta_t = 0.0;
+                    if (datosTrayectoriaPata.vector_estados[T1-1]==0){ datosTrayectoriaPata.vector_estados[T1-1]=1;
+                    } else { datosTrayectoriaPata.vector_estados[T1-1]=0;}
+                    if (datosTrayectoriaPata.vector_estados[T2-1]==0){ datosTrayectoriaPata.vector_estados[T2-1]=1;
+                    } else { datosTrayectoriaPata.vector_estados[T2-1]=0;}
+                }
+            }
         } else {
             llamadaPlan = CambioDeEstado_Apoyo();
             //-------------------------------
@@ -79,11 +79,11 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                 delta_t = 0.0;
             //-- la distancia en apoyo se mantiene según la distancia recorrida en transferencia
                 if (Tripode==T1){
-                    lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T1-1];
                     datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
+                    lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T1-1];
                 }else{
-                    lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T2-1];
                     datosTrayectoriaPata.lambda_Apoyo[T2-1]=datosTrayectoriaPata.lambda_Transferencia[T2-1];
+                    lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T2-1];
                 }
                 srv_Planificador.request.Tripode = Tripode;
                 srv_Planificador.request.T = T;
@@ -105,22 +105,23 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                 //-- Correccion en T1 significa inicio de apoyo en T1 y transferencia en T2
                     datosTrayectoriaPata.vector_estados[T1-1]=0;
                     datosTrayectoriaPata.vector_estados[T2-1]=1;
-                //-------------------------------------------------------------------------
+                //-- El tiempo de apoyo de T1 es tiempo de trans de T2
+                //....La correccion obtenida se aplica en lambda_trans T2
                     datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
-                    datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
+                    datosTrayectoriaPata.lambda_Transferencia[T2-1]=modificacion_lambda;
                 } else {
                 //-- Correccion en T2 significa inicio de apoyo en T2 y transferencia en T1
                     datosTrayectoriaPata.vector_estados[T1-1]=1;
                     datosTrayectoriaPata.vector_estados[T2-1]=0;
-                //-------------------------------------------------------------------------
+                //-- El tiempo de apoyo de T2 es tiempo de trans de T1
+                //....La correccion obtenida se aplica en lambda_trans T1
                     datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
-                    datosTrayectoriaPata.lambda_Transferencia[T2-1]=modificacion_lambda;
+                    datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
                 }
             }
 
             datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
-//            fprintf(fp1,"%.3f,%.3f,%d,%d\n",datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.t_Trayectoria[T2-1], datosTrayectoriaPata.vector_estados[T1-1],datosTrayectoriaPata.vector_estados[T2-1]);
-
+            fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",modificacion_T,datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.lambda_Apoyo[T1-1],datosTrayectoriaPata.lambda_Transferencia[T1-1],datosTrayectoriaPata.lambda_Apoyo[T2-1], datosTrayectoriaPata.lambda_Transferencia[T2-1]);
             chatter_pub1.publish(datosTrayectoriaPata);
     //        delta_t = delta_t + T/divisionTrayectoriaPata;
             if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
@@ -168,10 +169,10 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     client_Planificador = node.serviceClient<camina7::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
-//    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaDatos");
-//    std::string texto(".txt");
-//    fileName+=texto;
-//    fp1 = fopen(fileName.c_str(),"w+");
+    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaDatos");
+    std::string texto(".txt");
+    fileName+=texto;
+    fp1 = fopen(fileName.c_str(),"w+");
 
 //-- Patas de [0-5]
     int cuenta_T1=0, cuenta_T2=0;
