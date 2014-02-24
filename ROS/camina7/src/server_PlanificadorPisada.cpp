@@ -110,19 +110,22 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     p_ij = ij;    // Inicialización de apuntador
 
     Tripode=req.Tripode;
-    T_actual = req.T;
+//    T_actual = req.T;
     lambda_Apoyo_actual = req.lambda;
 
-    ROS_INFO("server_Plan::T[%d] v_y=%.3f",Tripode,velocidadCuerpo_y);
+    ROS_INFO("INICIO server_Plan::T[%d] v_y=%.3f",Tripode,velocidadCuerpo_y);
     fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
     fprintf(fp2,"server_Plan::T[%d] v_y=%.3f\n",Tripode,velocidadCuerpo_y);
 
 
     if (req.Tripode == T1){
-        for(int k=0;k<Npatas/2;k++) Tripode_Apoyo[k] = Tripode1[k];
-    } else{
+    //-- se intercambian los tripodes
         for(int k=0;k<Npatas/2;k++) Tripode_Apoyo[k] = Tripode2[k];
+    } else{
+        for(int k=0;k<Npatas/2;k++) Tripode_Apoyo[k] = Tripode1[k];
     }
+    //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
+    res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidad_Apoyo;
 
     TodasPisadasOk = true;    // Todas las pisadas se asumen bien a la primera
     for(int k=0;k<Npatas/2;k++){
@@ -295,8 +298,6 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     } else {
         res.modificacion_lambda = modificacion_lambda[0];
     }
-//-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
-    res.modificacion_T = lambda_Apoyo_actual/velocidad_Apoyo;
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
 //    ROS_INFO("server_PlanificadorPisada: Tripode=%d, landa_correccion=%.3f, T_correccion=%.3f",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 //-- Envio datos de planificacion al mapa
