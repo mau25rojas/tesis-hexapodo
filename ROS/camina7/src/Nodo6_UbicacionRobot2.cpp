@@ -230,7 +230,7 @@ int main(int argc,char* argv[])
         for(int i=0;i<window_size;i++) acc=acc+cb[i];
         ubicacionRobot.velocidadCuerpo_y = acc/window_size;
 
-        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",tiempo_ahora,delta_t,delta_t2,vel1,vel2,Veloy_twist);
+        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",delta_t,delta_t2,vel1,vel2,Veloy_twist,ubicacionRobot.velocidadCuerpo_y);
 
         tiempo_anterior = tiempo_ahora;
         tiempo_anterior2 = tiempo_ahora2;

@@ -91,7 +91,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                 if (client_Planificador.call(srv_Planificador)){
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     modificacion_T = srv_Planificador.response.modificacion_T;
-                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, t_T1=%.3f, t_T2=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,t_aux_T1,t_aux_T2,modificacion_lambda,modificacion_T);
+                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
 
                 } else {
                     ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
