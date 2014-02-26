@@ -113,9 +113,9 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
 //    T_actual = req.T;
     lambda_Apoyo_actual = req.lambda;
 
-    ROS_INFO("INICIO server_Plan::T[%d] v_y=%.3f",Tripode,velocidadCuerpo_y);
-    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-    fprintf(fp2,"server_Plan::T[%d] v_y=%.3f\n",Tripode,velocidadCuerpo_y);
+    ROS_INFO("INICIO server_Plan::T[%d] ((((v_y=%.3f))))",Tripode,velocidadCuerpo_y);
+    fprintf(fp2,"\n Inicio tiempo de simulacion: %.3f\n",simulationTime);
+    fprintf(fp2,"server_Plan::T[%d] ((((v_y=%.3f))))\n",Tripode,velocidadCuerpo_y);
 
 
     if (req.Tripode == T1){
@@ -209,7 +209,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
         fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
         fprintf(fp2,"lambda_Correccion: %.3f\n",lambda_Correccion);
 
-        T_Correccion = lambda_Correccion/velocidad_Apoyo;
+//        T_Correccion = lambda_Correccion/velocidad_Apoyo;
 
         for (int k=0;k<Npatas/2;k++){
             ros::spinOnce();
@@ -239,8 +239,10 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
                 if (cinversaOK){
                     ros::spinOnce();
                 //-- Calculamos proximo movimiento en el sistema mundo
-                    PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_Correccion)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
-                    PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_Correccion)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
+//                    PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_Correccion)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
+//                    PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_Correccion)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
+                    PisadaProxima_y=posicionActualPata_y[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_actual)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
+                    PisadaProxima_x=posicionActualPata_x[Tripode_Apoyo[k]] + (lambda_Correccion+velocidadCuerpo_y*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                     transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
                     PisadaProxima_i=ij[0];
                     PisadaProxima_j=ij[1];
