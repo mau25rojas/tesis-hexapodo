@@ -1,106 +1,112 @@
 
- Inicio tiempo de simulacion: 4.400
+ Inicio tiempo de simulacion: 4.100
 server_Plan::T[1] ((((v_y=0.018))))
 
-tiempo de simulacion: 4.450
+tiempo de simulacion: 4.100
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 7.050
-server_Plan::T[2] ((((v_y=0.014))))
-
-tiempo de simulacion: 7.150
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 9.600
-server_Plan::T[1] ((((v_y=0.018))))
-
-tiempo de simulacion: 9.600
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 12.300
+ Inicio tiempo de simulacion: 6.300
 server_Plan::T[2] ((((v_y=0.018))))
 
-tiempo de simulacion: 12.350
+tiempo de simulacion: 6.350
 server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 15.200
-server_Plan::T[1] ((((v_y=0.018))))
+ Inicio tiempo de simulacion: 8.500
+server_Plan::T[1] ((((v_y=0.013))))
 
-tiempo de simulacion: 15.200
+tiempo de simulacion: 8.550
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 18.300
+ Inicio tiempo de simulacion: 10.700
 server_Plan::T[2] ((((v_y=0.018))))
 
-tiempo de simulacion: 18.300
+tiempo de simulacion: 10.700
 server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 21.100
+ Inicio tiempo de simulacion: 12.950
 server_Plan::T[1] ((((v_y=0.016))))
 
-tiempo de simulacion: 21.150
+tiempo de simulacion: 12.950
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 23.800
-server_Plan::T[2] ((((v_y=0.018))))
-
-tiempo de simulacion: 23.850
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 26.550
-server_Plan::T[1] ((((v_y=0.012))))
-
-tiempo de simulacion: 26.600
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 28.850
-server_Plan::T[2] ((((v_y=0.018))))
-
-tiempo de simulacion: 28.850
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 31.650
-server_Plan::T[1] ((((v_y=0.010))))
-
-tiempo de simulacion: 31.750
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 34.450
+ Inicio tiempo de simulacion: 15.200
 server_Plan::T[2] ((((v_y=0.015))))
 
-tiempo de simulacion: 34.450
+tiempo de simulacion: 15.250
 server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 37.350
-server_Plan::T[1] ((((v_y=0.016))))
+ Inicio tiempo de simulacion: 17.350
+server_Plan::T[1] ((((v_y=0.015))))
 
-tiempo de simulacion: 37.400
+tiempo de simulacion: 17.400
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 39.950
-server_Plan::T[2] ((((v_y=0.016))))
-
-tiempo de simulacion: 39.950
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 42.850
-server_Plan::T[1] ((((v_y=0.018))))
-
-tiempo de simulacion: 42.850
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 45.450
-server_Plan::T[2] ((((v_y=0.018))))
-
-tiempo de simulacion: 45.500
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 48.150
-server_Plan::T[1] ((((v_y=0.018))))
-
-tiempo de simulacion: 48.150
-server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 50.850
+ Inicio tiempo de simulacion: 19.500
 server_Plan::T[2] ((((v_y=0.017))))
 
-tiempo de simulacion: 50.850
+tiempo de simulacion: 19.550
 server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 53.649
-server_Plan::T[1] ((((v_y=0.011))))
+ Inicio tiempo de simulacion: 21.850
+server_Plan::T[1] ((((v_y=0.018))))
 
-tiempo de simulacion: 53.649
+tiempo de simulacion: 21.850
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 56.249
+ Inicio tiempo de simulacion: 24.050
+server_Plan::T[2] ((((v_y=0.018))))
+
+tiempo de simulacion: 24.050
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
+ Inicio tiempo de simulacion: 26.150
+server_Plan::T[1] ((((v_y=0.016))))
+tiempo de simulacion: 26.150
+pata [2] coincide con obstaculo[47][14]
+tiempo de simulacion: 26.150
+server_PlanificadorPisada: Correccion de pisada ciclo: 0
+tiempo de simulacion: 26.150
+lambda_Correccion: 0.065
+tiempo de simulacion: 26.150
+revisando pata[2]
+
+tiempo de simulacion: 26.200
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.065, T_correccion=4.000
+ Inicio tiempo de simulacion: 28.300
+server_Plan::T[2] ((((v_y=0.018))))
+
+tiempo de simulacion: 28.350
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=2.889
+ Inicio tiempo de simulacion: 30.050
+server_Plan::T[1] ((((v_y=0.018))))
+tiempo de simulacion: 30.050
+pata [6] coincide con obstaculo[53][10]
+tiempo de simulacion: 30.050
+server_PlanificadorPisada: Correccion de pisada ciclo: 0
+tiempo de simulacion: 30.050
+lambda_Correccion: 0.065
+tiempo de simulacion: 30.050
+revisando pata[6]
+
+tiempo de simulacion: 30.050
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.065, T_correccion=4.000
+ Inicio tiempo de simulacion: 32.450
 server_Plan::T[2] ((((v_y=0.015))))
 
-tiempo de simulacion: 56.249
-server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
- Inicio tiempo de simulacion: 58.199
-server_Plan::T[1] ((((v_y=0.016))))
+tiempo de simulacion: 32.500
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=2.889
+ Inicio tiempo de simulacion: 34.550
+server_Plan::T[1] ((((v_y=0.018))))
 
-tiempo de simulacion: 58.199
+tiempo de simulacion: 34.600
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
+ Inicio tiempo de simulacion: 36.900
+server_Plan::T[2] ((((v_y=0.008))))
+
+tiempo de simulacion: 36.900
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
+ Inicio tiempo de simulacion: 39.150
+server_Plan::T[1] ((((v_y=0.017))))
+
+tiempo de simulacion: 39.200
+server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
+ Inicio tiempo de simulacion: 41.350
+server_Plan::T[2] ((((v_y=0.010))))
+
+tiempo de simulacion: 41.400
+server_PlanificadorPisada: Tripode=2, landa_correccion=0.090, T_correccion=4.000
+ Inicio tiempo de simulacion: 43.400
+server_Plan::T[1] ((((v_y=0.018))))
+
+tiempo de simulacion: 43.400
 server_PlanificadorPisada: Tripode=1, landa_correccion=0.090, T_correccion=4.000
