@@ -19,6 +19,8 @@
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/ObjectGroupData.h"
+// Definiciones
+#define tamano_ventana 11
 //-- Clientes y servicios
 ros::ServiceClient client_Trans_MundoPata;
 camina7::TransTrayectoriaParametros srv_Trans_MundoPata;
@@ -27,8 +29,8 @@ bool simulationRunning=true;
 bool sensorTrigger=false;
 bool infoCuerpo=false, infoPatas=false, infoVel=false;
 float simulationTime=0.0f;
-float Veloy_twist=0.0;
-double tiempo_ahora2=0.0, tiempo_anterior2=0.0;
+float Veloy_twist=0.0, ventana_prom[tamano_ventana];
+double tiempo_ahora2=0.0;
 ros::Time time_stamp;
 FILE *fp,*fp1,*fp2,*fp3,*fp4,*fp5,*fp6;
 camina7::UbicacionRobot ubicacionRobot;
@@ -75,9 +77,7 @@ void ubicacionCallback(const vrep_common::ObjectGroupData msgUbicacionPatas)
 
 void ubicacionCuerpoCallback(geometry_msgs::PoseStamped msgUbicacionCuerpo)
 {
-    tiempo_anterior2 = tiempo_ahora2;
     time_stamp = msgUbicacionCuerpo.header.stamp;
-    tiempo_ahora2 = time_stamp.toSec();
     ubicacionRobot.coordenadaCuerpo_x = msgUbicacionCuerpo.pose.position.x;
     ubicacionRobot.coordenadaCuerpo_y = msgUbicacionCuerpo.pose.position.y;
     tf::quaternionMsgToTF(msgUbicacionCuerpo.pose.orientation,CuerpoOrientacion_Q);
@@ -113,8 +113,7 @@ int main(int argc,char* argv[])
 	float Periodo=0.0, f=0.0;
 	int Narg=0;
 	std::string dummys,cuerpo, vel, fuerza;
-	int window_size=10;
-    boost::circular_buffer<float> cb(window_size);
+    boost::circular_buffer<float> ventana_vel(tamano_ventana);
 
 	Narg=4;
 
@@ -176,9 +175,9 @@ int main(int argc,char* argv[])
     fp6 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P6.txt","w+");
 
         double tiempo_ahora=0.0, tiempo_anterior=0.0;
-        float delta_t=0.0,delta_t2=0.0;
-        float delta_x=0.0, delta_y=0.0, x_anterior=0.0, y_anterior=0.0, x_actual=0.0, y_actual=0.0;
-        float vel1=0.0, vel2=0.0;
+        float delta_t=0.0;
+        float delta_y=0.0, y_anterior=0.0, y_actual=0.0;
+        float vel1=0.0;
 
     /* Velocidad de transmision */
     Periodo = 0.1;
@@ -208,7 +207,6 @@ int main(int argc,char* argv[])
         y_actual = ubicacionRobot.coordenadaCuerpo_y;
         tiempo_ahora = ros::Time::now().toSec();
         delta_t = (float) (tiempo_ahora - tiempo_anterior);
-        delta_t2 = (float) (tiempo_ahora2 - tiempo_anterior2);
     //    delta_x = fabs(x_actual-x_anterior);
         delta_y = fabs(y_actual-y_anterior);
 //        ROS_INFO("\nNodo6: delta_t=%.3f, delta_y=%.3f",delta_t,delta_y);
@@ -218,22 +216,21 @@ int main(int argc,char* argv[])
         } else {
             vel1 = delta_y/delta_t;
         }
-
-        if (delta_t2==0) {
-            vel2 = 0.0;
-        } else {
-            vel2 = delta_y/delta_t2;
-        }
     //-- Filtrado de medida de velocidad
-        cb.push_back(vel1);
-        float acc=0.0;
-        for(int i=0;i<window_size;i++) acc=acc+cb[i];
-        ubicacionRobot.velocidadCuerpo_y = acc/window_size;
+    //.. los primeros instantes de tiempo no son importantes porque el robot no sera controlado en ese momento
+//        ventana.push_back(vel1);
+//        float acc=0.0;
+//        for(int i=0;i<tamano_ventana;i++) acc=acc+ventana[i];
+//        ubicacionRobot.velocidadCuerpo_y = acc/tamano_ventana;
+        int datoSalida=(tamano_ventana+1)/2;
+        ventana_vel.push_back(vel1);
+        for(int i=0;i<tamano_ventana;i++) ventana_prom[i]=ventana_vel[i];
+        std::sort (ventana_prom, ventana_prom+tamano_ventana);
+        ubicacionRobot.velocidadCuerpo_y = ventana_prom[datoSalida];
 
-        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",delta_t,delta_t2,vel1,vel2,Veloy_twist,ubicacionRobot.velocidadCuerpo_y);
+        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\n",delta_t,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
 
         tiempo_anterior = tiempo_ahora;
-        tiempo_anterior2 = tiempo_ahora2;
 
         if (infoCuerpo and infoPatas){
             infoCuerpo=false;
