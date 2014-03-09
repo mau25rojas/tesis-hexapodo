@@ -1,6 +1,8 @@
-#include "ros/ros.h"
-#include "std_msgs/String.h"
-#include "math.h"
+#include <ros/ros.h>
+#include <std_msgs/String.h>
+#include <math.h>
+#include <time.h>
+#include "boost/date_time/posix_time/posix_time.hpp"
 //Librerias propias usadas
 #include "constantes.hpp"
 #include "camina7/v_repConst.h"
@@ -19,14 +21,18 @@ camina7::PlanificadorParametros srv_Planificador;
 bool simulationRunning=true;
 bool sensorTrigger=false;
 bool Inicio=true, InicioApoyo_T1=false, FinApoyo_T1=false, InicioApoyo_T2=false, FinApoyo_T2=false;
-camina7::DatosTrayectoriaPata datosTrayectoriaPata;
+bool InicioTransf_T1=false, FinTransf_T1=false, InicioTransf_T2=false, FinTransf_T2=false;
 float simulationTime=0.0f;
 float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0, lambda_Apoyo_actual=0.0;
 float modificacion_T = 0.0, modificacion_lambda =0.0;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
+float coordenadaCuerpo_y=0.0,yCuerpo_T1_1=0.0, yCuerpo_T1_2=0.0,yCuerpo_T2_1=0.0, yCuerpo_T2_2=0.0, delta_y=0.0, tiempo_ahora=0.0, velocidadCuerpo_y=0.0;
 int pataApoyo[Npatas], tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
 int Tripode=0, cuenta=0;
 FILE *fp1;
+boost::posix_time::ptime timerT1_1,timerT1_2,timerT2_1,timerT2_2;
+boost::posix_time::time_duration diff_t;
+camina7::DatosTrayectoriaPata datosTrayectoriaPata;
 ros::Publisher chatter_pub1,chatter_pub2;
 
 // Funciones
@@ -40,6 +46,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 
 void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
 {
+     coordenadaCuerpo_y = msgUbicacionRobot.coordenadaCuerpo_y;
      for(int k=0; k<Npatas;k++) {
         pataApoyo[k] = msgUbicacionRobot.pataApoyo[k];
     }
@@ -81,10 +88,22 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                 if (Tripode==T1){
                     datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
                     lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T1-1];
+                //-- calculo de velocidad
+                    delta_y = fabs(yCuerpo_T1_1-yCuerpo_T1_2);
+                    diff_t = timerT1_1 - timerT1_2;
+                    tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+                    velocidadCuerpo_y = delta_y/tiempo_ahora;
                 }else{
                     datosTrayectoriaPata.lambda_Apoyo[T2-1]=datosTrayectoriaPata.lambda_Transferencia[T2-1];
                     lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T2-1];
+                //-- calculo de velocidad
+                    diff_t = timerT2_1 - timerT2_2;
+                    tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+                    velocidadCuerpo_y = delta_y/tiempo_ahora;
                 }
+                ROS_INFO("Nodo1::T[%d]: delta_y=%.3f, delta_t=%.3f, velocidad=%.3f",Tripode,delta_y,tiempo_ahora,velocidadCuerpo_y);
+                fprintf(fp1,"%.3f,%.3f,%.3f\n",delta_y,tiempo_ahora,velocidadCuerpo_y);
+
                 srv_Planificador.request.Tripode = Tripode;
                 srv_Planificador.request.T = T;
                 srv_Planificador.request.lambda = lambda_Apoyo_actual;
@@ -121,7 +140,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
             }
 
             datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
-            fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",modificacion_T,datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.lambda_Apoyo[T1-1],datosTrayectoriaPata.lambda_Transferencia[T1-1],datosTrayectoriaPata.lambda_Apoyo[T2-1], datosTrayectoriaPata.lambda_Transferencia[T2-1]);
+//            fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",modificacion_T,datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.lambda_Apoyo[T1-1],datosTrayectoriaPata.lambda_Transferencia[T1-1],datosTrayectoriaPata.lambda_Apoyo[T2-1], datosTrayectoriaPata.lambda_Transferencia[T2-1]);
             chatter_pub1.publish(datosTrayectoriaPata);
     //        delta_t = delta_t + T/divisionTrayectoriaPata;
             if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
@@ -252,7 +271,23 @@ bool CambioDeEstado_Apoyo(){
     if (InicioApoyo_T1){
         InicioApoyo_T1 = false;
         Tripode = T1;
+        yCuerpo_T1_1 = coordenadaCuerpo_y;
+        timerT1_1 = boost::posix_time::microsec_clock::local_time();
         cambio = true;
+    }
+//--- Transferencia de Tripode 1
+    if ((pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) and FinTransf_T1) {
+        InicioTransf_T1=true;
+        FinTransf_T1=false;
+    }
+    if (pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) {
+        FinTransf_T1=true;
+    }
+
+    if (InicioTransf_T1){
+        InicioTransf_T1 = false;
+        yCuerpo_T1_2 = coordenadaCuerpo_y;
+        timerT1_2 = boost::posix_time::microsec_clock::local_time();
     }
 //--- Apoyo de Tripode 2
     if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T2) {
@@ -267,7 +302,23 @@ bool CambioDeEstado_Apoyo(){
     if (InicioApoyo_T2){
         InicioApoyo_T2 = false;
         Tripode = T2;
+        yCuerpo_T2_1 = coordenadaCuerpo_y;
+        timerT2_1 = boost::posix_time::microsec_clock::local_time();
         cambio = true;
+    }
+//--- Transferencia de Tripode 2
+    if ((pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) and FinTransf_T2) {
+        InicioTransf_T2=true;
+        FinTransf_T2=false;
+    }
+    if (pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) {
+        FinTransf_T2=true;
+    }
+
+    if (InicioTransf_T2){
+        InicioTransf_T2 = false;
+        yCuerpo_T2_2 = coordenadaCuerpo_y;
+        timerT2_2 = boost::posix_time::microsec_clock::local_time();
     }
 
     return cambio;
