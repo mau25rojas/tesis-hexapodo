@@ -227,7 +227,7 @@ int main(int argc,char* argv[])
         std::sort (ventana_prom, ventana_prom+tamano_ventana);
         ubicacionRobot.velocidadCuerpo_y = ventana_prom[datoSalida];
 
-        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",tiempo_ahora,delta_t,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
+        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",y_actual,delta_y,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
 
         tiempo_anterior = tiempo_ahora;
 
