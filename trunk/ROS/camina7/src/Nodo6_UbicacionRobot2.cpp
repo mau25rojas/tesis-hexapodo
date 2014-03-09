@@ -201,21 +201,20 @@ int main(int argc,char* argv[])
         }
 
     //-- Calculo de velocidad de robot
-    //    x_anterior = x_actual;
         y_anterior = y_actual;
-    //    x_actual = msgUbicacionRobot.coordenadaCuerpo_x;
         y_actual = ubicacionRobot.coordenadaCuerpo_y;
-        tiempo_ahora = ros::Time::now().toSec();
-        delta_t = (float) (tiempo_ahora - tiempo_anterior);
-    //    delta_x = fabs(x_actual-x_anterior);
+//        tiempo_ahora = ros::Time::now().toSec();
+//        delta_t = (float) (tiempo_ahora - tiempo_anterior);
         delta_y = fabs(y_actual-y_anterior);
 //        ROS_INFO("\nNodo6: delta_t=%.3f, delta_y=%.3f",delta_t,delta_y);
-
-        if (delta_t==0) {
-            vel1 = 0.0;
-        } else {
-            vel1 = delta_y/delta_t;
-        }
+        //----------------------------
+        //--Confiando en que el tiempo que pasa es Periodo=0.1
+//        if (delta_t==0) {
+//            vel1 = 0.0;
+//        } else {
+//            vel1 = delta_y/delta_t;
+//        }
+            vel1 = delta_y/Periodo;
     //-- Filtrado de medida de velocidad
     //.. los primeros instantes de tiempo no son importantes porque el robot no sera controlado en ese momento
 //        ventana.push_back(vel1);
@@ -228,7 +227,7 @@ int main(int argc,char* argv[])
         std::sort (ventana_prom, ventana_prom+tamano_ventana);
         ubicacionRobot.velocidadCuerpo_y = ventana_prom[datoSalida];
 
-        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\n",delta_t,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
+        fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",tiempo_ahora,delta_t,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
 
         tiempo_anterior = tiempo_ahora;
 

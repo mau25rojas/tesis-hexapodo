@@ -76,8 +76,9 @@ void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
     } else {
         velocidadCuerpo_y = vel_aux;
     }
-    velocidadCuerpo_y= ajuste_Vel*velocidadCuerpo_y;
-//    velocidadCuerpo_y=vel_esperada;
+//    velocidadCuerpo_y= ajuste_Vel*velocidadCuerpo_y;
+    velocidadCuerpo_y= velocidadCuerpo_y;
+
     for(int k=0; k<Npatas;k++) {
         posicionActualPata_x[k] = msgUbicacionRobot.coordenadaPata_x[k];
         posicionActualPata_y[k] = msgUbicacionRobot.coordenadaPata_y[k];
