@@ -26,7 +26,7 @@ float simulationTime=0.0f;
 //-- Log de planificador
 FILE *fp2;
 //-- Entrada
-int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
+int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0;
 float velocidad_Apoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina7::InfoMapa infoMapa;
@@ -69,15 +69,15 @@ void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
 
     teta_CuerpoRobot = msgUbicacionRobot.orientacionCuerpo_yaw;
 
-    vel_aux = msgUbicacionRobot.velocidadCuerpo_y;
-    if(vel_aux>velocidad_Apoyo){
-//-- la velocidad no puede ser mayor a la esperada
-        velocidadCuerpo_y = velocidad_Apoyo;
-    } else {
-        velocidadCuerpo_y = vel_aux;
-    }
-//    velocidadCuerpo_y= ajuste_Vel*velocidadCuerpo_y;
-    velocidadCuerpo_y= velocidadCuerpo_y;
+//    vel_aux = msgUbicacionRobot.velocidadCuerpo_y;
+//    if(vel_aux>velocidad_Apoyo){
+////-- la velocidad no puede ser mayor a la esperada
+//        velocidadCuerpo_y = velocidad_Apoyo;
+//    } else {
+//        velocidadCuerpo_y = vel_aux;
+//    }
+////    velocidadCuerpo_y= ajuste_Vel*velocidadCuerpo_y;
+//    velocidadCuerpo_y= velocidadCuerpo_y;
 
     for(int k=0; k<Npatas;k++) {
         posicionActualPata_x[k] = msgUbicacionRobot.coordenadaPata_x[k];
@@ -113,10 +113,12 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     Tripode=req.Tripode;
 //    T_actual = req.T;
     lambda_Apoyo_actual = req.lambda;
+    velocidadCuerpo_y = req.velApoyo_y;
 
-    ROS_INFO("INICIO server_Plan::T[%d] ((((v_y=%.3f))))",Tripode,velocidadCuerpo_y);
-    fprintf(fp2,"\n Inicio tiempo de simulacion: %.3f\n",simulationTime);
-    fprintf(fp2,"server_Plan::T[%d] ((((v_y=%.3f))))\n",Tripode,velocidadCuerpo_y);
+    cuentaPasos++;
+    ROS_INFO("INICIO server_Plan::T[%d]::P[%d] ((((v_y=%.3f))))",Tripode,cuentaPasos,velocidadCuerpo_y);
+    fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
+    fprintf(fp2,"server_Plan::T[%d]: tiempo de simulacion: %.3f ((((v_y=%.3f))))\n",Tripode,simulationTime,velocidadCuerpo_y);
 
 
     if (req.Tripode == T1){

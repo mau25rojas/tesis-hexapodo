@@ -32,7 +32,7 @@ float finTransferencia_x=0.0, finApoyo_x;
 float x_Offset=0.0, y_Offset=0.0, z_Offset=0.0;   //matriz de transformacion homogenea
 camina7::AngulosMotor qMotor;
 ros::Publisher chatter_pub;
-FILE *fp1, *fp2;
+FILE *fp1;
 //-- Funciones
 void Trayectoria_FaseApoyo(float t_Trayectoria,float PuntoInicio_x,float PuntoInicio_y,float PuntoInicio_z);
 void Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,float PuntoInicio_x,float PuntoInicio_y,float PuntoInicio_z);
@@ -108,18 +108,16 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
     srv_Cinversa.request.y = y_S1;
     srv_Cinversa.request.z = z_S1;
 
-    fprintf(fp1,"%d,%.3f,%.3f,%.3f,%.3f\n",Npata_arg,t_Trayectoria,x_S1,y_S1,z_S1);
-
     if (client_Cinversa.call(srv_Cinversa)&&(srv_Cinversa.response.result!=-1))
     {   qMotor.q1 = srv_Cinversa.response.q1;
         qMotor.q2 = srv_Cinversa.response.q2;
         qMotor.q3 = srv_Cinversa.response.q3;
-        fprintf(fp2,"%d,%.3f,%.3f,%.3f,%.3f\n",Npata_arg,t_Trayectoria,qMotor.q1,qMotor.q2,qMotor.q3);
     } else {
         ROS_ERROR("Nodo 2::[%d] servicio de Cinversa no funciona\n",Npata_arg);
 //        return;
     }
 
+    fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",t_Trayectoria,qMotor.q1,qMotor.q2,qMotor.q3,x_S1,y_S1,z_S1);
     //---Publica angulos motores----
     qMotor.Npata = Npata_arg;
 	chatter_pub.publish(qMotor);
@@ -161,23 +159,17 @@ int main(int argc, char **argv){
     client_Cinversa = node.serviceClient<camina7::CinversaParametros>("Cinversa");
     client_TransHomogenea = node.serviceClient<camina7::TransHomogeneaParametros>("TransHomogenea");
 
-    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaX");
+    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/QXEnviada_Pata");
     std::string texto(".txt");
     fileName+=Id;
     fileName+=texto;
     fp1 = fopen(fileName.c_str(),"w+");
-
-    std::string fileName2("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaQ");
-    fileName2+=Id;
-    fileName2+=texto;
-    fp2 = fopen(fileName2.c_str(),"w+");
 
     while (ros::ok() && simulationRunning)
     {
 	  ros::spinOnce();
     }
     fclose(fp1);
-    fclose(fp2);
     //ROS_INFO("Adios2!");
     ros::shutdown();
     return 0;

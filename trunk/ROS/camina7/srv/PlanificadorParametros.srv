@@ -7,6 +7,7 @@ int32 Tripode
 float32 T
 float32 lambda
 float32[] tripode
+float32 velApoyo_y
 ---
 # Response
 int32 result
