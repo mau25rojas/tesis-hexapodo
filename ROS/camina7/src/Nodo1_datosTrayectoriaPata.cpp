@@ -107,6 +107,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                 srv_Planificador.request.Tripode = Tripode;
                 srv_Planificador.request.T = T;
                 srv_Planificador.request.lambda = lambda_Apoyo_actual;
+                srv_Planificador.request.velApoyo_y = velocidadCuerpo_y;
                 if (client_Planificador.call(srv_Planificador)){
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     modificacion_T = srv_Planificador.response.modificacion_T;
