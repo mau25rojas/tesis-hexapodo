@@ -116,9 +116,9 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     velocidadCuerpo_y = req.velApoyo_y;
 
     cuentaPasos++;
-    ROS_INFO("INICIO server_Plan::T[%d]::P[%d] ((((v_y=%.3f))))",Tripode,cuentaPasos,velocidadCuerpo_y);
+    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] ((((v_y=%.3f))))",Tripode,cuentaPasos,velocidadCuerpo_y);
     fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
-    fprintf(fp2,"server_Plan::T[%d]: tiempo de simulacion: %.3f ((((v_y=%.3f))))\n",Tripode,simulationTime,velocidadCuerpo_y);
+    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f ((((v_y=%.3f))))\n",Tripode,simulationTime,velocidadCuerpo_y);
 
 
     if (req.Tripode == T1){
@@ -180,8 +180,8 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
                 if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
                 //-- La pisada COINCIDE con obstaculo
                     ROS_WARN("server_PlanificadorPisada: pata [%d] coincide con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-                    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-                    fprintf(fp2,"pata [%d] coincide con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
+//                    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+                    fprintf(fp2,"pata [%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
                     PisadaInvalida[k] = true;
                     TodasPisadasOk = false;
 //                    break;
@@ -199,7 +199,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
             }
         } else {
             ROS_WARN("server_PlanificadorPisada: pata [%d] error cinversa",k+1);
-            fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+//            fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
             fprintf(fp2,"pata [%d] error cinversa\n",Tripode_Transferencia[k]+1);
             PisadaInvalida[k] = true;
             TodasPisadasOk = false;
@@ -213,7 +213,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     while (ciclosContraccion<MAX_CICLOS && !TodasPisadasOk){
         infoMapa.correccion=true;
         ROS_WARN("server_PlanificadorPisada: Correccion de pisada ciclo: %d",ciclosContraccion);
-        fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+//        fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
         fprintf(fp2,"server_PlanificadorPisada: Correccion de pisada ciclo: %d\n",ciclosContraccion);
         ciclosContraccion++;
         TodasPisadasOk = true;
@@ -221,7 +221,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
         lambda_paso = lambda_paso+0.025;
         lambda_Correccion = lambda_maximo-lambda_paso;
         ROS_WARN("server_PlanificadorPisada: lambda_Correccion: %.3f",lambda_Correccion);
-        fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+//        fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
         fprintf(fp2,"lambda_Correccion: %.3f\n",lambda_Correccion);
 
 //        T_Correccion = lambda_Correccion/velocidad_Apoyo;
@@ -230,7 +230,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
             ros::spinOnce();
             if(PisadaInvalida[k]){
                 ROS_WARN("server_PlanificadorPisada: revisando pata[%d]",Tripode_Transferencia[k]+1);
-                fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+//                fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
                 fprintf(fp2,"revisando pata[%d]\n",Tripode_Transferencia[k]+1);
             //-- Calculamos proximo movimiento en el sistema de pata
                 delta_x_S0 = -lambda_Correccion*cos(alfa);
@@ -265,8 +265,8 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
                     if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
                     //-- La pisada COINCIDE con obstaculo
                         ROS_WARN("server_PlanificadorPisada: pata [%d] coincide con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-                        fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-                        fprintf(fp2,"pata [%d] coincide con obstaculo [%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
+//                        fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+                        fprintf(fp2,"pata [%d] coincidira con obstaculo [%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
                         PisadaInvalida[k] = true;
                         TodasPisadasOk = false;
                         break;
@@ -284,7 +284,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
                 } else {
                 //-- La pisada no es factible
                     ROS_ERROR("server_PlanificadorPisada: pata [%d] error cinversa",Tripode_Transferencia[k]+1);
-                    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+//                    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
                     fprintf(fp2,"pata [%d] error cinversa\n",Tripode_Transferencia[k]+1);
                     PisadaInvalida[k] = true;
                     TodasPisadasOk = false;
@@ -296,7 +296,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
     for(int k=0;k<Npatas/2;k++) {
         if(PisadaInvalida[k]){
             ROS_ERROR("server_PlanificadorPisada: No se pudo corregir pisada pata[%d]",Tripode_Transferencia[k]+1);
-            fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+//            fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
             fprintf(fp2,"No se pudo corregir pisada pata[%d]\n",Tripode_Transferencia[k]+1);
             senales.Stop=true;
             chatter_pub1.publish(senales);
@@ -316,10 +316,10 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
         res.modificacion_lambda = modificacion_lambda[0];
     }
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
-//    ROS_INFO("server_PlanificadorPisada: Tripode=%d, landa_correccion=%.3f, T_correccion=%.3f",req.Tripode,res.modificacion_lambda,res.modificacion_T);
+//    ROS_INFO("server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 //-- Envio datos de planificacion al mapa
-    fprintf(fp2,"\ntiempo de simulacion: %.3f\n",simulationTime);
-    fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, landa_correccion=%.3f, T_correccion=%.3f",req.Tripode,res.modificacion_lambda,res.modificacion_T);
+//    fprintf(fp2,"\ntiempo de simulacion: %.3f\n",simulationTime);
+    fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 //    fprintf(fp2,"Envio datos de mapa");
     chatter_pub2.publish(infoMapa);
 
