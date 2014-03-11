@@ -40,6 +40,7 @@ ros::Publisher chatter_pub;
 FILE *fp1,*fp2;
 BITMAP *buffer;
 int divisionX=0, divisionY=0;
+int cuentaPasos=0;
 //float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
 //float origenPata_x[6], origenPata_y[6], rotacionPata[6];
 //float EspacioTrabajoPata_x[6][4],EspacioTrabajoPata_y[6][4];
@@ -100,6 +101,7 @@ void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
 
 void ajusteCallback(camina7::InfoMapa msgInfoMapa)
 {
+    cuentaPasos++;
 	for(int k=0; k<Npatas; k++){
 	    coordenadaPreAjuste_i[k]=msgInfoMapa.coordenadaPreAjuste_i[k];
         coordenadaPreAjuste_j[k]=msgInfoMapa.coordenadaPreAjuste_j[k];
@@ -108,6 +110,7 @@ void ajusteCallback(camina7::InfoMapa msgInfoMapa)
 	}
 
     fprintf(fp2,"\ntiempo de simulacion: %.3f",simulationTime);
+    fprintf(fp2,"\nPaso:%d",cuentaPasos);
     if (msgInfoMapa.correccion){
         fprintf(fp2,"\nCorreccion:Si");
     } else {
