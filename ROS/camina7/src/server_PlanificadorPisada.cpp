@@ -27,7 +27,7 @@ float simulationTime=0.0f;
 FILE *fp1,*fp2;
 //-- Entrada
 int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0};
-float velocidad_Apoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
+float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina7::InfoMapa infoMapa;
 std::vector<int> coordenadaObstaculo_i(1000,0), coordenadaObstaculo_j(1000,0);
@@ -146,7 +146,7 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
         }
     }
     //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
-    res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidad_Apoyo;
+    res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidadApoyo;
 
     TodasPisadasOk = true;    // Todas las pisadas se asumen bien a la primera
     for(int k=0;k<Npatas/2;k++){
@@ -316,8 +316,8 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
 //-- Escojo el largo de pisada mas corto y lo impongo a todas las patas del tripode
 //    ROS_INFO("server_Plan: final PlanificadorPisada");
     std::sort (modificacion_lambda, modificacion_lambda+3);
-    if(modificacion_lambda[0]<lambda_minimo){
-        res.modificacion_lambda = lambda_minimo;
+    if(modificacion_lambda[0]<T_minimo*velocidadApoyo){
+        res.modificacion_lambda = T_minimo*velocidadApoyo;
     } else {
         res.modificacion_lambda = modificacion_lambda[0];
     }
@@ -352,7 +352,7 @@ int main(int argc, char **argv)
     if (argc>=Narg)
 	{
         beta = atof(argv[1]);
-        velocidad_Apoyo = atof(argv[2]);
+        velocidadApoyo = atof(argv[2]);
         alfa = atof(argv[3])*pi/180.0;
         fileName = argv[4];
         nCeldas_i = atoi(argv[5]);
