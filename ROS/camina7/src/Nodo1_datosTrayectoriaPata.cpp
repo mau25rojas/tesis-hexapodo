@@ -58,6 +58,8 @@ void relojCallback(camina7::SenalesCambios msgSenal)
 
     if (!msgSenal.Stop){
 
+        llamadaPlan = CambioDeEstado_Apoyo();
+
         if (Inicio){
             cuenta++;
             if (cuenta==2*divisionTrayectoriaPata){
@@ -77,7 +79,6 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                 }
             }
         } else {
-            llamadaPlan = CambioDeEstado_Apoyo();
             //-------------------------------
             if(llamadaPlan){
 //                ROS_INFO("Llama a plan tripode[%d]",Tripode);
