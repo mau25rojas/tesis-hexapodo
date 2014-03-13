@@ -62,7 +62,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
 
         if (Inicio){
             cuenta++;
-            if (cuenta==10*divisionTrayectoriaPata){
+            if (cuenta==2*divisionTrayectoriaPata){
                 Inicio=false;
                 delta_t = T;
             } else {
@@ -240,7 +240,7 @@ int main(int argc, char **argv)
     /* Velocidad de transmision */
     ros::Rate loop_rate(f);  //Frecuencia [Hz]
 //-- Delay inicial para esperar inicio de todos los nodos
-    for(i=0;i<10;i++) loop_rate.sleep();
+//    for(i=0;i<10;i++) loop_rate.sleep();
 
     modificacion_T = T;
     modificacion_lambda = lambda_Transferencia;
