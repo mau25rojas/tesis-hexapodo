@@ -102,7 +102,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
                     tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
                     velocidadCuerpo_y = delta_y/tiempo_ahora;
                 }
-                ROS_INFO("Nodo1::T[%d]: delta_y=%.3f, delta_t=%.3f, velocidad=%.3f",Tripode,delta_y,tiempo_ahora,velocidadCuerpo_y);
+                ROS_INFO("Nodo1::T[%d]: delta_y=%.3f, diff_t=%.3f, velocidad=%.3f",Tripode,delta_y,tiempo_ahora,velocidadCuerpo_y);
                 fprintf(fp1,"%.3f,%.3f,%.3f\n",delta_y,tiempo_ahora,velocidadCuerpo_y);
 
                 srv_Planificador.request.Tripode = Tripode;
@@ -147,6 +147,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
     //        delta_t = delta_t + T/divisionTrayectoriaPata;
             if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
                 delta_t = delta_t;
+                ROS_INFO("Esperando apoyo, delta_t=%.4f",delta_t);
             } else {
                 delta_t = delta_t + T/divisionTrayectoriaPata;
             }
