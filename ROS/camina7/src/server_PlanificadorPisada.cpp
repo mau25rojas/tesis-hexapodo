@@ -316,8 +316,8 @@ bool PlanificadorPisada(camina7::PlanificadorParametros::Request  &req,
 //-- Escojo el largo de pisada mas corto y lo impongo a todas las patas del tripode
 //    ROS_INFO("server_Plan: final PlanificadorPisada");
     std::sort (modificacion_lambda, modificacion_lambda+3);
-    if(modificacion_lambda[0]<T_minimo*velocidadApoyo){
-        res.modificacion_lambda = T_minimo*velocidadApoyo;
+    if(modificacion_lambda[0]<lambda_minimo){
+        res.modificacion_lambda = lambda_minimo;
     } else {
         res.modificacion_lambda = modificacion_lambda[0];
     }
