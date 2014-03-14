@@ -147,7 +147,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
     //        delta_t = delta_t + T/divisionTrayectoriaPata;
             if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
                 delta_t = delta_t;
-                ROS_INFO("Esperando apoyo, delta_t=%.4f",delta_t);
+//                ROS_INFO("Esperando apoyo, delta_t=%.4f",delta_t);
             } else {
                 delta_t = delta_t + T/divisionTrayectoriaPata;
             }
