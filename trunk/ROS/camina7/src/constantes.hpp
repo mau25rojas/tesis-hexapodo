@@ -23,9 +23,9 @@ Lynxmotion:
 #define rotacion_Pata5 150*pi/180
 #define rotacion_Pata6 -150*pi/180
 //Longitud de eslabones
-#define L1 0.052
-#define L2 0.06
-#define L3 0.105
+#define L1 0.0280
+#define L2 0.0595
+#define L3 0.1076
 //Propiedades de cuerpo
 #define anguloPatas 60*pi/180
 #define radioCuerpo 0.14
