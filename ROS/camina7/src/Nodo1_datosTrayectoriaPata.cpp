@@ -62,7 +62,7 @@ void relojCallback(camina7::SenalesCambios msgSenal)
 
         if (Inicio){
             cuenta++;
-            if (cuenta==2*divisionTrayectoriaPata){
+            if (cuenta==10*divisionTrayectoriaPata){
                 Inicio=false;
                 delta_t = T;
             } else {
