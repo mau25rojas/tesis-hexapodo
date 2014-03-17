@@ -117,7 +117,7 @@ void datosCallback(const camina7::DatosTrayectoriaPata msg_datoTrayectoria)
 //        return;
     }
 
-    fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",t_Trayectoria,qMotor.q1,qMotor.q2,qMotor.q3,x_S1,y_S1,z_S1);
+    fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",qMotor.q1,qMotor.q2,qMotor.q3,t_Trayectoria,x_S1,y_S1,z_S1);
     //---Publica angulos motores----
     qMotor.Npata = Npata_arg;
 	chatter_pub.publish(qMotor);
