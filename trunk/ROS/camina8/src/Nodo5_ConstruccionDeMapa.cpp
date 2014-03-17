@@ -8,12 +8,12 @@
 #include <allegro.h>
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina7/v_repConst.h"
+#include "camina8/v_repConst.h"
 // Used data structures:
 #include "std_msgs/String.h"
-#include "camina7/InfoMapa.h"
-#include "camina7/UbicacionRobot.h"
-#include "camina7/EspacioTrabajoParametros.h"
+#include "camina8/InfoMapa.h"
+#include "camina8/UbicacionRobot.h"
+#include "camina8/EspacioTrabajoParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/simRosEnableSubscriber.h"
@@ -22,18 +22,19 @@
 #define VentanaX 640
 //Clientes y Servicios
 ros::ServiceClient client_EspacioTrabajo;
-camina7::EspacioTrabajoParametros srv_EspacioTrabajo;
+camina8::EspacioTrabajoParametros srv_EspacioTrabajo;
 
 // Global variables (modified by topic subscribers):
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
-camina7::InfoMapa infoMapa;
+camina8::InfoMapa infoMapa;
 int matrizMapa[100][100];
 bool bool_matrizMapa[100][100];
 int nCeldas_i=0, nCeldas_j=0;
 int cantidadObstaculos=0;
-int coordenadaAjuste_i[6]={0,0,0,0,0,0}, coordenadaAjuste_j[6]={0,0,0,0,0,0}, coordenadaPreAjuste_i[6]={0,0,0,0,0,0}, coordenadaPreAjuste_j[6]={0,0,0,0,0,0};
+int coordenadaAjuste_i[Npatas]={0,0,0,0,0,0}, coordenadaAjuste_j[Npatas]={0,0,0,0,0,0}, coordenadaPata_i[Npatas]={0,0,0,0,0,0}, coordenadaPata_j[Npatas]={0,0,0,0,0,0};
+float coordenadaPata_x[Npatas]={0,0,0,0,0,0}, coordenadaPata_y[Npatas]={0,0,0,0,0,0};
 float LongitudCeldaY=0.0, LongitudCeldaX=0.0;
 int ij[2], *p_ij;     //Apuntadores a arreglos de coordenadas e indices
 ros::Publisher chatter_pub;
@@ -65,7 +66,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
+void ubicacionRobCallback(camina8::UbicacionRobot msgUbicacionRobot)
 {
 //    srv_EspacioTrabajo.request.PosicionCuerpo_y = msgUbicacionRobot.coordenadaCuerpo_y;
 //    srv_EspacioTrabajo.request.PosicionCuerpo_x = msgUbicacionRobot.coordenadaCuerpo_x;
@@ -90,23 +91,16 @@ void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
 //        ROS_ERROR("Nodo 5: servicio de EspacioTrabajo no funciona\n");
 ////        return;
 //    }
-
-    for (int k=0; k<Npatas;k++) {
-        transformacion_yxTOij(p_ij, msgUbicacionRobot.coordenadaPata_y[k], msgUbicacionRobot.coordenadaPata_x[k]);
-        infoMapa.coordenadaPata_i[k]=ij[0];
-        infoMapa.coordenadaPata_j[k]=ij[1];
-        infoMapa.pataApoyo[k] = msgUbicacionRobot.pataApoyo[k];
-    }
-//    chatter_pub.publish(infoMapa);
-//    print_matrizMapa(nCeldas_y,nCeldas_x);
 }
 
-void ajusteCallback(camina7::InfoMapa msgInfoMapa)
+void ajusteCallback(camina8::InfoMapa msgInfoMapa)
 {
     cuentaPasos++;
 	for(int k=0; k<Npatas; k++){
-	    coordenadaPreAjuste_i[k]=msgInfoMapa.coordenadaPreAjuste_i[k];
-        coordenadaPreAjuste_j[k]=msgInfoMapa.coordenadaPreAjuste_j[k];
+	    coordenadaPata_x[k]=msgInfoMapa.coordenadaPata_x[k];
+        coordenadaPata_y[k]=msgInfoMapa.coordenadaPata_y[k];
+	    coordenadaPata_i[k]=msgInfoMapa.coordenadaPata_i[k];
+        coordenadaPata_j[k]=msgInfoMapa.coordenadaPata_j[k];
 	    coordenadaAjuste_i[k]=msgInfoMapa.coordenadaAjuste_i[k];
         coordenadaAjuste_j[k]=msgInfoMapa.coordenadaAjuste_j[k];
 	}
@@ -120,14 +114,14 @@ void ajusteCallback(camina7::InfoMapa msgInfoMapa)
     }
     Limpiar_matrizMapa(nCeldas_i,nCeldas_j,cantidadObstaculos);
     for(int k=0; k<Npatas; k++) {
-        matrizMapa[coordenadaPreAjuste_i[k]][coordenadaPreAjuste_j[k]]=k+1;
+        matrizMapa[coordenadaPata_i[k]][coordenadaPata_j[k]]=k+1;
         matrizMapa[coordenadaAjuste_i[k]][coordenadaAjuste_j[k]]='a';
-        fprintf(fp2,"\n[%d]Preajuste:i=%d,j=%d - ajuste:i=%d,j=%d",k+1,coordenadaPreAjuste_i[k],coordenadaPreAjuste_j[k],coordenadaAjuste_i[k],coordenadaAjuste_j[k]);
-//            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPreAjuste_i[k],coordenadaPreAjuste_j[k]);
+        fprintf(fp2,"\n[%d]Preajuste:i=%d,j=%d - ajuste:i=%d,j=%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k],coordenadaAjuste_i[k],coordenadaAjuste_j[k]);
+//            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
     }
     for(int k=0; k<Npatas; k++) {
-        if(bool_matrizMapa[coordenadaPreAjuste_i[k]][coordenadaPreAjuste_j[k]]){
-            fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]",k+1,coordenadaPreAjuste_i[k],coordenadaPreAjuste_j[k]);
+        if(bool_matrizMapa[coordenadaPata_i[k]][coordenadaPata_j[k]]){
+            fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
             ROS_WARN("Pata[%d] coincide con obstaculo",k+1);
         }
     }
@@ -137,7 +131,7 @@ void ajusteCallback(camina7::InfoMapa msgInfoMapa)
     Limpiar_matrizMapa(nCeldas_i,nCeldas_j,cantidadObstaculos);
     for(int k=0; k<Npatas; k++) {
         matrizMapa[infoMapa.coordenadaPata_i[k]][infoMapa.coordenadaPata_j[k]]=k+1;
-//            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPreAjuste_i[k],coordenadaPreAjuste_j[k]);
+//            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
     }
     FilePrint_matrizMapa(fp1, nCeldas_i,nCeldas_j);
 }
@@ -177,9 +171,9 @@ int main(int argc, char **argv)
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber subInfo2=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
     ros::Subscriber subInfo3=node.subscribe("Plan",100,ajusteCallback);
-    chatter_pub = node.advertise<camina7::InfoMapa>("GraficaMapa", 100);
+    chatter_pub = node.advertise<camina8::InfoMapa>("GraficaMapa", 100);
     //Clientes y Servicios
-//    client_EspacioTrabajo=node.serviceClient<camina7::EspacioTrabajoParametros>("EspacioTrabajo");
+//    client_EspacioTrabajo=node.serviceClient<camina8::EspacioTrabajoParametros>("EspacioTrabajo");
 
 //--- Inicializacion de variables
     LongitudCeldaY = infoMapa.tamanoCelda_i = Ly/(float) nCeldas_i;
@@ -193,11 +187,6 @@ int main(int argc, char **argv)
     for (k=0; k<cantidadObstaculos;k++) {
         infoMapa.coordenadaObstaculo_i.push_back(0);
         infoMapa.coordenadaObstaculo_j.push_back(0);
-    }
-    for (k=0; k<Npatas;k++) {
-        infoMapa.coordenadaPata_i.push_back(0);
-        infoMapa.coordenadaPata_j.push_back(0);
-        infoMapa.pataApoyo.push_back(0);
     }
     // Inicializacion de apuntadores
     p_ij = ij;
@@ -220,8 +209,8 @@ int main(int argc, char **argv)
 //--- Inicializacion de grafica
 //    IniciaGrafica();
 //--- Inicializacion de archivo de salida
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaMapa_robot.txt","w+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaMapa_ajuste.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/SalidaMapa_robot.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/SalidaMapa_ajuste.txt","w+");
 //--- Ciclo de ROS
 //	periodo=1.5;
 //    f=1/periodo;
@@ -285,14 +274,14 @@ int Construye_matrizMapa(std::string fileName, int nCeldas_i, int nCeldas_j){
     //--- Construccion de mapa mediante lectura de archivo
 //    printf ("%s \n", fileName.c_str());
     FILE *fp;
-    int int_aux=0, i=0, j=0, cuentaObs=0;
+    int int_aux=0, i=0, j=0, cuentaObs=0, aux=0;
 
     fp = fopen(fileName.c_str(), "r");
     if(fp!=NULL){
         printf("\n");
         for(i=0;i<nCeldas_i;i++){
             for(j=0;j<nCeldas_j;j++){
-                fscanf(fp, "%d", &int_aux);
+                aux = fscanf(fp, "%d", &int_aux);
                 if (int_aux==0) {
                     matrizMapa[i][j]='-';
                     bool_matrizMapa[i][j]=false;
@@ -318,35 +307,35 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
     //--- Construccion de mapa mediante lectura de archivo
 //    printf ("%s \n", fileName.c_str());
     FILE *fp;
-    int int_aux=0, i=0;
+    int int_aux=0, i=0, aux=0;
     float f_aux=0.0;
 
     fp = fopen(fileName.c_str(), "r");
     if(fp!=NULL){
         for(i=0;i<N_Obstaculos;i++){
-            fscanf(fp, "%d", &int_aux);
+            aux=fscanf(fp, "%d", &int_aux);
             obstaculo[i].i=int_aux;
-            fscanf(fp, "%d", &int_aux);
+            aux=fscanf(fp, "%d", &int_aux);
             obstaculo[i].j=int_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].O_x=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].O_y=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P1_x=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P1_y=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P2_x=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P2_y=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P3_x=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P3_y=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P4_x=f_aux;
-            fscanf(fp, "%f", &f_aux);
+            aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i].P4_y=f_aux;
         }
     }
