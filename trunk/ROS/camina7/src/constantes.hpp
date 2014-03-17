@@ -67,7 +67,7 @@ Lynxmotion:
 #define EspacioTrabajo_Y 0.2
 #define EspacioTrabajo_X 0.2	//Nota: el espacio de trabajo va hacia +-X, este valor representa la mitad
 #define Npuntos 4
-#define FinEspacioTrabajo_y 0.06
+#define FinEspacioTrabajo_y 0.055
 //Tranformaciones
 #define Mundo_Pata 0
 #define Pata_Mundo 1
