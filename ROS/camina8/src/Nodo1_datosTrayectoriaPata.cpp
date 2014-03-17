@@ -5,17 +5,17 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina7/v_repConst.h"
+#include "camina8/v_repConst.h"
 // Used data structures:
-#include "camina7/DatosTrayectoriaPata.h"
-#include "camina7/PlanificadorParametros.h"
-#include "camina7/SenalesCambios.h"
-#include "camina7/UbicacionRobot.h"
+#include "camina8/DatosTrayectoriaPata.h"
+#include "camina8/PlanificadorParametros.h"
+#include "camina8/SenalesCambios.h"
+#include "camina8/UbicacionRobot.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 //Clientes y Servicios
 ros::ServiceClient client_Planificador;
-camina7::PlanificadorParametros srv_Planificador;
+camina8::PlanificadorParametros srv_Planificador;
 
 // variables Globales
 bool simulationRunning=true;
@@ -32,7 +32,7 @@ int Tripode=0, cuenta=0;
 FILE *fp1;
 boost::posix_time::ptime timerT1_1,timerT1_2,timerT2_1,timerT2_2;
 boost::posix_time::time_duration diff_t;
-camina7::DatosTrayectoriaPata datosTrayectoriaPata;
+camina8::DatosTrayectoriaPata datosTrayectoriaPata;
 ros::Publisher chatter_pub1,chatter_pub2;
 
 // Funciones
@@ -44,7 +44,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
+void ubicacionRobCallback(camina8::UbicacionRobot msgUbicacionRobot)
 {
      coordenadaCuerpo_y = msgUbicacionRobot.coordenadaCuerpo_y;
      for(int k=0; k<Npatas;k++) {
@@ -52,7 +52,7 @@ void ubicacionRobCallback(camina7::UbicacionRobot msgUbicacionRobot)
     }
 }
 
-void relojCallback(camina7::SenalesCambios msgSenal)
+void relojCallback(camina8::SenalesCambios msgSenal)
 {
     bool llamadaPlan=false;
 
@@ -187,11 +187,11 @@ int main(int argc, char **argv)
     ros::Subscriber subInfo2=node.subscribe("Reloj",100,relojCallback);
     ros::Subscriber subInfo3=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
 //-- Manda topico especifico para cada pata
-    chatter_pub1=node.advertise<camina7::DatosTrayectoriaPata>("datosTrayectoria", 100);
+    chatter_pub1=node.advertise<camina8::DatosTrayectoriaPata>("datosTrayectoria", 100);
 //-- Clientes y Servicios
-    client_Planificador = node.serviceClient<camina7::PlanificadorParametros>("PlanificadorPisada");
+    client_Planificador = node.serviceClient<camina8::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
-    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/SalidaDatos");
+    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/SalidaDatos");
     std::string texto(".txt");
     fileName+=texto;
     fp1 = fopen(fileName.c_str(),"w+");

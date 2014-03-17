@@ -18,6 +18,8 @@ uint8[] coordenadaObstaculo_j
 uint8 NPata
 uint8[] coordenadaPata_i
 uint8[] coordenadaPata_j
+float32[] coordenadaPata_x
+float32[] coordenadaPata_y
 #fuerza patas
 uint8[]  pataApoyo
 #ajuste

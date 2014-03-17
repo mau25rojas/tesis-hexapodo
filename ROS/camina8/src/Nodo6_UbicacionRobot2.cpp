@@ -8,14 +8,14 @@
 #include <boost/circular_buffer_fwd.hpp>
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina7/v_repConst.h"
+#include "camina8/v_repConst.h"
 // Used data structures:
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <tf/transform_datatypes.h>
-#include "camina7/UbicacionRobot.h"
-#include "camina7/TransTrayectoriaParametros.h"
+#include "camina8/UbicacionRobot.h"
+#include "camina8/TransTrayectoriaParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/ObjectGroupData.h"
@@ -23,7 +23,7 @@
 #define tamano_ventana 11
 //-- Clientes y servicios
 ros::ServiceClient client_Trans_MundoPata;
-camina7::TransTrayectoriaParametros srv_Trans_MundoPata;
+camina8::TransTrayectoriaParametros srv_Trans_MundoPata;
 //-- Global variables:
 bool simulationRunning=true;
 bool sensorTrigger=false;
@@ -33,7 +33,7 @@ float Veloy_twist=0.0, ventana_prom[tamano_ventana];
 double tiempo_ahora2=0.0;
 ros::Time time_stamp;
 FILE *fp,*fp1,*fp2,*fp3,*fp4,*fp5,*fp6;
-camina7::UbicacionRobot ubicacionRobot;
+camina8::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
 
@@ -163,16 +163,16 @@ int main(int argc,char* argv[])
     ros::Subscriber subInfo2=node.subscribe(topicCuerpo,100,ubicacionCuerpoCallback);
     ros::Subscriber subInfo3=node.subscribe(topicVelCuerpo,100,velocidadCuerpoCallback);
     ros::Subscriber subInfo4=node.subscribe(topicFuerza,100,fuerzaCallback);
-    ros::Publisher chatter_pub = node.advertise<camina7::UbicacionRobot>("UbicacionRobot", 100);
-    client_Trans_MundoPata = node.serviceClient<camina7::TransTrayectoriaParametros>("TrayectoriaMundoPata");
+    ros::Publisher chatter_pub = node.advertise<camina8::UbicacionRobot>("UbicacionRobot", 100);
+    client_Trans_MundoPata = node.serviceClient<camina8::TransTrayectoriaParametros>("TrayectoriaMundoPata");
 
-    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_vel.txt","w+");
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P1.txt","w+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P2.txt","w+");
-    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P3.txt","w+");
-    fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P4.txt","w+");
-    fp5 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P5.txt","w+");
-    fp6 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina7/datos/Nodo6_P6.txt","w+");
+    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Nodo6_vel.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Nodo6_P1.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Nodo6_P2.txt","w+");
+    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Nodo6_P3.txt","w+");
+    fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Nodo6_P4.txt","w+");
+    fp5 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Nodo6_P5.txt","w+");
+    fp6 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Nodo6_P6.txt","w+");
 
         double tiempo_ahora=0.0, tiempo_anterior=0.0;
         float delta_t=0.0;
