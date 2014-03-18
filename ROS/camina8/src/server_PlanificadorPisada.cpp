@@ -30,15 +30,14 @@ int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPa
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina8::InfoMapa infoMapa;
-std::vector<int> coordenadaObstaculo_i(1000,0), coordenadaObstaculo_j(1000,0);
 bool matrizMapa[100][100];
 int nCeldas_i=0, nCeldas_j=0;
 float LongitudCeldaY=0, LongitudCeldaX=0;
 //-- Variables de ubicacion robot
 double tiempo_ahora=0.0, tiempo_anterior=0.0;
-float ajuste_Vel=vel_esperada/vel_teorica;
+//float ajuste_Vel=vel_esperada/vel_teorica;
 float velocidadCuerpo_y=0.0, delta_x=0.0, delta_y=0.0, x_anterior=0.0, y_anterior=0.0, x_actual=0.0, y_actual=0.0;
-float posicionActualPata_y[Npatas], posicionActualPata_x[Npatas], posicionActualPata_z[Npatas];
+float posicionActualPata_y[Npatas], posicionActualPata_x[Npatas];
 float posicionActualPataSistemaPata_y[Npatas],posicionActualPataSistemaPata_x[Npatas],posicionActualPataSistemaPata_z[Npatas];
 float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
@@ -69,7 +68,6 @@ void ubicacionRobCallback(camina8::UbicacionRobot msgUbicacionRobot)
     for(int k=0; k<Npatas;k++) {
         posicionActualPata_x[k] = msgUbicacionRobot.coordenadaPata_x[k];
         posicionActualPata_y[k] = msgUbicacionRobot.coordenadaPata_y[k];
-        posicionActualPata_z[k] = msgUbicacionRobot.coordenadaPata_z[k];
         posicionActualPataSistemaPata_x[k] = msgUbicacionRobot.coordenadaPataSistemaPata_x[k];
         posicionActualPataSistemaPata_y[k] = msgUbicacionRobot.coordenadaPataSistemaPata_y[k];
         posicionActualPataSistemaPata_z[k] = msgUbicacionRobot.coordenadaPataSistemaPata_z[k];
@@ -113,21 +111,21 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
         for(int k=0;k<Npatas/2;k++) {
             Tripode_Transferencia[k] = Tripode2[k];
             //-- se reporta posicion de tripode en apoyo
-            infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode1[k]];
-            infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode1[k]];
-            transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode1[k]], posicionActualPata_x[Tripode1[k]]);
-            infoMapa.coordenadaPata_i[Tripode1[k]] = ij[0];
-            infoMapa.coordenadaPata_j[Tripode1[k]] = ij[1];
+//            infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode1[k]];
+//            infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode1[k]];
+//            transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode1[k]], posicionActualPata_x[Tripode1[k]]);
+//            infoMapa.coordenadaPata_i[Tripode1[k]] = ij[0];
+//            infoMapa.coordenadaPata_j[Tripode1[k]] = ij[1];
         }
     } else{
         for(int k=0;k<Npatas/2;k++){
             Tripode_Transferencia[k] = Tripode1[k];
     //-- se reporta posicion de tripode en apoyo
-            infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode1[k]];
-            infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode1[k]];
-            transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode2[k]], posicionActualPata_x[Tripode2[k]]);
-            infoMapa.coordenadaPata_i[Tripode2[k]] = ij[0];
-            infoMapa.coordenadaPata_j[Tripode2[k]] = ij[1];
+//            infoMapa.coordenadaPata_x[Tripode2[k]] = posicionActualPata_x[Tripode2[k]];
+//            infoMapa.coordenadaPata_y[Tripode2[k]] = posicionActualPata_y[Tripode2[k]];
+//            transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode2[k]], posicionActualPata_x[Tripode2[k]]);
+//            infoMapa.coordenadaPata_i[Tripode2[k]] = ij[0];
+//            infoMapa.coordenadaPata_j[Tripode2[k]] = ij[1];
         }
     }
     //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
@@ -136,11 +134,11 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
     TodasPisadasOk = true;    // Todas las pisadas se asumen bien a la primera
     for(int k=0;k<Npatas/2;k++){
         ros::spinOnce();
-        infoMapa.coordenadaPata_x[Tripode_Transferencia[k]] = posicionActualPata_x[Tripode_Transferencia[k]];
-        infoMapa.coordenadaPata_y[Tripode_Transferencia[k]] = posicionActualPata_y[Tripode_Transferencia[k]];
-        transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode_Transferencia[k]], posicionActualPata_x[Tripode_Transferencia[k]]);
-        infoMapa.coordenadaPata_i[Tripode_Transferencia[k]] = ij[0];
-        infoMapa.coordenadaPata_j[Tripode_Transferencia[k]] = ij[1];
+//        infoMapa.coordenadaPata_x[Tripode_Transferencia[k]] = posicionActualPata_x[Tripode_Transferencia[k]];
+//        infoMapa.coordenadaPata_y[Tripode_Transferencia[k]] = posicionActualPata_y[Tripode_Transferencia[k]];
+//        transformacion_yxTOij(p_ij,posicionActualPata_y[Tripode_Transferencia[k]],posicionActualPata_x[Tripode_Transferencia[k]]);
+//        infoMapa.coordenadaPata_i[Tripode_Transferencia[k]] = ij[0];
+//        infoMapa.coordenadaPata_j[Tripode_Transferencia[k]] = ij[1];
 //        ROS_INFO("server_Plan: revisando pata [%d]", Tripode_Transferencia[k]);
     //-- Calculamos proximo movimiento en el sistema de pata
         delta_x_S0 = -lambda_maximo*cos(alfa);
@@ -203,20 +201,20 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
 //---> Aqui va codigo para arreglar pisadas invalidas
 
 //-- Si hay alguna pisada invalida detengo la planificacion
-    for(int k=0;k<Npatas/2;k++) {
-        if(PisadaInvalida[k]){
-            ROS_ERROR("server_PlanificadorPisada: No se pudo corregir pisada pata[%d]",Tripode_Transferencia[k]+1);
-//            fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
-            fprintf(fp2,"No se pudo corregir pisada pata[%d]\n",Tripode_Transferencia[k]+1);
-            senales.Stop=true;
-            chatter_pub1.publish(senales);
-//            fclose(fp2);
-            ROS_INFO("Adios_server_PlanificadorPisada!");
-//            ros::shutdown();
-//            res.result = -1;
-//            return -1;
-        }
-    }
+//    for(int k=0;k<Npatas/2;k++) {
+//        if(PisadaInvalida[k]){
+//            ROS_ERROR("server_PlanificadorPisada: No se pudo corregir pisada pata[%d]",Tripode_Transferencia[k]+1);
+////            fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
+//            fprintf(fp2,"No se pudo corregir pisada pata[%d]\n",Tripode_Transferencia[k]+1);
+//            senales.Stop=true;
+//            chatter_pub1.publish(senales);
+////            fclose(fp2);
+////            ROS_INFO("Adios_server_PlanificadorPisada!");
+////            ros::shutdown();
+////            res.result = -1;
+////            return -1;
+//        }
+//    }
 //-- Escojo el largo de pisada mas corto y lo impongo a todas las patas del tripode
 //    ROS_INFO("server_Plan: final PlanificadorPisada");
     std::sort (modificacion_lambda, modificacion_lambda+3);
@@ -225,17 +223,27 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
     } else {
         res.modificacion_lambda = modificacion_lambda[0];
     }
+
+    res.modificacion_lambda = lambda_maximo;
+
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
 //    fprintf(fp2,"\ntiempo de simulacion: %.3f\n",simulationTime);
     fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f\n",req.Tripode,res.modificacion_lambda,res.modificacion_T);
-    chatter_pub2.publish(infoMapa);
 
-//    for(int k=0;k<Npatas;k++){
-//        if(matrizMapa[infoMapa.coordenadaPreAjuste_i[k]][infoMapa.coordenadaPreAjuste_j[k]]){
+
+    for(int k=0;k<Npatas;k++){
+        infoMapa.coordenadaPata_x[k] = posicionActualPata_x[k];
+        infoMapa.coordenadaPata_y[k] = posicionActualPata_y[k];
+        transformacion_yxTOij(p_ij, posicionActualPata_y[k], posicionActualPata_x[k]);
+        infoMapa.coordenadaPata_i[k] = ij[0];
+        infoMapa.coordenadaPata_j[k] = ij[1];
+        if(matrizMapa[infoMapa.coordenadaPata_i[k]][infoMapa.coordenadaPata_j[k]]){
 //            fprintf(fp2,"---ERROR--- pata[%d] Coincide con obstaculo[%d][%d]\n",k+1,ij[0],ij[1]);
-//            cuentaErrores[k]++;
-//        }
-//    }
+        ROS_WARN("---ERROR--- pata[%d] Coincide con obstaculo[%d][%d]",k+1,ij[0],ij[1]);
+            cuentaErrores[k]++;
+        }
+    }
+    chatter_pub2.publish(infoMapa);
 
     return 1;
 }
@@ -302,6 +310,8 @@ int main(int argc, char **argv)
     }
 
     Limpiar_matrizMapa();
+    std::string txt(".txt");
+    fileName+=txt;
     cuentaObs = Construye_matrizMapa(fileName);
 //    print_matrizMapa(nCeldas_i,nCeldas_j);
 //    ROS_INFO("Nobstaculos=%d",cuentaObs);
