@@ -9,6 +9,9 @@
 //Librerias propias usadas
 #include "constantes.hpp"
 #include "camina8/v_repConst.h"
+#include "../../Convexhull/vector3d.hpp"
+#include "../../Convexhull/convexhull.cpp"
+#include "../../Convexhull/analisis.cpp"
 // Used data structures:
 #include "std_msgs/String.h"
 #include "camina8/InfoMapa.h"
@@ -42,7 +45,10 @@ FILE *fp1,*fp2;
 BITMAP *buffer;
 int divisionX=0, divisionY=0;
 int cuentaPasos=0;
-Obstaculo obstaculo[1000];
+Obstaculo obstaculo[100][100];
+punto3d posPata,puntosObstaculo[4];
+recta3d recta_di[2];
+float di=0.0;
 //float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
 //float origenPata_x[6], origenPata_y[6], rotacionPata[6];
 //float EspacioTrabajoPata_x[6][4],EspacioTrabajoPata_y[6][4];
@@ -119,10 +125,26 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
         fprintf(fp2,"\n[%d]Preajuste:i=%d,j=%d - ajuste:i=%d,j=%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k],coordenadaAjuste_i[k],coordenadaAjuste_j[k]);
 //            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
     }
+    punto3d Pata, *Q;
+    recta3d *S;
+
     for(int k=0; k<Npatas; k++) {
         if(bool_matrizMapa[coordenadaPata_i[k]][coordenadaPata_j[k]]){
-            fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
-            ROS_WARN("Pata[%d] coincide con obstaculo",k+1);
+            puntosObstaculo[0].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P1_x;
+            puntosObstaculo[0].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P1_y;
+            puntosObstaculo[1].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P2_x;
+            puntosObstaculo[1].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P2_y;
+            puntosObstaculo[2].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P3_x;
+            puntosObstaculo[2].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P3_y;
+            puntosObstaculo[3].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4_x;
+            puntosObstaculo[3].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4_y;
+            Q = puntosObstaculo;
+            S = recta_di;
+            Pata.x=coordenadaPata_x[k]; Pata.y=coordenadaPata_y[k];
+            di = margen_est (Pata,Q,4,S);
+            ROS_INFO("Pata:%.3f,%.3f; obstaculo:%.3f,%.3f",Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
+            fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]; distancia_min:%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
+            ROS_WARN("Pata[%d] coincide con obstaculo, di=%.3f",k+1,di);
         }
     }
     FilePrint_matrizMapa(fp2, nCeldas_i,nCeldas_j);
@@ -307,36 +329,36 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
     //--- Construccion de mapa mediante lectura de archivo
 //    printf ("%s \n", fileName.c_str());
     FILE *fp;
-    int int_aux=0, i=0, aux=0;
+    int int_aux=0, i=0, j=0, aux=0;
     float f_aux=0.0;
 
     fp = fopen(fileName.c_str(), "r");
     if(fp!=NULL){
-        for(i=0;i<N_Obstaculos;i++){
+        for(int k=0;k<N_Obstaculos;k++){
             aux=fscanf(fp, "%d", &int_aux);
-            obstaculo[i].i=int_aux;
+            i=int_aux;
             aux=fscanf(fp, "%d", &int_aux);
-            obstaculo[i].j=int_aux;
+            j=int_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].O_x=f_aux;
+            obstaculo[i][j].O_x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].O_y=f_aux;
+            obstaculo[i][j].O_y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P1_x=f_aux;
+            obstaculo[i][j].P1_x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P1_y=f_aux;
+            obstaculo[i][j].P1_y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P2_x=f_aux;
+            obstaculo[i][j].P2_x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P2_y=f_aux;
+            obstaculo[i][j].P2_y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P3_x=f_aux;
+            obstaculo[i][j].P3_x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P3_y=f_aux;
+            obstaculo[i][j].P3_y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P4_x=f_aux;
+            obstaculo[i][j].P4_x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i].P4_y=f_aux;
+            obstaculo[i][j].P4_y=f_aux;
         }
     }
     fclose(fp);
