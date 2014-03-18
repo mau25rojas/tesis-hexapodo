@@ -65,20 +65,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 
 void ubicacionRobCallback(camina8::UbicacionRobot msgUbicacionRobot)
 {
-    float vel_aux=0.0;
-
     teta_CuerpoRobot = msgUbicacionRobot.orientacionCuerpo_yaw;
-
-//    vel_aux = msgUbicacionRobot.velocidadCuerpo_y;
-//    if(vel_aux>velocidad_Apoyo){
-////-- la velocidad no puede ser mayor a la esperada
-//        velocidadCuerpo_y = velocidad_Apoyo;
-//    } else {
-//        velocidadCuerpo_y = vel_aux;
-//    }
-////    velocidadCuerpo_y= ajuste_Vel*velocidadCuerpo_y;
-//    velocidadCuerpo_y= velocidadCuerpo_y;
-
     for(int k=0; k<Npatas;k++) {
         posicionActualPata_x[k] = msgUbicacionRobot.coordenadaPata_x[k];
         posicionActualPata_y[k] = msgUbicacionRobot.coordenadaPata_y[k];
@@ -149,8 +136,8 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
     TodasPisadasOk = true;    // Todas las pisadas se asumen bien a la primera
     for(int k=0;k<Npatas/2;k++){
         ros::spinOnce();
-        infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode_Transferencia[k]];
-        infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode_Transferencia[k]];
+        infoMapa.coordenadaPata_x[Tripode_Transferencia[k]] = posicionActualPata_x[Tripode_Transferencia[k]];
+        infoMapa.coordenadaPata_y[Tripode_Transferencia[k]] = posicionActualPata_y[Tripode_Transferencia[k]];
         transformacion_yxTOij(p_ij, posicionActualPata_y[Tripode_Transferencia[k]], posicionActualPata_x[Tripode_Transferencia[k]]);
         infoMapa.coordenadaPata_i[Tripode_Transferencia[k]] = ij[0];
         infoMapa.coordenadaPata_j[Tripode_Transferencia[k]] = ij[1];
@@ -211,6 +198,7 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
         }
     } // Fin de revision de pisadas
     infoMapa.correccion=false;
+
 
 //---> Aqui va codigo para arreglar pisadas invalidas
 

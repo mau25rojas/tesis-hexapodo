@@ -33,6 +33,7 @@ rosbuild_add_executable(Nodo0_controlMovimientoRob src/Nodo0_controlMovimientoRo
 rosbuild_add_executable(Nodo1_datosTrayectoriaPata src/Nodo1_datosTrayectoriaPata.cpp)
 rosbuild_add_executable(Nodo2_parametrizacion src/Nodo2_parametrizacion.cpp)
 rosbuild_add_executable(Nodo3_RosVrep src/Nodo3_RosVrep.cpp)
+rosbuild_add_library(Nodo5_ConstruccionDeMapa ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
 rosbuild_add_executable(Nodo5_ConstruccionDeMapa src/Nodo5_ConstruccionDeMapa.cpp)
 target_link_libraries(Nodo5_ConstruccionDeMapa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2.2)
 rosbuild_add_boost_directories()
