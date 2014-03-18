@@ -31,20 +31,24 @@ camina8::EspacioTrabajoParametros srv_EspacioTrabajo;
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
+//-- Mapa
 camina8::InfoMapa infoMapa;
-int matrizMapa[100][100];
 bool bool_matrizMapa[100][100];
-int nCeldas_i=0, nCeldas_j=0;
-int cantidadObstaculos=0;
+int cuentaPasos=0, matrizMapa[100][100];
+int cantidadObstaculos=0, nCeldas_i=0, nCeldas_j=0;
 int coordenadaAjuste_i[Npatas]={0,0,0,0,0,0}, coordenadaAjuste_j[Npatas]={0,0,0,0,0,0}, coordenadaPata_i[Npatas]={0,0,0,0,0,0}, coordenadaPata_j[Npatas]={0,0,0,0,0,0};
 float coordenadaPata_x[Npatas]={0,0,0,0,0,0}, coordenadaPata_y[Npatas]={0,0,0,0,0,0};
-float LongitudCeldaY=0.0, LongitudCeldaX=0.0;
+//-- Transformaciones
 int ij[2], *p_ij;     //Apuntadores a arreglos de coordenadas e indices
-ros::Publisher chatter_pub;
-FILE *fp1,*fp2;
-BITMAP *buffer;
 int divisionX=0, divisionY=0;
-int cuentaPasos=0;
+float LongitudCeldaY=0.0, LongitudCeldaX=0.0;
+//-- Publicaciones
+ros::Publisher chatter_pub;
+//-- Salida
+FILE *fp1,*fp2;
+//-- Allegro
+BITMAP *buffer;
+//-- Obstaculos
 Obstaculo obstaculo[100][100];
 punto3d posPata,puntosObstaculo[4];
 recta3d recta_di[2];
@@ -149,13 +153,13 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
     }
     FilePrint_matrizMapa(fp2, nCeldas_i,nCeldas_j);
 
-    fprintf(fp1,"\ntiempo de simulacion: %.3f",simulationTime);
-    Limpiar_matrizMapa(nCeldas_i,nCeldas_j,cantidadObstaculos);
-    for(int k=0; k<Npatas; k++) {
-        matrizMapa[infoMapa.coordenadaPata_i[k]][infoMapa.coordenadaPata_j[k]]=k+1;
-//            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
-    }
-    FilePrint_matrizMapa(fp1, nCeldas_i,nCeldas_j);
+//    fprintf(fp1,"\ntiempo de simulacion: %.3f",simulationTime);
+//    Limpiar_matrizMapa(nCeldas_i,nCeldas_j,cantidadObstaculos);
+//    for(int k=0; k<Npatas; k++) {
+//        matrizMapa[coordenadaPata_i[k]][coordenadaPata_j[k]]=k+1;
+////            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
+//    }
+//    FilePrint_matrizMapa(fp1, nCeldas_i,nCeldas_j);
 }
 
 int main(int argc, char **argv)
