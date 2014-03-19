@@ -48,4 +48,4 @@ rosbuild_add_executable(server_EspacioTrabajo src/server_EspacioTrabajo.cpp)
 #rosbuild_add_executable(server_TransHomogenea src/server_TransformacionHomogenea.cpp)
 rosbuild_add_executable(server_TrayectoriaMundoPata src/server_TrayectoriaMundoPata.cpp)
 rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp)
-
+rosbuild_add_library(server_PlanificadorPisada ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)

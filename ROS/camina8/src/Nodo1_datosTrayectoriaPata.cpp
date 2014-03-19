@@ -147,7 +147,7 @@ void relojCallback(camina8::SenalesCambios msgSenal)
     //        delta_t = delta_t + T/divisionTrayectoriaPata;
             if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
                 delta_t = delta_t;
-//                ROS_INFO("Esperando apoyo, delta_t=%.4f",delta_t);
+                ROS_INFO("Esperando apoyo, delta_t=%.4f",delta_t);
             } else {
                 delta_t = delta_t + T/divisionTrayectoriaPata;
             }
@@ -207,7 +207,7 @@ int main(int argc, char **argv)
             cuenta_T2++;
         }
     }
-    ROS_INFO("Nodo1: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
+//    ROS_INFO("Nodo1: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
 //-- Datos de envio
     for(int i=0;i<2;i++){
         datosTrayectoriaPata.T_apoyo.push_back(0);
