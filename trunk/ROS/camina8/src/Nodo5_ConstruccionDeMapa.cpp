@@ -50,8 +50,6 @@ FILE *fp1,*fp2;
 BITMAP *buffer;
 //-- Obstaculos
 Obstaculo obstaculo[100][100];
-punto3d posPata,puntosObstaculo[4];
-recta3d recta_di[2];
 float di=0.0;
 //float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
 //float origenPata_x[6], origenPata_y[6], rotacionPata[6];
@@ -129,8 +127,8 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
         fprintf(fp2,"\n[%d]Preajuste:i=%d,j=%d - ajuste:i=%d,j=%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k],coordenadaAjuste_i[k],coordenadaAjuste_j[k]);
 //            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
     }
-    punto3d Pata, *Q;
-    recta3d *S;
+    punto3d Pata, puntosObstaculo[4], *Q;
+    recta3d recta_di[2], *S;
 
     for(int k=0; k<Npatas; k++) {
         if(bool_matrizMapa[coordenadaPata_i[k]][coordenadaPata_j[k]]){
@@ -143,10 +141,12 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
             puntosObstaculo[3].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4_x;
             puntosObstaculo[3].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4_y;
             Q = puntosObstaculo;
+
             S = recta_di;
             Pata.x=coordenadaPata_x[k]; Pata.y=coordenadaPata_y[k];
             di = margen_est (Pata,Q,4,S);
-            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
+            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
+//            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
             fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]; distancia_min:%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
             ROS_WARN("Pata[%d] coincide con obstaculo, di=%.3f",k+1,di);
         }

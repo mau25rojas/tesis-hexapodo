@@ -5,6 +5,9 @@
 //Librerias propias usadas
 #include "constantes.hpp"
 #include "camina8/v_repConst.h"
+#include "../../Convexhull/vector3d.hpp"
+#include "../../Convexhull/convexhull.cpp"
+#include "../../Convexhull/analisis.cpp"
 // Used data structures:
 #include "camina8/InfoMapa.h"
 #include "camina8/CinversaParametros.h"
@@ -14,7 +17,7 @@
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
-#define MAX_CICLOS 5
+#define delta_correccion 0.005
 //Clientes y Servicios
 ros::ServiceClient client_Cinversa1;
 camina8::CinversaParametros srv_Cinversa1;
@@ -41,10 +44,12 @@ float posicionActualPata_y[Npatas], posicionActualPata_x[Npatas];
 float posicionActualPataSistemaPata_y[Npatas],posicionActualPataSistemaPata_x[Npatas],posicionActualPataSistemaPata_z[Npatas];
 float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
-ros::Publisher chatter_pub1;
 camina8::SenalesCambios senales;
-//-- Generales
-//int k=0;
+//-- Obstaculos
+Obstaculo obstaculo[100][100];
+float di=0.0;
+//-- Publishers
+ros::Publisher chatter_pub1;
 ros::Publisher chatter_pub2;
 
 //-- Funciones
@@ -53,6 +58,7 @@ void FilePrint_matrizMapa();
 void Limpiar_matrizMapa();
 int Construye_matrizMapa(std::string fileName);
 void print_matrizMapa();
+void Info_Obstaculos(std::string fileName, int N_Obstaculos);
 
 //-- Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
@@ -87,12 +93,13 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
 //-- Variables locales
     int Tripode_Transferencia[Npatas/2];
     int PisadaProxima_i=0, PisadaProxima_j=0;
-    bool PisadaInvalida[Npatas/2], TodasPisadasOk, cinversaOK;
+    int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
+    bool cinversaOK;
     float PisadaProxima_x=0.0, PisadaProxima_y=0.0, PisadaProxima_z=0.0;
     float delta_x_S0=0.0, delta_y_S0=0.0, delta_x=0.0, delta_y=0.0;
     float modificacion_lambda[Npatas/2];
     float T_actual=0.0,lambda_Apoyo_actual=0.0;
-    int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
+
     p_ij = ij;    // Inicialización de apuntador
 
     Tripode=req.Tripode;
@@ -131,15 +138,8 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
     //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
     res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidadApoyo;
 
-    TodasPisadasOk = true;    // Todas las pisadas se asumen bien a la primera
     for(int k=0;k<Npatas/2;k++){
         ros::spinOnce();
-//        infoMapa.coordenadaPata_x[Tripode_Transferencia[k]] = posicionActualPata_x[Tripode_Transferencia[k]];
-//        infoMapa.coordenadaPata_y[Tripode_Transferencia[k]] = posicionActualPata_y[Tripode_Transferencia[k]];
-//        transformacion_yxTOij(p_ij,posicionActualPata_y[Tripode_Transferencia[k]],posicionActualPata_x[Tripode_Transferencia[k]]);
-//        infoMapa.coordenadaPata_i[Tripode_Transferencia[k]] = ij[0];
-//        infoMapa.coordenadaPata_j[Tripode_Transferencia[k]] = ij[1];
-//        ROS_INFO("server_Plan: revisando pata [%d]", Tripode_Transferencia[k]);
     //-- Calculamos proximo movimiento en el sistema de pata
         delta_x_S0 = -lambda_maximo*cos(alfa);
         delta_y_S0 = lambda_maximo*sin(alfa);
@@ -168,31 +168,40 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
                 transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
                 PisadaProxima_i=ij[0];
                 PisadaProxima_j=ij[1];
-                PisadaInvalida[k] = false;
-//                ROS_INFO("Pisada revisar: i=%d,j=%d",PisadaProxima_i,PisadaProxima_j);
                 if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
                 //-- La pisada COINCIDE con obstaculo
                     ROS_WARN("server_PlanificadorPisada: pata [%d] coincidira con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-//                    fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
                     fprintf(fp2,"pata [%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-                    PisadaInvalida[k] = true;
-                    TodasPisadasOk = false;
-//                    break;
+
+                    punto3d Pata,puntosObstaculo[4];
+                    recta3d recta_inf_o;
+                    vector3d interseccion;
+                    float correccion=0.0;
+
+                    Pata.x = PisadaProxima_x;
+                    Pata.y = PisadaProxima_y;
+                    puntosObstaculo[2].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P3_x;
+                    puntosObstaculo[2].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P3_y;
+                    puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4_x;
+                    puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4_y;
+
+                    recta_inf_o = recta3d(puntosObstaculo[2],puntosObstaculo[3]);
+
+                    interseccion = recta_inf_o.proyeccion(Pata);
+                    correccion = interseccion.norma();
+                    modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
+
+                } else {
+//                  ROS_INFO("TripodeOK");
+                //-- Todo salio bien! Esta proxima_pisada es valida! :D
+                    modificacion_lambda[k] = lambda_maximo;
+//            //-- Pisada maxima
+//                infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
+//                infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
                 }
-            if(!PisadaInvalida[k]){
-//                ROS_INFO("TripodeOK");
-            //-- Todo salio bien! Esta proxima_pisada es valida! :D
-                modificacion_lambda[k] = lambda_maximo;
-            //-- Pisada maxima
-                infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
-                infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
-            }
         } else {
             ROS_WARN("server_PlanificadorPisada: pata [%d] error cinversa",k+1);
-//            fprintf(fp2,"tiempo de simulacion: %.3f\n",simulationTime);
             fprintf(fp2,"pata [%d] error cinversa\n",Tripode_Transferencia[k]+1);
-            PisadaInvalida[k] = true;
-            TodasPisadasOk = false;
         }
     } // Fin de revision de pisadas
     infoMapa.correccion=false;
@@ -216,7 +225,6 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
 //        }
 //    }
 //-- Escojo el largo de pisada mas corto y lo impongo a todas las patas del tripode
-//    ROS_INFO("server_Plan: final PlanificadorPisada");
     std::sort (modificacion_lambda, modificacion_lambda+3);
     if(modificacion_lambda[0]<lambda_minimo){
         res.modificacion_lambda = lambda_minimo;
@@ -224,10 +232,7 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
         res.modificacion_lambda = modificacion_lambda[0];
     }
 
-    res.modificacion_lambda = lambda_maximo;
-
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
-//    fprintf(fp2,"\ntiempo de simulacion: %.3f\n",simulationTime);
     fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f\n",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 
 
@@ -251,7 +256,7 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
 int main(int argc, char **argv)
 {
     int Narg=0, cuentaObs=0;
-    std::string fileName;
+    std::string fileName,M_fileName,O_fileName;
 
     Narg=20;
     if (argc>=Narg)
@@ -311,15 +316,21 @@ int main(int argc, char **argv)
 
     Limpiar_matrizMapa();
     std::string txt(".txt");
-    fileName+=txt;
-    cuentaObs = Construye_matrizMapa(fileName);
+    std::string obs("_o");
+    M_fileName = O_fileName = fileName;
+    M_fileName+=txt;
+    cuentaObs = Construye_matrizMapa(M_fileName);
+    O_fileName+=obs;
+    O_fileName+=txt;
+    Info_Obstaculos(O_fileName,cuentaObs);
 //    print_matrizMapa(nCeldas_i,nCeldas_j);
 //    ROS_INFO("Nobstaculos=%d",cuentaObs);
 //    ROS_INFO("variables de mapa: Ni=%d,Nj=%d,LY=%.3f,LX=%.3f",nCeldas_i,nCeldas_j,LongitudCeldaY,LongitudCeldaX);
     ROS_INFO("server_PlanificadorPisada: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
 
     while (ros::ok() && simulationRunning){
-    ros::spinOnce();
+        ROS_INFO("ciclo");
+        ros::spinOnce();
     }
     fprintf(fp1,"%d\t%d\t",cuentaObs,cuentaPasos);
     for(int k=0;k<Npatas;k++) fprintf(fp1,"%d\t",cuentaErrores[k]);
@@ -388,4 +399,43 @@ void print_matrizMapa(){
          }
         printf("\n");
     }
+}
+
+void Info_Obstaculos(std::string fileName, int N_Obstaculos){
+    //--- Construccion de mapa mediante lectura de archivo
+//    printf ("%s \n", fileName.c_str());
+    FILE *fp;
+    int int_aux=0, i=0, j=0, aux=0;
+    float f_aux=0.0;
+
+    fp = fopen(fileName.c_str(), "r");
+    if(fp!=NULL){
+        for(int k=0;k<N_Obstaculos;k++){
+            aux=fscanf(fp, "%d", &int_aux);
+            i=int_aux;
+            aux=fscanf(fp, "%d", &int_aux);
+            j=int_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].O_x=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].O_y=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P1_x=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P1_y=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P2_x=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P2_y=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P3_x=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P3_y=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P4_x=f_aux;
+            aux=fscanf(fp, "%f", &f_aux);
+            obstaculo[i][j].P4_y=f_aux;
+        }
+    }
+    fclose(fp);
 }

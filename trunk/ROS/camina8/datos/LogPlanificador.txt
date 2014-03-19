@@ -1,0 +1,8 @@
+
+INICIO T[1],Paso[1]
+server_PlanificadorPisada::T[1]: tiempo de simulacion: 4.050 ((((v_y=0.022))))
+server_PlanificadorPisada: Tripode=1, lambda_correccion=0.090, T_correccion=4.000
+
+INICIO T[2],Paso[2]
+server_PlanificadorPisada::T[2]: tiempo de simulacion: 6.900 ((((v_y=0.019))))
+server_PlanificadorPisada: Tripode=2, lambda_correccion=0.090, T_correccion=4.000
