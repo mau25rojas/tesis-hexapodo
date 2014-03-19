@@ -146,7 +146,7 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
             S = recta_di;
             Pata.x=coordenadaPata_x[k]; Pata.y=coordenadaPata_y[k];
             di = margen_est (Pata,Q,4,S);
-            ROS_INFO("Pata:%.3f,%.3f; obstaculo:%.3f,%.3f",Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
+            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
             fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]; distancia_min:%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
             ROS_WARN("Pata[%d] coincide con obstaculo, di=%.3f",k+1,di);
         }
