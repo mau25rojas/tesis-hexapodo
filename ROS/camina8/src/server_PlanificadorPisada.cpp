@@ -189,6 +189,7 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
 
                     interseccion = recta_inf_o.proyeccion(Pata);
                     correccion = interseccion.norma();
+                    ROS_WARN("correccion:%.3f",correccion);
                     modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
 
                 } else {
@@ -313,11 +314,12 @@ int main(int argc, char **argv)
             cuenta_T2++;
         }
     }
+    ROS_INFO("server_PlanificadorPisada: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
 
     Limpiar_matrizMapa();
+    M_fileName = O_fileName = fileName;
     std::string txt(".txt");
     std::string obs("_o");
-    M_fileName = O_fileName = fileName;
     M_fileName+=txt;
     cuentaObs = Construye_matrizMapa(M_fileName);
     O_fileName+=obs;
@@ -326,10 +328,8 @@ int main(int argc, char **argv)
 //    print_matrizMapa(nCeldas_i,nCeldas_j);
 //    ROS_INFO("Nobstaculos=%d",cuentaObs);
 //    ROS_INFO("variables de mapa: Ni=%d,Nj=%d,LY=%.3f,LX=%.3f",nCeldas_i,nCeldas_j,LongitudCeldaY,LongitudCeldaX);
-    ROS_INFO("server_PlanificadorPisada: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
 
     while (ros::ok() && simulationRunning){
-        ROS_INFO("ciclo");
         ros::spinOnce();
     }
     fprintf(fp1,"%d\t%d\t",cuentaObs,cuentaPasos);

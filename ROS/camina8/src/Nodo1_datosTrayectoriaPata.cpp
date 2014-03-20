@@ -147,7 +147,7 @@ void relojCallback(camina8::SenalesCambios msgSenal)
     //        delta_t = delta_t + T/divisionTrayectoriaPata;
             if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
                 delta_t = delta_t;
-                ROS_INFO("Esperando apoyo, delta_t=%.4f",delta_t);
+//                ROS_INFO("Esperando apoyo, delta_t=%.4f",delta_t);
             } else {
                 delta_t = delta_t + T/divisionTrayectoriaPata;
             }
@@ -158,7 +158,7 @@ void relojCallback(camina8::SenalesCambios msgSenal)
 int main(int argc, char **argv)
 {
   float lambda_Apoyo=0.0, alfa=0.0, f=0.0;
-  int i=0, Narg=0;
+  int Narg=0;
 
   Narg=14;
 	if (argc>=Narg)

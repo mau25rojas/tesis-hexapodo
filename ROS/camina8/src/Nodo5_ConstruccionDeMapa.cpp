@@ -171,7 +171,7 @@ int main(int argc, char **argv)
 	float Lx=0.0, Ly=0.0;
     float periodo, f;
 	int k=0;
-	std::string Name, M_fileName,O_fileName;
+	std::string fileName, M_fileName,O_fileName;
 
     Narg=6;
 
@@ -181,7 +181,7 @@ int main(int argc, char **argv)
         Lx = atof(argv[2]);
         nCeldas_i = atoi(argv[3]);
         nCeldas_j = atoi(argv[4]);
-        Name = argv[5];
+        fileName = argv[5];
         cantidadObstaculos = atoi(argv[6]);
 	} else{
         ROS_ERROR("Nodo 5: Indique argumentos completos!\n");
@@ -223,12 +223,12 @@ int main(int argc, char **argv)
             bool_matrizMapa[i][j]=false;
         }
     }
-    M_fileName = O_fileName = Name;
-    std::string obs("_o");
+    M_fileName = O_fileName = fileName;
     std::string txt(".txt");
     M_fileName+=txt;
     cuentaObs = Construye_matrizMapa(M_fileName, nCeldas_i, nCeldas_j);
     printf("obstaculos recibidos: %d, obstaculos contados: %d\n",cantidadObstaculos,cuentaObs);
+    std::string obs("_o");
     O_fileName+=obs;
     O_fileName+=txt;
     Info_Obstaculos(O_fileName,cuentaObs);
