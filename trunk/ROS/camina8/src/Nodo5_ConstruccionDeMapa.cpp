@@ -33,8 +33,8 @@ bool sensorTrigger=false;
 float simulationTime=0.0f;
 //-- Mapa
 camina8::InfoMapa infoMapa;
-bool bool_matrizMapa[100][100];
-int cuentaPasos=0, matrizMapa[100][100];
+bool bool_matrizMapa[100][20];
+int cuentaPasos=0, matrizMapa[100][20];
 int cantidadObstaculos=0, nCeldas_i=0, nCeldas_j=0;
 int coordenadaAjuste_i[Npatas]={0,0,0,0,0,0}, coordenadaAjuste_j[Npatas]={0,0,0,0,0,0}, coordenadaPata_i[Npatas]={0,0,0,0,0,0}, coordenadaPata_j[Npatas]={0,0,0,0,0,0};
 float coordenadaPata_x[Npatas]={0,0,0,0,0,0}, coordenadaPata_y[Npatas]={0,0,0,0,0,0};
@@ -49,7 +49,7 @@ FILE *fp1,*fp2;
 //-- Allegro
 BITMAP *buffer;
 //-- Obstaculos
-Obstaculo obstaculo[100][100];
+Obstaculo obstaculo[100][20];
 float di=0.0;
 //float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
 //float origenPata_x[6], origenPata_y[6], rotacionPata[6];
@@ -146,9 +146,9 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
             Pata.x=coordenadaPata_x[k]; Pata.y=coordenadaPata_y[k];
             di = margen_est (Pata,Q,4,S);
 //            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
-//            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
+            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
             fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]; distancia_min:%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
-            ROS_WARN("Pata[%d] coincide con obstaculo, di=%.3f",k+1,di);
+            ROS_WARN("Pata[%d] coincide con obstaculo [%d][%d], di=%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
         }
     }
     FilePrint_matrizMapa(fp2, nCeldas_i,nCeldas_j);
@@ -221,6 +221,18 @@ int main(int argc, char **argv)
         for(int j=0;j<nCeldas_j;j++){
             matrizMapa[i][j]=-1;
             bool_matrizMapa[i][j]=false;
+        }
+    }
+    for(int i=0;i<100;i++){
+        for(int j=0;j<100;j++){
+            obstaculo[i][j].P1_x=-100;
+            obstaculo[i][j].P1_y=-100;
+            obstaculo[i][j].P2_x=-100;
+            obstaculo[i][j].P2_y=-100;
+            obstaculo[i][j].P3_x=-100;
+            obstaculo[i][j].P3_y=-100;
+            obstaculo[i][j].P4_x=-100;
+            obstaculo[i][j].P4_y=-100;
         }
     }
     M_fileName = O_fileName = fileName;
