@@ -173,22 +173,24 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
                     ROS_WARN("server_PlanificadorPisada: pata [%d] coincidira con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
                     fprintf(fp2,"pata [%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
 
-                    punto3d Pata,puntosObstaculo[4];
+                    punto3d Pata, puntosObstaculo[4];
                     recta3d recta_inf_o;
-                    vector3d interseccion;
                     float correccion=0.0;
 
                     Pata.x = PisadaProxima_x;
                     Pata.y = PisadaProxima_y;
+                    puntosObstaculo[0].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P1_x;
+                    puntosObstaculo[0].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P1_y;
+                    puntosObstaculo[1].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P2_x;
+                    puntosObstaculo[1].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P2_y;
                     puntosObstaculo[2].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P3_x;
                     puntosObstaculo[2].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P3_y;
                     puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4_x;
                     puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4_y;
+                    ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
+                    recta_inf_o = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
 
-                    recta_inf_o = recta3d(puntosObstaculo[2],puntosObstaculo[3]);
-
-                    interseccion = recta_inf_o.proyeccion(Pata);
-                    correccion = interseccion.norma();
+                    correccion = recta_inf_o.distancia(Pata);
                     ROS_WARN("correccion:%.3f",correccion);
                     modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
 
@@ -436,6 +438,8 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
             aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i][j].P4_y=f_aux;
         }
+    } else{
+        ROS_ERROR("Error al leer archivo %s",fileName.c_str());
     }
     fclose(fp);
 }

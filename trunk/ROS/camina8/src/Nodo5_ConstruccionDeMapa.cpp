@@ -145,7 +145,7 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
             S = recta_di;
             Pata.x=coordenadaPata_x[k]; Pata.y=coordenadaPata_y[k];
             di = margen_est (Pata,Q,4,S);
-            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
+//            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
 //            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
             fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]; distancia_min:%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
             ROS_WARN("Pata[%d] coincide con obstaculo, di=%.3f",k+1,di);
@@ -364,6 +364,8 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
             aux=fscanf(fp, "%f", &f_aux);
             obstaculo[i][j].P4_y=f_aux;
         }
+    } else{
+        ROS_ERROR("Error al leer archivo %s",fileName.c_str());
     }
     fclose(fp);
 }
