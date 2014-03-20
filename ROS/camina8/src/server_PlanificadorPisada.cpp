@@ -33,7 +33,7 @@ int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPa
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina8::InfoMapa infoMapa;
-bool matrizMapa[100][100];
+bool matrizMapa[100][20];
 int nCeldas_i=0, nCeldas_j=0;
 float LongitudCeldaY=0, LongitudCeldaX=0;
 //-- Variables de ubicacion robot
@@ -46,7 +46,7 @@ float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
 camina8::SenalesCambios senales;
 //-- Obstaculos
-Obstaculo obstaculo[100][100];
+Obstaculo obstaculo[100][20];
 float di=0.0;
 //-- Publishers
 ros::Publisher chatter_pub1;
@@ -317,6 +317,19 @@ int main(int argc, char **argv)
         }
     }
     ROS_INFO("server_PlanificadorPisada: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
+
+    for(int i=0;i<100;i++){
+        for(int j=0;j<20;j++){
+            obstaculo[i][j].P1_x=-100;
+            obstaculo[i][j].P1_y=-100;
+            obstaculo[i][j].P2_x=-100;
+            obstaculo[i][j].P2_y=-100;
+            obstaculo[i][j].P3_x=-100;
+            obstaculo[i][j].P3_y=-100;
+            obstaculo[i][j].P4_x=-100;
+            obstaculo[i][j].P4_y=-100;
+        }
+    }
 
     Limpiar_matrizMapa();
     M_fileName = O_fileName = fileName;
