@@ -294,7 +294,7 @@ int main(int argc, char **argv)
     client_Cinversa1=node.serviceClient<camina8::CinversaParametros>("Cinversa");
 
     /* Log de planificador */
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/RegistroCorrida.txt","a+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/RegistroCorridas.txt","a+");
     fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/LogPlanificador.txt","w+");
 
     for(int k=0;k<Npatas;k++) {
