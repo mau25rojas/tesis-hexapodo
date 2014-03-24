@@ -147,19 +147,13 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
             di = margen_est (Pata,Q,4,S);
 //            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
             ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
-            fprintf(fp2,"\nPata[%d] Coincide Obstaculo: [%d][%d]; distancia_min:%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
-            ROS_WARN("Pata[%d] coincide con obstaculo [%d][%d], di=%.3f",k+1,coordenadaPata_i[k],coordenadaPata_j[k],di);
+            fprintf(fp2,"\nPata[%d]:%.3f,%.3f->Coincide Obstaculo [%d][%d]; distancia_min:%.3f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
+            ROS_WARN("Pata[%d]:%.3f,%.3f->coincide con obstaculo [%d][%d]; di=%.3f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
+            fprintf(fp1,"%d\t%.3f\n",k+1,di);
         }
     }
     FilePrint_matrizMapa(fp2, nCeldas_i,nCeldas_j);
 
-//    fprintf(fp1,"\ntiempo de simulacion: %.3f",simulationTime);
-//    Limpiar_matrizMapa(nCeldas_i,nCeldas_j,cantidadObstaculos);
-//    for(int k=0; k<Npatas; k++) {
-//        matrizMapa[coordenadaPata_i[k]][coordenadaPata_j[k]]=k+1;
-////            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
-//    }
-//    FilePrint_matrizMapa(fp1, nCeldas_i,nCeldas_j);
 }
 
 int main(int argc, char **argv)
@@ -224,7 +218,7 @@ int main(int argc, char **argv)
         }
     }
     for(int i=0;i<100;i++){
-        for(int j=0;j<100;j++){
+        for(int j=0;j<20;j++){
             obstaculo[i][j].P1_x=-100;
             obstaculo[i][j].P1_y=-100;
             obstaculo[i][j].P2_x=-100;
@@ -247,7 +241,7 @@ int main(int argc, char **argv)
 //--- Inicializacion de grafica
 //    IniciaGrafica();
 //--- Inicializacion de archivo de salida
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/SalidaMapa_robot.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Errores.txt","w+");
     fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/SalidaMapa_ajuste.txt","w+");
 //--- Ciclo de ROS
 //	periodo=1.5;
