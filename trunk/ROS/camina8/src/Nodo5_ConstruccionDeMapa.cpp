@@ -148,8 +148,8 @@ void ajusteCallback(camina8::InfoMapa msgInfoMapa)
 //            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
             ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
             fprintf(fp2,"\nPata[%d]:%.3f,%.3f->Coincide Obstaculo [%d][%d]; distancia_min:%.3f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
-            ROS_WARN("Pata[%d]:%.3f,%.3f->coincide con obstaculo [%d][%d]; di=%.3f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
-            fprintf(fp1,"%d\t%.3f\n",k+1,di);
+            ROS_WARN("Pata[%d]:%.3f,%.3f->coincide con obstaculo [%d][%d]; di=%.4f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
+            fprintf(fp1,"%d\t%.5f\n",k+1,di);
         }
     }
     FilePrint_matrizMapa(fp2, nCeldas_i,nCeldas_j);
@@ -241,7 +241,7 @@ int main(int argc, char **argv)
 //--- Inicializacion de grafica
 //    IniciaGrafica();
 //--- Inicializacion de archivo de salida
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Errores.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/Errores.txt","a+");
     fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina8/datos/SalidaMapa_ajuste.txt","w+");
 //--- Ciclo de ROS
 //	periodo=1.5;
