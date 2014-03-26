@@ -29,7 +29,7 @@ float simulationTime=0.0f;
 //-- Log de planificador
 FILE *fp1,*fp2;
 //-- Entrada
-int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0};
+int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina8::InfoMapa infoMapa;
@@ -245,10 +245,18 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
         transformacion_yxTOij(p_ij, posicionActualPata_y[k], posicionActualPata_x[k]);
         infoMapa.coordenadaPata_i[k] = ij[0];
         infoMapa.coordenadaPata_j[k] = ij[1];
-        if(matrizMapa[infoMapa.coordenadaPata_i[k]][infoMapa.coordenadaPata_j[k]]){
-//            fprintf(fp2,"---ERROR--- pata[%d] Coincide con obstaculo[%d][%d]\n",k+1,ij[0],ij[1]);
-        ROS_WARN("---ERROR--- pata[%d] Coincide con obstaculo[%d][%d]",k+1,ij[0],ij[1]);
-            cuentaErrores[k]++;
+
+        if(errorPata[k][0]!=ij[0] && errorPata[k][1]!=ij[1]){
+            if(matrizMapa[infoMapa.coordenadaPata_i[k]][infoMapa.coordenadaPata_j[k]]){
+    //            fprintf(fp2,"---ERROR--- pata[%d] Coincide con obstaculo[%d][%d]\n",k+1,ij[0],ij[1]);
+                errorPata[k][0]=ij[0];
+                errorPata[k][1]=ij[1];
+                ROS_WARN("---ERROR--- pata[%d] Coincide con obstaculo[%d][%d]",k+1,ij[0],ij[1]);
+                cuentaErrores[k]++;
+            }
+        } else {
+            infoMapa.coordenadaPata_i[k] = nCeldas_i-1;
+            infoMapa.coordenadaPata_j[k] = nCeldas_j-1;
         }
     }
     chatter_pub2.publish(infoMapa);
@@ -317,7 +325,11 @@ int main(int argc, char **argv)
         }
     }
     ROS_INFO("server_PlanificadorPisada: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
-
+    for(int i=0;i<Npatas;i++){
+        for(int j=0;j<2;j++){
+            errorPata[i][j]=0;
+        }
+    }
     for(int i=0;i<100;i++){
         for(int j=0;j<20;j++){
             obstaculo[i][j].P1_x=-100;
