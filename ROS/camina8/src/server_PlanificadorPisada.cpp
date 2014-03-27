@@ -163,8 +163,9 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
         if (cinversaOK){
 //            ROS_INFO("server_Plan: cinversaOK");
         //-- Calculamos proximo movimiento en el sistema mundo
+//                PisadaProxima_x=posicionActualPata_x[Tripode_Transferencia[k]] + (lambda_maximo+velocidadCuerpo_y*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
+                PisadaProxima_x=posicionActualPata_x[Tripode_Transferencia[k]] - (lambda_maximo+velocidadCuerpo_y*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                 PisadaProxima_y=posicionActualPata_y[Tripode_Transferencia[k]] + (lambda_maximo+velocidadCuerpo_y*T_actual)*cos((teta_CuerpoRobot-teta_Offset)+alfa);
-                PisadaProxima_x=posicionActualPata_x[Tripode_Transferencia[k]] + (lambda_maximo+velocidadCuerpo_y*T_actual)*sin((teta_CuerpoRobot-teta_Offset)+alfa);
                 transformacion_yxTOij(p_ij, PisadaProxima_y, PisadaProxima_x);
                 PisadaProxima_i=ij[0];
                 PisadaProxima_j=ij[1];
@@ -199,8 +200,8 @@ bool PlanificadorPisada(camina8::PlanificadorParametros::Request  &req,
                 //-- Todo salio bien! Esta proxima_pisada es valida! :D
                     modificacion_lambda[k] = lambda_maximo;
 //            //-- Pisada maxima
-//                infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
-//                infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
+                infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
+                infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
                 }
         } else {
             ROS_WARN("server_PlanificadorPisada: pata [%d] error cinversa",k+1);
