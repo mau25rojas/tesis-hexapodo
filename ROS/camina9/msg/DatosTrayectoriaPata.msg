@@ -49,3 +49,7 @@ float32[]   alfa
 
 #Bandera de cambio en trayectoria
 bool      cambioTrayectoria
+
+#Distancia de correccion en Y para traslacion de tray
+int32[]   correccion_ID	#ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der;(2)corr_aba;
+float32[]   correccion_di
