@@ -28,7 +28,7 @@ float modificacion_T = 0.0, modificacion_lambda =0.0;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
 float coordenadaCuerpo_y=0.0,yCuerpo_T1_1=0.0, yCuerpo_T1_2=0.0,yCuerpo_T2_1=0.0, yCuerpo_T2_2=0.0, delta_y=0.0, tiempo_ahora=0.0, velocidadCuerpo_y=0.0;
 int pataApoyo[Npatas], tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
-int Tripode=0, cuenta=0;
+int Tripode=0, cuenta=0, PasosIni=0;
 FILE *fp1;
 boost::posix_time::ptime timerT1_1,timerT1_2,timerT2_1,timerT2_2;
 boost::posix_time::time_duration diff_t;
@@ -62,7 +62,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
 
         if (Inicio){
             cuenta++;
-            if (cuenta==2*divisionTrayectoriaPata){
+            if (cuenta==PasosIni*divisionTrayectoriaPata){
                 Inicio=false;
                 delta_t = T;
             } else {
@@ -85,6 +85,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 llamadaPlan = false;
             //-- reinicio cuenta para iniciar apoyo
                 delta_t = 0.0;
+                for(int k=0;k<Npatas;k++) datosTrayectoriaPata.di_correccion[k]=0.0;
             //-- la distancia en apoyo se mantiene según la distancia recorrida en transferencia
                 if (Tripode==T1){
                     datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
@@ -112,6 +113,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 if (client_Planificador.call(srv_Planificador)){
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     modificacion_T = srv_Planificador.response.modificacion_T;
+                    datosTrayectoriaPata.di_correccion = srv_Planificador.response.di_correccion;
                     ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
 
                 } else {
@@ -163,15 +165,16 @@ int main(int argc, char **argv)
   Narg=14;
 	if (argc>=Narg)
 	{
-        T=atof(argv[1]); // Periodo de trayectoria [seg]
-		divisionTrayectoriaPata=atof(argv[2]);  //N puntos
-		beta=atof(argv[3]);
-		lambda_Apoyo=atof(argv[4]);
-		lambda_Transferencia=atof(argv[5]);
-		alfa=atof(argv[6])*pi/180;
-        desfasaje_t_T1=atof(argv[7]);
-        desfasaje_t_T2=atof(argv[8]);
-        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[9+k]);
+        PasosIni=atoi(argv[1]);
+        T=atof(argv[2]); // Periodo de trayectoria [seg]
+		divisionTrayectoriaPata=atof(argv[3]);  //N puntos
+		beta=atof(argv[4]);
+		lambda_Apoyo=atof(argv[5]);
+		lambda_Transferencia=atof(argv[6]);
+		alfa=atof(argv[7])*pi/180;
+        desfasaje_t_T1=atof(argv[8]);
+        desfasaje_t_T2=atof(argv[9]);
+        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[10+k]);
     } else {
 		ROS_ERROR("Nodo1: Indique argumentos!\n");
 		return 0;
@@ -217,6 +220,10 @@ int main(int argc, char **argv)
         datosTrayectoriaPata.alfa.push_back(0);
         datosTrayectoriaPata.desfasaje_t.push_back(0);
         datosTrayectoriaPata.vector_estados.push_back(0);
+    }
+    for(int k=0;k<Npatas;k++) {
+        datosTrayectoriaPata.correccion_di.push_back(0);
+        datosTrayectoriaPata.correccion_ID.push_back(0);
     }
 //-- Tripode 1
     datosTrayectoriaPata.T_apoyo[T1-1]=T;

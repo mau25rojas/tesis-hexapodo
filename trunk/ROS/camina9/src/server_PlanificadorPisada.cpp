@@ -37,17 +37,16 @@ bool matrizMapa[100][20];
 int nCeldas_i=0, nCeldas_j=0;
 float LongitudCeldaY=0, LongitudCeldaX=0;
 //-- Variables de ubicacion robot
-double tiempo_ahora=0.0, tiempo_anterior=0.0;
-//float ajuste_Vel=vel_esperada/vel_teorica;
 float velocidadCuerpo_y=0.0, delta_x=0.0, delta_y=0.0, x_anterior=0.0, y_anterior=0.0, x_actual=0.0, y_actual=0.0;
-float posicionActualPata_y[Npatas], posicionActualPata_x[Npatas];
+float posicionActualPata_y[Npatas], posicionActualPata_x[Npatas], teta_CuerpoRobot=0.0;
 float posicionActualPataSistemaPata_y[Npatas],posicionActualPataSistemaPata_x[Npatas],posicionActualPataSistemaPata_z[Npatas];
-float teta_CuerpoRobot=0.0;
+//-- Correccion
+int correccion_ID[Npatas]; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der;(2)corr_aba;
+float di_prueba=0.0, di[3], correccion_di[Npatas];
 //-- Envio de señal de stop
 camina9::SenalesCambios senales;
 //-- Obstaculos
 Obstaculo obstaculo[100][20];
-float di=0.0;
 //-- Publishers
 ros::Publisher chatter_pub1;
 ros::Publisher chatter_pub2;
@@ -90,6 +89,10 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     res.modificacion_T = 0.0;
     res.modificacion_lambda = 0.0;
     res.result = 0;
+    for(int k=0;k<2*Npatas;k++) {
+        res.correccion_ID.push_back(0);
+        res.correccion_di.push_back(0);
+    }
 //-- Variables locales
     int Tripode_Transferencia[Npatas/2];
     int PisadaProxima_i=0, PisadaProxima_j=0;
@@ -97,7 +100,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     bool cinversaOK;
     float PisadaProxima_x=0.0, PisadaProxima_y=0.0, PisadaProxima_z=0.0;
     float delta_x_S0=0.0, delta_y_S0=0.0, delta_x=0.0, delta_y=0.0;
-    float modificacion_lambda[Npatas/2];
+    float modificacion_lambda[Npatas/2], di[Npatas/2];
     float T_actual=0.0,lambda_Apoyo_actual=0.0;
 
     p_ij = ij;    // Inicialización de apuntador
@@ -117,6 +120,8 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     //-- se intercambian los tripodes
         for(int k=0;k<Npatas/2;k++) {
             Tripode_Transferencia[k] = Tripode2[k];
+            correccion_ID[Tripode_Transferencia[k]] = -1;
+            correccion_di[Tripode_Transferencia[k]] = 0.0;
             //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode1[k]];
 //            infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode1[k]];
@@ -127,6 +132,8 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     } else{
         for(int k=0;k<Npatas/2;k++){
             Tripode_Transferencia[k] = Tripode1[k];
+            correccion_ID[Tripode_Transferencia[k]] = -1;
+            correccion_di[Tripode_Transferencia[k]] = 0.0;
     //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode2[k]] = posicionActualPata_x[Tripode2[k]];
 //            infoMapa.coordenadaPata_y[Tripode2[k]] = posicionActualPata_y[Tripode2[k]];
@@ -189,10 +196,46 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
                     puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4_x;
                     puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4_y;
                     ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
-                    recta_inf_o = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
+                    recta_obstaculo_izq = recta3d(puntosObstaculo[0],puntosObstaculo[3]);
+                    recta_obstaculo_der = recta3d(puntosObstaculo[1],puntosObstaculo[2]);
+                    di[0] = recta_obstaculo_izq.distancia(Pata);
+                    di[1] = recta_obstaculo_der.distancia(Pata);
 
-                    correccion = recta_inf_o.distancia(Pata);
+                    //-- se escoge la distancia menor
+                    if(di[0]<0 && di[1]<0){
+                        PisadaOK[k] = false;
+                    } else {
+                        PisadaOK[k] = false;
+                        if(di[0]<di[1]){
+                        //-- la correccion mar cercana es hacia la izq (-x)
+                            aux_PisadaProxima_y = PisadaProxima_y
+                            aux_PisadaProxima_x = PisadaProxima_x-(di[0]+delta_correccion)
+                            transformacion_yxTOij(p_ij, aux_PisadaProxima_y, aux_PisadaProxima_x);
+                            aux_PisadaProxima_i = ij[0];
+                            aux_PisadaProxima_j = ij[1];
+                            if(!matrizMapa[aux_PisadaProxima_i][aux_PisadaProxima_j]){
+                                PisadaOK[k]=true;
+                            }
+                        } else {
+                        //-- la correccion mar cercana es hacia la der (+x)
+                            aux_PisadaProxima_y = PisadaProxima_y
+                            aux_PisadaProxima_x = PisadaProxima_x+(di[0]+delta_correccion)
+                            transformacion_yxTOij(p_ij, aux_PisadaProxima_y, aux_PisadaProxima_x);
+                            aux_PisadaProxima_i = ij[0];
+                            aux_PisadaProxima_j = ij[1];
+                            if(!matrizMapa[aux_PisadaProxima_i][aux_PisadaProxima_j]){
+                                PisadaOK[k]=true;
+                            }
+                        }
+                    }
+
+                    if (!PisadaOK[k]){
+                        recta_obstaculo_aba = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
+                        di[2] = recta_obstaculo_aba.distancia(Pata);
+                    }
+
                     ROS_WARN("correccion:%.3f",correccion);
+                    correccion_di[Tripode_Transferencia[k]] = correccion;
                     modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
 
                 } else {
@@ -200,8 +243,8 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
                 //-- Todo salio bien! Esta proxima_pisada es valida! :D
                     modificacion_lambda[k] = lambda_maximo;
 //            //-- Pisada maxima
-                infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
-                infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
+//                infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
+//                infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
                 }
         } else {
             ROS_WARN("server_PlanificadorPisada: pata [%d] error cinversa",k+1);
@@ -235,6 +278,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     } else {
         res.modificacion_lambda = modificacion_lambda[0];
     }
+    for(int k=0;k<Npatas;k++) res.correccion_di[k] = correccion_di[k];
 
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
     fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f\n",req.Tripode,res.modificacion_lambda,res.modificacion_T);

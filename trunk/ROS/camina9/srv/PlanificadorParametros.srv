@@ -12,8 +12,9 @@ float32 velApoyo_y
 # Response
 int32 result
 float32 modificacion_T
-float32[] modificacion_beta
 float32 modificacion_lambda
+float32[] correccion_di
+int32[] correccion_ID	#ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der;(2)corr_aba;
 
 
 

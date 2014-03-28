@@ -49,8 +49,8 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 */
 void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 {
-    float t_Trayectoria=0.0;
-    float alfa=0.0;
+    int correccion_ID=-1;
+    float t_Trayectoria=0.0,alfa=0.0,InicioApoyo=0.0,correccion_di=0.0;
     float x_S1=0.0, y_S1=0.0, z_S1=0.0;
     float PuntoInicio_x=0.0, PuntoInicio_y=0.0, PuntoInicio_z=0.0;
 
@@ -58,47 +58,32 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[Tripode-1];
     lambda_Apoyo = msg_datoTrayectoria.lambda_Apoyo[Tripode-1];
     lambda_Transferencia = msg_datoTrayectoria.lambda_Transferencia[Tripode-1];
+    correccion_di = msg_datoTrayectoria.correccion_di[Npata_arg-1];
+    correccion_ID = msg_datoTrayectoria.correccion_ID[Npata_arg-1];
     alfa = msg_datoTrayectoria.alfa[Tripode-1];
     desfasaje_t = msg_datoTrayectoria.desfasaje_t[Tripode-1];
     Estado = msg_datoTrayectoria.vector_estados[Tripode-1];
 
-//    if(prevEstado>Estado){
-//    //--- Se pasa de estado de transferencia a estado de apoyo
-//    //--- inicia apoyo
-////        finTransferencia_x = x_S0;
-//        finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
-//    }
-
-    //---------------------------------
-//    if (Inicio){
-//    //-- La trayectoria inicial se hace con lambda de apoyo
-//        Inicio = false;
-//        lambda_Apoyo = lambda_Transferencia;
-//        finTransferencia_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
-//        finApoyo_x = (y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
-//    }
+    InicioApoyo = (y_Offset-FinEspacioTrabajo_y)-lambda_maximo+correccion_di;
 
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
     // Periodo A-B
     if (Estado==Apoyo)
     {
     //---Apoyo------
-//        PuntoInicio_x=finTransferencia_x;
-        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Apoyo;
+        PuntoInicio_x=InicioApoyo;
         PuntoInicio_y=0.0;
         PuntoInicio_z=0.0;
         Trayectoria_FaseApoyo(t_Trayectoria,PuntoInicio_x,PuntoInicio_y,PuntoInicio_z);
     } else {
     //---Transferencia------
     // Elipsis
-//        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
-        PuntoInicio_x=(y_Offset-FinEspacioTrabajo_y)-lambda_Transferencia/2;
+        PuntoInicio_x=InicioApoyo+lambda_Transferencia/2;
         PuntoInicio_y=0.0;
         PuntoInicio_z=0.0;
         Trayectoria_FaseTrans_Eliptica(t_Trayectoria,PuntoInicio_x,PuntoInicio_y,PuntoInicio_z);
     }
 
-//    prevEstado = Estado;
     //-----Transformacion de trayectoria a Sistema de Pata
     x_S1 = x_Offset + x_S0*cos(phi+alfa) - y_S0*sin(phi+alfa);
     y_S1 = y_Offset + x_S0*sin(phi+alfa) + y_S0*cos(phi+alfa);
@@ -127,7 +112,7 @@ int main(int argc, char **argv){
 
 	if (argc>=8)
 	{
-		Npata_arg=atoi(argv[1]);
+		Npata_arg=atoi(argv[1]);    //de 1 a 6
 		dh=atof(argv[2]);
         x_Offset=atof(argv[3]);
         y_Offset=atof(argv[4]);
@@ -186,9 +171,6 @@ void Trayectoria_FaseApoyo(float t_Trayectoria,float PuntoInicio_x,float PuntoIn
     x_S0 = PuntoInicio_x + velocidadApoyo*t_Trayectoria;
     y_S0 = PuntoInicio_y;
     z_S0 = PuntoInicio_z;
-//    if (fabs(t_Trayectoria-beta*T)<2*(delta_t)){
-//        ROS_INFO("[%d] fin apoyo",Npata_arg);
-//    }
 }
 
 //---Caso parte 2 trayectoria----
