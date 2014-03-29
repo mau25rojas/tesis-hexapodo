@@ -85,7 +85,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 llamadaPlan = false;
             //-- reinicio cuenta para iniciar apoyo
                 delta_t = 0.0;
-                for(int k=0;k<Npatas;k++) datosTrayectoriaPata.di_correccion[k]=0.0;
+                for(int k=0;k<Npatas;k++) datosTrayectoriaPata.correccion_di[k]=0.0;
             //-- la distancia en apoyo se mantiene según la distancia recorrida en transferencia
                 if (Tripode==T1){
                     datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
@@ -113,7 +113,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 if (client_Planificador.call(srv_Planificador)){
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     modificacion_T = srv_Planificador.response.modificacion_T;
-                    datosTrayectoriaPata.di_correccion = srv_Planificador.response.di_correccion;
+                    datosTrayectoriaPata.correccion_di = srv_Planificador.response.correccion_di;
                     ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
 
                 } else {

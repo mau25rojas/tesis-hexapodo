@@ -2,26 +2,21 @@
 //Librerias propias usadas
 #include "constantes.hpp"
 #include "camina9/v_repConst.h"
-// Used data structures:
 #include "camina9/EspacioTrabajoParametros.h"
+#include "../../Convexhull/vector3d.hpp"
+#include "../../Convexhull/convexhull.cpp"
+#include "../../Convexhull/analisis.cpp"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
-// Global variables (modified by topic subscribers):
+//-- Variables globales
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
 float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
-float origenPata_x[6], origenPata_y[6], rotacionPata[6];
-float EspacioTrabajoPatas_yx[6][8], EspacioTrabajoPatas_ij[6][8];
-/*
-EspacioTrabajoPatas_yx[6][8]
-    EspacioTrabajoPatas_yx(ij)[Pata1]: P1_y(i);P1_x(j);P2_y(i);P2_x(j);P3_y(i);P3_x(j);P4_y(i);P4_x(j)
-    EspacioTrabajoPatas_yx(ij)[Pata2]: P1_y(i);P1_x(j);P2_y(i);P2_x(j);P3_y(i);P3_x(j);P4_y(i);P4_x(j)
-    EspacioTrabajoPatas_yx(ij)[Pata3]: P1_y(i);P1_x(j);P2_y(i);P2_x(j);P3_y(i);P3_x(j);P4_y(i);P4_x(j)
-    EspacioTrabajoPatas_yx(ij)[Pata4]: P1_y(i);P1_x(j);P2_y(i);P2_x(j);P3_y(i);P3_x(j);P4_y(i);P4_x(j)
-    EspacioTrabajoPatas_yx(ij)[Pata5]: P1_y(i);P1_x(j);P2_y(i);P2_x(j);P3_y(i);P3_x(j);P4_y(i);P4_x(j)
-    EspacioTrabajoPatas_yx(ij)[Pata6]: P1_y(i);P1_x(j);P2_y(i);P2_x(j);P3_y(i);P3_x(j);P4_y(i);P4_x(j)
-*/
+float rotacionPata[Npatas], phi[Npatas];
+punto3d origenPata[Npatas];
+//-- Funciones
+punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 {
@@ -32,121 +27,68 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
                         camina9::EspacioTrabajoParametros::Response &res)
 {
-    for(int k=0;k<Npuntos;k++){
-        res.EspacioTrabajoPata1_x.push_back(0);
-        res.EspacioTrabajoPata2_x.push_back(0);
-        res.EspacioTrabajoPata3_x.push_back(0);
-        res.EspacioTrabajoPata4_x.push_back(0);
-        res.EspacioTrabajoPata5_x.push_back(0);
-        res.EspacioTrabajoPata6_x.push_back(0);
-        res.EspacioTrabajoPata1_y.push_back(0);
-        res.EspacioTrabajoPata2_y.push_back(0);
-        res.EspacioTrabajoPata3_y.push_back(0);
-        res.EspacioTrabajoPata4_y.push_back(0);
-        res.EspacioTrabajoPata5_y.push_back(0);
-        res.EspacioTrabajoPata6_y.push_back(0);
-    }
+    int Npata = req.Npata;
+    float ang_rotacion=0.0;
+    punto3d P1,P2,P3,P4,P_aux,P_EDT,P_Ocuerpo;
+    //-- Esquinas ((..[1]izq-arrib,[2]der-arrib,[3]der-aba,[4]izq-aba..))
+    res.EspacioTrabajoP1_x=0.0;
+    res.EspacioTrabajoP1_y=0.0;
+    res.EspacioTrabajoP2_x=0.0;
+    res.EspacioTrabajoP2_y=0.0;
+    res.EspacioTrabajoP3_x=0.0;
+    res.EspacioTrabajoP3_y=0.0;
+    res.EspacioTrabajoP4_x=0.0;
+    res.EspacioTrabajoP4_y=0.0;
 
-    float P1_x=0.0,P1_y=0.0,P2_x=0.0,P2_y=0.0,P3_x=0.0,P3_y=0.0,P4_x=0.0,P4_y=0.0;
-    float Py=0.0,Px=0.0;
+//-- Transporta el espacio de trabajo hacia la pata
+    //--Punto1
+    P_aux.x = -EspacioTrabajo_X;
+    P_aux.y = EspacioTrabajo_Y2;
+    P1 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
+    //--Punto2
+    P_aux.x = EspacioTrabajo_X;
+    P_aux.y = EspacioTrabajo_Y2;
+    P2 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
+    //--Punto3
+    P_aux.x = EspacioTrabajo_X;
+    P_aux.y = EspacioTrabajo_Y1;
+    P3 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
+    //--Punto4
+    P_aux.x = -EspacioTrabajo_X;
+    P_aux.y = EspacioTrabajo_Y1;
+    P4 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
 
-    for(int k=0;k<Npatas;k++){
-        //--Punto1
-        Py = 0.0;
-        Px = -EspacioTrabajo_X;
-        P1_y = sin(rotacionPata[k])*Px+cos(rotacionPata[k])*Py+origenPata_y[k];
-        P1_x = cos(rotacionPata[k])*Px-sin(rotacionPata[k])*Py+origenPata_x[k];
-        //--Punto2
-        Py = EspacioTrabajo_Y;
-        Px = -EspacioTrabajo_X;
-        P2_y = sin(rotacionPata[k])*Px+cos(rotacionPata[k])*Py+origenPata_y[k];
-        P2_x = cos(rotacionPata[k])*Px-sin(rotacionPata[k])*Py+origenPata_x[k];
-        //--Punto3
-        Py = 0.0;
-        Px = EspacioTrabajo_X;
-        P3_y = sin(rotacionPata[k])*Px+cos(rotacionPata[k])*Py+origenPata_y[k];
-        P3_x = cos(rotacionPata[k])*Px-sin(rotacionPata[k])*Py+origenPata_x[k];
-        //--Punto4
-        Py = EspacioTrabajo_Y;
-        Px = EspacioTrabajo_X;
-        P4_y = sin(rotacionPata[k])*Px+cos(rotacionPata[k])*Py+origenPata_y[k];
-        P4_x = cos(rotacionPata[k])*Px-sin(rotacionPata[k])*Py+origenPata_x[k];
+    //-- Transformacion de coordenadas segun posicion y rotacion del robot
+    P_Ocuerpo.x = req.PosicionCuerpo_x;
+    P_Ocuerpo.y = req.PosicionCuerpo_y;
+    ang_rotacion = req.theta_CuerpoRobot + phi[Npata] + req.alfa
+    P_EDT = TransformacionHomogenea(P1,P_Ocuerpo,ang_rotacion);
+    res.EspacioTrabajoP1_x = P_EDT.x;
+    res.EspacioTrabajoP1_y = P_EDT.y;
+    P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
+    res.EspacioTrabajoP2_x = P_EDT.x;
+    res.EspacioTrabajoP2_y = P_EDT.y;
+    P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
+    res.EspacioTrabajoP3_x = P_EDT.x;
+    res.EspacioTrabajoP3_y = P_EDT.y;
+    P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
+    res.EspacioTrabajoP4_x = P_EDT.x;
+    res.EspacioTrabajoP4_y = P_EDT.y;
 
-        switch(k+1){
-            case Pata1:
-                //-- Transformacion de coordenadas segun posicion y rotacion del robot
-                res.EspacioTrabajoPata1_y[0] = sin(req.theta_CuerpoRobot)*P1_x+cos(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata1_x[0] = cos(req.theta_CuerpoRobot)*P1_x-sin(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata1_y[1] = sin(req.theta_CuerpoRobot)*P2_x+cos(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata1_x[1] = cos(req.theta_CuerpoRobot)*P2_x-sin(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata1_y[2] = sin(req.theta_CuerpoRobot)*P3_x+cos(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata1_x[2] = cos(req.theta_CuerpoRobot)*P3_x-sin(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata1_y[3] = sin(req.theta_CuerpoRobot)*P4_x+cos(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata1_x[3] = cos(req.theta_CuerpoRobot)*P4_x-sin(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_x;
-
-            break;
-            case Pata2:
-                //-- Transformacion de coordenadas segun posicion y rotacion del robot
-                res.EspacioTrabajoPata2_y[0] = sin(req.theta_CuerpoRobot)*P1_x+cos(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata2_x[0] = cos(req.theta_CuerpoRobot)*P1_x-sin(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata2_y[1] = sin(req.theta_CuerpoRobot)*P2_x+cos(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata2_x[1] = cos(req.theta_CuerpoRobot)*P2_x-sin(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata2_y[2] = sin(req.theta_CuerpoRobot)*P3_x+cos(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata2_x[2] = cos(req.theta_CuerpoRobot)*P3_x-sin(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata2_y[3] = sin(req.theta_CuerpoRobot)*P4_x+cos(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata2_x[3] = cos(req.theta_CuerpoRobot)*P4_x-sin(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_x;
-            break;
-            case Pata3:
-                //-- Transformacion de coordenadas segun posicion y rotacion del robot
-                res.EspacioTrabajoPata3_y[0] = sin(req.theta_CuerpoRobot)*P1_x+cos(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata3_x[0] = cos(req.theta_CuerpoRobot)*P1_x-sin(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata3_y[1] = sin(req.theta_CuerpoRobot)*P2_x+cos(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata3_x[1] = cos(req.theta_CuerpoRobot)*P2_x-sin(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata3_y[2] = sin(req.theta_CuerpoRobot)*P3_x+cos(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata3_x[2] = cos(req.theta_CuerpoRobot)*P3_x-sin(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata3_y[3] = sin(req.theta_CuerpoRobot)*P4_x+cos(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata3_x[3] = cos(req.theta_CuerpoRobot)*P4_x-sin(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_x;
-            break;
-            case Pata4:
-                //-- Transformacion de coordenadas segun posicion y rotacion del robot
-                res.EspacioTrabajoPata4_y[0] = sin(req.theta_CuerpoRobot)*P1_x+cos(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata4_x[0] = cos(req.theta_CuerpoRobot)*P1_x-sin(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata4_y[1] = sin(req.theta_CuerpoRobot)*P2_x+cos(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata4_x[1] = cos(req.theta_CuerpoRobot)*P2_x-sin(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata4_y[2] = sin(req.theta_CuerpoRobot)*P3_x+cos(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata4_x[2] = cos(req.theta_CuerpoRobot)*P3_x-sin(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata4_y[3] = sin(req.theta_CuerpoRobot)*P4_x+cos(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata4_x[3] = cos(req.theta_CuerpoRobot)*P4_x-sin(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_x;
-            break;
-            case Pata5:
-                //-- Transformacion de coordenadas segun posicion y rotacion del robot
-                res.EspacioTrabajoPata5_y[0] = sin(req.theta_CuerpoRobot)*P1_x+cos(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata5_x[0] = cos(req.theta_CuerpoRobot)*P1_x-sin(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata5_y[1] = sin(req.theta_CuerpoRobot)*P2_x+cos(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata5_x[1] = cos(req.theta_CuerpoRobot)*P2_x-sin(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata5_y[2] = sin(req.theta_CuerpoRobot)*P3_x+cos(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata5_x[2] = cos(req.theta_CuerpoRobot)*P3_x-sin(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata5_y[3] = sin(req.theta_CuerpoRobot)*P4_x+cos(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata5_x[3] = cos(req.theta_CuerpoRobot)*P4_x-sin(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_x;
-            break;
-            case Pata6:
-                //-- Transformacion de coordenadas segun posicion y rotacion del robot
-                res.EspacioTrabajoPata6_y[0] = sin(req.theta_CuerpoRobot)*P1_x+cos(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata6_x[0] = cos(req.theta_CuerpoRobot)*P1_x-sin(req.theta_CuerpoRobot)*P1_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata6_y[1] = sin(req.theta_CuerpoRobot)*P2_x+cos(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata6_x[1] = cos(req.theta_CuerpoRobot)*P2_x-sin(req.theta_CuerpoRobot)*P2_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata6_y[2] = sin(req.theta_CuerpoRobot)*P3_x+cos(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata6_x[2] = cos(req.theta_CuerpoRobot)*P3_x-sin(req.theta_CuerpoRobot)*P3_y+req.PosicionCuerpo_x;
-                res.EspacioTrabajoPata6_y[3] = sin(req.theta_CuerpoRobot)*P4_x+cos(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_y;
-                res.EspacioTrabajoPata6_x[3] = cos(req.theta_CuerpoRobot)*P4_x-sin(req.theta_CuerpoRobot)*P4_y+req.PosicionCuerpo_x;
-            break;
-        }
-    }
   return true;
 }
 
 int main(int argc, char **argv)
 {
+    int Narg=0
+      Narg=1;
+	if (argc>=Narg)
+	{
+        for(int k=0;k<Npatas;k++) phi[k] = atof(argv[1+k]);
+    } else {
+		ROS_ERROR("server_EspacioTrabajo: Indique argumentos!\n");
+		return 0;
+	}
     ros::init(argc, argv, "EspacioTrabajo_server");
     ros::NodeHandle n;
 
@@ -159,28 +101,28 @@ int main(int argc, char **argv)
     PosicionPata_x2 = radioCuerpo;
     PosicionPata_y2 = 0.0;
     //-- Pata1
-    origenPata_y[0]=PosicionPata_y;
-    origenPata_x[0]=-PosicionPata_x;
+    origenPata[0].x=-PosicionPata_x;
+    origenPata[0].y=PosicionPata_y;
     rotacionPata[0]=rotacion_Pata1;
     //-- Pata2
-    origenPata_y[1]=PosicionPata_y;
-    origenPata_x[1]=PosicionPata_x;
+    origenPata[1].x=PosicionPata_x;
+    origenPata[1].y=PosicionPata_y;
     rotacionPata[1]=rotacion_Pata2;
     //-- Pata3
-    origenPata_y[2]=PosicionPata_y2;
-    origenPata_x[2]=-PosicionPata_x2;
+    origenPata[2].x=-PosicionPata_x2;
+    origenPata[2].y=PosicionPata_y2;
     rotacionPata[2]=rotacion_Pata3;
     //-- Pata4
-    origenPata_y[3]=PosicionPata_y2;
-    origenPata_x[3]=PosicionPata_x2;
+    origenPata[3].x=PosicionPata_x2;
+    origenPata[3].y=PosicionPata_y2;
     rotacionPata[3]=rotacion_Pata4;
     //-- Pata5
-    origenPata_y[4]=-PosicionPata_y;
-    origenPata_x[4]=-PosicionPata_x;
+    origenPata[4].x=-PosicionPata_x;
+    origenPata[4].y=-PosicionPata_y;
     rotacionPata[4]=rotacion_Pata5;
     //-- Pata6
-    origenPata_y[5]=-PosicionPata_y;
-    origenPata_x[5]=PosicionPata_x;
+    origenPata[5].x=PosicionPata_x;
+    origenPata[5].y=-PosicionPata_y;
     rotacionPata[5]=rotacion_Pata6;
 
   while (ros::ok() && simulationRunning) {
@@ -188,4 +130,15 @@ int main(int argc, char **argv)
   }
 
   return 0;
+}
+
+punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion){
+
+    punto3d Punto_out;
+
+    Punto_out.x = L_traslacion.x + Punto_in.x*cos(ang_rotacion) - Punto_in.y*sin(ang_rotacion);
+    Punto_out.y = L_traslacion.y + Punto_in.x*sin(ang_rotacion) + Punto_in.y*cos(ang_rotacion);
+    Punto_out.z = L_traslacion.z + Punto_in.z;
+
+    return(Punto_out);
 }

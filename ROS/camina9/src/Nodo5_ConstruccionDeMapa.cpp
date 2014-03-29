@@ -132,14 +132,14 @@ void ajusteCallback(camina9::InfoMapa msgInfoMapa)
 
     for(int k=0; k<Npatas; k++) {
         if(bool_matrizMapa[coordenadaPata_i[k]][coordenadaPata_j[k]]){
-            puntosObstaculo[0].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P1_x;
-            puntosObstaculo[0].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P1_y;
-            puntosObstaculo[1].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P2_x;
-            puntosObstaculo[1].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P2_y;
-            puntosObstaculo[2].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P3_x;
-            puntosObstaculo[2].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P3_y;
-            puntosObstaculo[3].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4_x;
-            puntosObstaculo[3].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4_y;
+            puntosObstaculo[0].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P1.x;
+            puntosObstaculo[0].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P1.y;
+            puntosObstaculo[1].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P2.x;
+            puntosObstaculo[1].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P2.y;
+            puntosObstaculo[2].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P3.x;
+            puntosObstaculo[2].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P3.y;
+            puntosObstaculo[3].x=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4.x;
+            puntosObstaculo[3].y=obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].P4.y;
             Q = puntosObstaculo;
 
             S = recta_di;
@@ -219,14 +219,14 @@ int main(int argc, char **argv)
     }
     for(int i=0;i<100;i++){
         for(int j=0;j<20;j++){
-            obstaculo[i][j].P1_x=-100;
-            obstaculo[i][j].P1_y=-100;
-            obstaculo[i][j].P2_x=-100;
-            obstaculo[i][j].P2_y=-100;
-            obstaculo[i][j].P3_x=-100;
-            obstaculo[i][j].P3_y=-100;
-            obstaculo[i][j].P4_x=-100;
-            obstaculo[i][j].P4_y=-100;
+            obstaculo[i][j].P1.x=-100;
+            obstaculo[i][j].P1.y=-100;
+            obstaculo[i][j].P2.x=-100;
+            obstaculo[i][j].P2.y=-100;
+            obstaculo[i][j].P3.x=-100;
+            obstaculo[i][j].P3.y=-100;
+            obstaculo[i][j].P4.x=-100;
+            obstaculo[i][j].P4.y=-100;
         }
     }
     M_fileName = O_fileName = fileName;
@@ -350,25 +350,25 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
             aux=fscanf(fp, "%d", &int_aux);
             j=int_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].O_x=f_aux;
+            obstaculo[i][j].O.x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].O_y=f_aux;
+            obstaculo[i][j].O.y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P1_x=f_aux;
+            obstaculo[i][j].P1.x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P1_y=f_aux;
+            obstaculo[i][j].P1.y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P2_x=f_aux;
+            obstaculo[i][j].P2.x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P2_y=f_aux;
+            obstaculo[i][j].P2.y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P3_x=f_aux;
+            obstaculo[i][j].P3.x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P3_y=f_aux;
+            obstaculo[i][j].P3.y=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P4_x=f_aux;
+            obstaculo[i][j].P4.x=f_aux;
             aux=fscanf(fp, "%f", &f_aux);
-            obstaculo[i][j].P4_y=f_aux;
+            obstaculo[i][j].P4.y=f_aux;
         }
     } else{
         ROS_ERROR("Error al leer archivo %s",fileName.c_str());

@@ -8,6 +8,9 @@ Lynxmotion:
 -Masa de eslabones del robot. Dimensiones - Kilogramos (Kg)
  ..recordar que no existe un L1 como tal, es la unión de los motores 1 y 2
 *******************************************************************/
+//includes
+#include "../../Convexhull/vector3d.hpp"
+
 //ID patas
 #define Pata1 1
 #define Pata2 2
@@ -64,8 +67,9 @@ Lynxmotion:
 #define TrayectoriaEliptica 2
 //Espacio de Trabajo
 #define TrayInicio -0.04
-#define EspacioTrabajo_Y 0.2
-#define EspacioTrabajo_X 0.2	//Nota: el espacio de trabajo va hacia +-X, este valor representa la mitad
+#define EspacioTrabajo_Y1 0.04
+#define EspacioTrabajo_Y2 0.145
+#define EspacioTrabajo_X 0.07	//Nota: el espacio de trabajo va hacia +-X, este valor representa la mitad
 #define Npuntos 4
 #define FinEspacioTrabajo_y 0.055
 //Tranformaciones
@@ -81,14 +85,9 @@ Lynxmotion:
 typedef struct {
 		int i;		//Coordenadas matriz
 		int j;
-		float O_x;	//Origen cartesiano
-		float O_y;
-		float P1_x;	//Punto arriba-izquierda
-		float P1_y;
-		float P2_x;	//Punto arriba-derecha
-		float P2_y;
-		float P3_x;	//Punto abajo-izquierda
-		float P3_y;
-		float P4_x;	//Punto abajo-derecha
-		float P4_y;
+		punto3d O;	//Origen cartesiano
+		punto3d P1;	//Punto arriba-izquierda
+		punto3d P2;	//Punto arriba-derecha
+		punto3d P3;	//Punto abajo-izquierda
+		punto3d P4;	//Punto abajo-derecha
 		}Obstaculo;
