@@ -44,11 +44,11 @@ target_link_libraries(CentroMasa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2
 
 #CLientes y servicios
 rosbuild_add_executable(server_Cinversa src/server_Cinversa.cpp)
-rosbuild_add_executable(server_EspacioTrabajo src/server_EspacioTrabajo.cpp)
-#rosbuild_add_executable(server_TransHomogenea src/server_TransformacionHomogenea.cpp)
-rosbuild_add_executable(server_TrayectoriaMundoPata src/server_TrayectoriaMundoPata.cpp)
-rosbuild_add_library(server_PlanificadorPisada ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
-rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp)
+#rosbuild_add_library(server_EspacioTrabajo ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
+#rosbuild_add_executable(server_EspacioTrabajo src/server_EspacioTrabajo.cpp)
+#rosbuild_add_executable(server_TrayectoriaMundoPata src/server_TrayectoriaMundoPata.cpp)
+#rosbuild_add_library(server_PlanificadorPisada ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
+#rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp)
 
 
 
