@@ -3,20 +3,22 @@
 # de trabajo de cada pata para ese momento
 
 # Request
-uint8 NPata
+uint8 Pata
 float32 PosicionCuerpo_x
 float32 PosicionCuerpo_y
 float32 theta_CuerpoRobot
 float32 alfa
+float32 x_offset
+float32 y_offset
 float32[] phi
 ---
 # Response
-float32[] EspacioTrabajoP1_x
-float32[] EspacioTrabajoP1_y
-float32[] EspacioTrabajoP2_x
-float32[] EspacioTrabajoP2_y
-float32[] EspacioTrabajoP3_x
-float32[] EspacioTrabajoP3_y
-float32[] EspacioTrabajoP4_x
-float32[] EspacioTrabajoP4_y
+float32 EspacioTrabajoP1_x
+float32 EspacioTrabajoP1_y
+float32 EspacioTrabajoP2_x
+float32 EspacioTrabajoP2_y
+float32 EspacioTrabajoP3_x
+float32 EspacioTrabajoP3_y
+float32 EspacioTrabajoP4_x
+float32 EspacioTrabajoP4_y
 

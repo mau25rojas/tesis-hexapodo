@@ -27,9 +27,10 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
                         camina9::EspacioTrabajoParametros::Response &res)
 {
-    int Npata = req.Npata;
+    int Npata = req.Pata;
     float ang_rotacion=0.0;
-    punto3d P1,P2,P3,P4,P_aux,P_EDT,P_Ocuerpo;
+    punto3d P1,P2,P3,P4,P_aux,P_EDT,P_Ocuerpo, Offset;
+    Offset.x = req.x_offset; Offset.y = req.y_offset;
     //-- Esquinas ((..[1]izq-arrib,[2]der-arrib,[3]der-aba,[4]izq-aba..))
     res.EspacioTrabajoP1_x=0.0;
     res.EspacioTrabajoP1_y=0.0;
@@ -40,38 +41,54 @@ bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
     res.EspacioTrabajoP4_x=0.0;
     res.EspacioTrabajoP4_y=0.0;
 
-//-- Transporta el espacio de trabajo hacia la pata
+//-- Transformacion 1: trayectoria
     //--Punto1
-    P_aux.x = -EspacioTrabajo_X;
+    P_aux.x = EspacioTrabajo_X1;
+    P_aux.y = EspacioTrabajo_Y1;
+    P1 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+    //--Punto2
+    P_aux.x = EspacioTrabajo_X2;
+    P_aux.y = EspacioTrabajo_Y1;
+    P2 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+    //--Punto3
+    P_aux.x = EspacioTrabajo_X2;
     P_aux.y = EspacioTrabajo_Y2;
+    P3 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+    //--Punto4
+    P_aux.x = EspacioTrabajo_X1;
+    P_aux.y = EspacioTrabajo_Y2;
+    P4 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+
+//-- Transformacion 2: a origen de cada pata
+    //--Punto1
+    P_aux = P1;
     P1 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
     //--Punto2
-    P_aux.x = EspacioTrabajo_X;
-    P_aux.y = EspacioTrabajo_Y2;
+    P_aux = P2;
     P2 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
     //--Punto3
-    P_aux.x = EspacioTrabajo_X;
-    P_aux.y = EspacioTrabajo_Y1;
+    P_aux = P3;
     P3 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
     //--Punto4
-    P_aux.x = -EspacioTrabajo_X;
-    P_aux.y = EspacioTrabajo_Y1;
+    P_aux = P4;
     P4 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
 
-    //-- Transformacion de coordenadas segun posicion y rotacion del robot
+
+//-- Transformacion 3: segun posicion y rotacion del robot
     P_Ocuerpo.x = req.PosicionCuerpo_x;
     P_Ocuerpo.y = req.PosicionCuerpo_y;
-    ang_rotacion = req.theta_CuerpoRobot + phi[Npata] + req.alfa
+    ang_rotacion = req.theta_CuerpoRobot;
+
     P_EDT = TransformacionHomogenea(P1,P_Ocuerpo,ang_rotacion);
     res.EspacioTrabajoP1_x = P_EDT.x;
     res.EspacioTrabajoP1_y = P_EDT.y;
     P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
     res.EspacioTrabajoP2_x = P_EDT.x;
     res.EspacioTrabajoP2_y = P_EDT.y;
-    P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
+    P_EDT = TransformacionHomogenea(P3,P_Ocuerpo,ang_rotacion);
     res.EspacioTrabajoP3_x = P_EDT.x;
     res.EspacioTrabajoP3_y = P_EDT.y;
-    P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
+    P_EDT = TransformacionHomogenea(P4,P_Ocuerpo,ang_rotacion);
     res.EspacioTrabajoP4_x = P_EDT.x;
     res.EspacioTrabajoP4_y = P_EDT.y;
 
@@ -80,7 +97,7 @@ bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
 
 int main(int argc, char **argv)
 {
-    int Narg=0
+    int Narg=0;
       Narg=1;
 	if (argc>=Narg)
 	{

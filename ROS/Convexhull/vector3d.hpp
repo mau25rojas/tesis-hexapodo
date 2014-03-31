@@ -105,23 +105,23 @@ private:
 
 };
 
-class segmento3d								// forma punto-normal al plano
-{
-public:
-    segmento3d();								//constructor nulo de plano
-    segmento(punto3d, punto3d); //constructor a partir de 2 puntos
-
-    punto3d ini, fin;   //por convencion el segmento arranca en ini y termina en fin
-
-    float		longitud();		    //longitud del segmento de recta
-    vector3d    direccion();        //vector que va de 'ini' hasat 'fin'
-    punto3d     proyeccion (punto3d);   //devuelve el punto del segmento mas cercano a un punto dado
-
-protected:
-
-private:
-
-};
+//class segmento3d								// forma punto-normal al plano
+//{
+//public:
+//    segmento3d();								//constructor nulo de plano
+//    segmento(punto3d, punto3d); //constructor a partir de 2 puntos
+//
+//    punto3d ini, fin;   //por convencion el segmento arranca en ini y termina en fin
+//
+//    float		longitud();		    //longitud del segmento de recta
+//    vector3d    direccion();        //vector que va de 'ini' hasat 'fin'
+//    punto3d     proyeccion (punto3d);   //devuelve el punto del segmento mas cercano a un punto dado
+//
+//protected:
+//
+//private:
+//
+//};
 
 class plano3d								// forma punto-normal al plano
 {
