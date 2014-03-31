@@ -14,7 +14,7 @@ bool sensorTrigger=false;
 float simulationTime=0.0f;
 float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
 float rotacionPata[Npatas], phi[Npatas];
-punto3d origenPata[Npatas];
+punto3d origenPata[Npatas], Offset;
 //-- Funciones
 punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 
@@ -29,8 +29,8 @@ bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
 {
     int Npata = req.Pata;
     float ang_rotacion=0.0;
-    punto3d P1,P2,P3,P4,P_aux,P_EDT,P_Ocuerpo, Offset;
-    Offset.x = req.x_offset; Offset.y = req.y_offset;
+    punto3d P1,P2,P3,P4,P_aux,P_EDT,P_Ocuerpo;
+
     //-- Esquinas ((..[1]izq-arrib,[2]der-arrib,[3]der-aba,[4]izq-aba..))
     res.EspacioTrabajoP1_x=0.0;
     res.EspacioTrabajoP1_y=0.0;
@@ -45,52 +45,62 @@ bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
     //--Punto1
     P_aux.x = EspacioTrabajo_X1;
     P_aux.y = EspacioTrabajo_Y1;
-    P1 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+    P1 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);
     //--Punto2
     P_aux.x = EspacioTrabajo_X2;
     P_aux.y = EspacioTrabajo_Y1;
-    P2 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+    P2 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);
     //--Punto3
     P_aux.x = EspacioTrabajo_X2;
     P_aux.y = EspacioTrabajo_Y2;
-    P3 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+    P3 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);
     //--Punto4
     P_aux.x = EspacioTrabajo_X1;
     P_aux.y = EspacioTrabajo_Y2;
-    P4 = TransformacionHomogenea(P_aux,Offset,phi[Npata-1]+req.alfa);
+    P4 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);
 
 //-- Transformacion 2: a origen de cada pata
     //--Punto1
     P_aux = P1;
-    P1 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
+    P1 = TransformacionHomogenea(P_aux,origenPata[Npata],rotacionPata[Npata]);
     //--Punto2
     P_aux = P2;
-    P2 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
+    P2 = TransformacionHomogenea(P_aux,origenPata[Npata],rotacionPata[Npata]);
     //--Punto3
     P_aux = P3;
-    P3 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
+    P3 = TransformacionHomogenea(P_aux,origenPata[Npata],rotacionPata[Npata]);
     //--Punto4
     P_aux = P4;
-    P4 = TransformacionHomogenea(P_aux,origenPata[Npata-1],rotacionPata[Npata-1]);
+    P4 = TransformacionHomogenea(P_aux,origenPata[Npata],rotacionPata[Npata]);
+
+
+    res.EspacioTrabajoP1_x = P1.x;
+    res.EspacioTrabajoP1_y = P1.y;
+    res.EspacioTrabajoP2_x = P2.x;
+    res.EspacioTrabajoP2_y = P2.y;
+    res.EspacioTrabajoP3_x = P3.x;
+    res.EspacioTrabajoP3_y = P3.y;
+    res.EspacioTrabajoP4_x = P4.x;
+    res.EspacioTrabajoP4_y = P4.y;
 
 
 //-- Transformacion 3: segun posicion y rotacion del robot
-    P_Ocuerpo.x = req.PosicionCuerpo_x;
-    P_Ocuerpo.y = req.PosicionCuerpo_y;
-    ang_rotacion = req.theta_CuerpoRobot;
-
-    P_EDT = TransformacionHomogenea(P1,P_Ocuerpo,ang_rotacion);
-    res.EspacioTrabajoP1_x = P_EDT.x;
-    res.EspacioTrabajoP1_y = P_EDT.y;
-    P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
-    res.EspacioTrabajoP2_x = P_EDT.x;
-    res.EspacioTrabajoP2_y = P_EDT.y;
-    P_EDT = TransformacionHomogenea(P3,P_Ocuerpo,ang_rotacion);
-    res.EspacioTrabajoP3_x = P_EDT.x;
-    res.EspacioTrabajoP3_y = P_EDT.y;
-    P_EDT = TransformacionHomogenea(P4,P_Ocuerpo,ang_rotacion);
-    res.EspacioTrabajoP4_x = P_EDT.x;
-    res.EspacioTrabajoP4_y = P_EDT.y;
+//    P_Ocuerpo.x = req.PosicionCuerpo_x;
+//    P_Ocuerpo.y = req.PosicionCuerpo_y;
+//    ang_rotacion = req.theta_CuerpoRobot;
+//
+//    P_EDT = TransformacionHomogenea(P1,P_Ocuerpo,ang_rotacion);
+//    res.EspacioTrabajoP1_x = P_EDT.x;
+//    res.EspacioTrabajoP1_y = P_EDT.y;
+//    P_EDT = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
+//    res.EspacioTrabajoP2_x = P_EDT.x;
+//    res.EspacioTrabajoP2_y = P_EDT.y;
+//    P_EDT = TransformacionHomogenea(P3,P_Ocuerpo,ang_rotacion);
+//    res.EspacioTrabajoP3_x = P_EDT.x;
+//    res.EspacioTrabajoP3_y = P_EDT.y;
+//    P_EDT = TransformacionHomogenea(P4,P_Ocuerpo,ang_rotacion);
+//    res.EspacioTrabajoP4_x = P_EDT.x;
+//    res.EspacioTrabajoP4_y = P_EDT.y;
 
   return true;
 }
@@ -101,7 +111,9 @@ int main(int argc, char **argv)
       Narg=1;
 	if (argc>=Narg)
 	{
-        for(int k=0;k<Npatas;k++) phi[k] = atof(argv[1+k]);
+        Offset.x = atof(argv[1]);
+        Offset.y = atof(argv[2]);
+        for(int k=0;k<Npatas;k++) phi[k] = atof(argv[3+k]);
     } else {
 		ROS_ERROR("server_EspacioTrabajo: Indique argumentos!\n");
 		return 0;
