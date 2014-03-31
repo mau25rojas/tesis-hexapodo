@@ -21,6 +21,9 @@
 //Clientes y Servicios
 ros::ServiceClient client_Cinversa1;
 camina9::CinversaParametros srv_Cinversa1;
+ros::ServiceClient client_EspacioDT;
+camina9::CinversaParametros srv_EspacioDT;
+
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -285,6 +288,7 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     ros::ServiceServer service = node.advertiseService("PlanificadorPisada", PlanificadorPisada);
     client_Cinversa1=node.serviceClient<camina9::CinversaParametros>("Cinversa");
+    client_EspacioDT=node.serviceClient<camina9::server_EspacioTrabajo>("EspacioTrabajo");
 
     /* Log de planificador */
     fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina9/datos/RegistroCorridas.txt","a+");

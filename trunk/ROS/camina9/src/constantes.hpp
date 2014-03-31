@@ -67,9 +67,10 @@ Lynxmotion:
 #define TrayectoriaEliptica 2
 //Espacio de Trabajo
 #define TrayInicio -0.04
-#define EspacioTrabajo_Y1 0.04
-#define EspacioTrabajo_Y2 0.145
-#define EspacioTrabajo_X 0.07	//Nota: el espacio de trabajo va hacia +-X, este valor representa la mitad
+#define EspacioTrabajo_X1 -0.03
+#define EspacioTrabajo_X2 0.03
+#define EspacioTrabajo_Y1 0.035
+#define EspacioTrabajo_Y2 -0.045
 #define Npuntos 4
 #define FinEspacioTrabajo_y 0.055
 //Tranformaciones
