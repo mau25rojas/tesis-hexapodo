@@ -71,6 +71,11 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
     if(cambioEstado==1) {
 //        P_oA = TransformacionHomogenea_Inversa(P0, Offset, phi+alfa);
 //        P_oT = TransformacionHomogenea_Inversa(P0, Offset, phi+alfa);
+//        ROS_WARN("cambio de estado, correccion_di=%.4f",correccion_di);
+//        P_oA = P0;
+//        P_oA.x = P_oT.x+correccion_di;
+//        P_oT = P0;
+//        P_oT.x = P_oT.x-lambda_Transferencia/2-correccion_di;
         P_oA = P0;
         P_oT = P0;
         P_oT.x = P_oT.x-lambda_Transferencia/2;
@@ -86,7 +91,7 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
         P_oT.z = 0.0;
     }
 
-//    InicioApoyo = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo;
+//    InicioApoyo = (y_Offset-FinEspacioTrabajo_y)-lambda_maximo+correccion_di;
 
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
     // Periodo A-B

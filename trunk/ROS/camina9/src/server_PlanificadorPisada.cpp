@@ -36,6 +36,7 @@ camina9::InfoMapa infoMapa;
 bool matrizMapa[100][20];
 int nCeldas_i=0, nCeldas_j=0;
 float LongitudCeldaY=0, LongitudCeldaX=0;
+Obstaculo obstaculo[100][20];
 //-- Variables de ubicacion robot
 double tiempo_ahora=0.0, tiempo_anterior=0.0;
 //float ajuste_Vel=vel_esperada/vel_teorica;
@@ -45,8 +46,9 @@ float posicionActualPataSistemaPata_y[Npatas],posicionActualPataSistemaPata_x[Np
 float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
 camina9::SenalesCambios senales;
-//-- Obstaculos
-Obstaculo obstaculo[100][20];
+//-- Correccion
+int correccion_ID[Npatas]; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der;(2)corr_aba;
+float di_prueba=0.0, correccion_di[Npatas];
 float di=0.0;
 //-- Publishers
 ros::Publisher chatter_pub1;
@@ -90,6 +92,10 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     res.modificacion_T = 0.0;
     res.modificacion_lambda = 0.0;
     res.result = 0;
+    for(int k=0;k<2*Npatas;k++) {
+        res.correccion_ID.push_back(0);
+        res.correccion_di.push_back(0);
+    }
 //-- Variables locales
     int Tripode_Transferencia[Npatas/2];
     int PisadaProxima_i=0, PisadaProxima_j=0;
@@ -117,6 +123,8 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     //-- se intercambian los tripodes
         for(int k=0;k<Npatas/2;k++) {
             Tripode_Transferencia[k] = Tripode2[k];
+            correccion_ID[Tripode_Transferencia[k]] = -1;
+            correccion_di[Tripode_Transferencia[k]] = 0.0;
             //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode1[k]];
 //            infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode1[k]];
@@ -127,6 +135,8 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     } else{
         for(int k=0;k<Npatas/2;k++){
             Tripode_Transferencia[k] = Tripode1[k];
+            correccion_ID[Tripode_Transferencia[k]] = -1;
+            correccion_di[Tripode_Transferencia[k]] = 0.0;
     //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode2[k]] = posicionActualPata_x[Tripode2[k]];
 //            infoMapa.coordenadaPata_y[Tripode2[k]] = posicionActualPata_y[Tripode2[k]];
@@ -193,6 +203,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
 
                     correccion = recta_inf_o.distancia(Pata);
                     ROS_WARN("correccion:%.3f",correccion);
+                    correccion_di[Tripode_Transferencia[k]] = correccion;
                     modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
 
                 } else {
