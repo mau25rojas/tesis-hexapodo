@@ -55,6 +55,8 @@ void ubicacionRobCallback(camina9::UbicacionRobot msgUbicacionRobot)
 void relojCallback(camina9::SenalesCambios msgSenal)
 {
     bool llamadaPlan=false;
+    datosTrayectoriaPata.cambio_estado[T1-1]=0;
+    datosTrayectoriaPata.cambio_estado[T2-1]=0;
 
     if (!msgSenal.Stop){
 
@@ -131,6 +133,8 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 //-- Correccion en T1 significa inicio de apoyo en T1 y transferencia en T2
                     datosTrayectoriaPata.vector_estados[T1-1]=0;
                     datosTrayectoriaPata.vector_estados[T2-1]=1;
+                    datosTrayectoriaPata.cambio_estado[T1-1]=1;
+                    datosTrayectoriaPata.cambio_estado[T2-1]=1;
                 //-- El tiempo de apoyo de T1 es tiempo de trans de T2
                 //....La correccion obtenida se aplica en lambda_trans T2
                     datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
@@ -139,12 +143,14 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 //-- Correccion en T2 significa inicio de apoyo en T2 y transferencia en T1
                     datosTrayectoriaPata.vector_estados[T1-1]=1;
                     datosTrayectoriaPata.vector_estados[T2-1]=0;
+                    datosTrayectoriaPata.cambio_estado[T1-1]=1;
+                    datosTrayectoriaPata.cambio_estado[T2-1]=1;
                 //-- El tiempo de apoyo de T2 es tiempo de trans de T1
                 //....La correccion obtenida se aplica en lambda_trans T1
                     datosTrayectoriaPata.T_apoyo[T1-1]=datosTrayectoriaPata.T_apoyo[T2-1]=modificacion_T;
                     datosTrayectoriaPata.lambda_Transferencia[T1-1]=modificacion_lambda;
                 }
-            }
+            }// Fin llamada plan
 
             datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
 //            fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",modificacion_T,datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.lambda_Apoyo[T1-1],datosTrayectoriaPata.lambda_Transferencia[T1-1],datosTrayectoriaPata.lambda_Apoyo[T2-1], datosTrayectoriaPata.lambda_Transferencia[T2-1]);
@@ -236,7 +242,7 @@ int main(int argc, char **argv)
     datosTrayectoriaPata.alfa[T1-1]=alfa;
     datosTrayectoriaPata.desfasaje_t[T1-1]=desfasaje_t_T1;
     datosTrayectoriaPata.vector_estados[T1-1]=0;
-    datosTrayectoriaPata.cambio_estado[T1-1]=false;
+    datosTrayectoriaPata.cambio_estado[T1-1]=0;
 //-- Tripode 2
     datosTrayectoriaPata.T_apoyo[T2-1]=T;
     datosTrayectoriaPata.lambda_Apoyo[T2-1]=lambda_Apoyo;
@@ -244,7 +250,7 @@ int main(int argc, char **argv)
     datosTrayectoriaPata.alfa[T2-1]=alfa;
     datosTrayectoriaPata.desfasaje_t[T2-1]=desfasaje_t_T2;
     datosTrayectoriaPata.vector_estados[T2-1]=1;
-    datosTrayectoriaPata.cambio_estado[T2-1]=false;
+    datosTrayectoriaPata.cambio_estado[T2-1]=0;
 
 //-- Prepara variables para calculos de trayectoria de PATA
     //delta_t = 1/divisionTrayectoriaPata;
