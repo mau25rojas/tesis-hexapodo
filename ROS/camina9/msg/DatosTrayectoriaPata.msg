@@ -32,7 +32,7 @@ float32    velocidad_Apoyo
 
 #Vector de estados: 0-apoyo, 1-transferencia
 uint8[] vector_estados
-uint8[] cambio_estado
+bool[] cambio_estado
 
 #Distancia en Z a recorrer en transferencia
 float32   dh
