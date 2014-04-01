@@ -236,7 +236,7 @@ int main(int argc, char **argv)
     datosTrayectoriaPata.alfa[T1-1]=alfa;
     datosTrayectoriaPata.desfasaje_t[T1-1]=desfasaje_t_T1;
     datosTrayectoriaPata.vector_estados[T1-1]=0;
-    datosTrayectoriaPata.cambio_estado[T1-1]=0;
+    datosTrayectoriaPata.cambio_estado[T1-1]=false;
 //-- Tripode 2
     datosTrayectoriaPata.T_apoyo[T2-1]=T;
     datosTrayectoriaPata.lambda_Apoyo[T2-1]=lambda_Apoyo;
@@ -244,7 +244,7 @@ int main(int argc, char **argv)
     datosTrayectoriaPata.alfa[T2-1]=alfa;
     datosTrayectoriaPata.desfasaje_t[T2-1]=desfasaje_t_T2;
     datosTrayectoriaPata.vector_estados[T2-1]=1;
-    datosTrayectoriaPata.cambio_estado[T2-1]=0;
+    datosTrayectoriaPata.cambio_estado[T2-1]=false;
 
 //-- Prepara variables para calculos de trayectoria de PATA
     //delta_t = 1/divisionTrayectoriaPata;
