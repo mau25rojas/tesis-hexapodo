@@ -177,12 +177,13 @@ void Trayectoria_FaseApoyo(float t_Trayectoria,float PuntoInicio_x,float PuntoIn
 //-- Elipsis
 void Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,float PuntoInicio_x,float PuntoInicio_y,float PuntoInicio_z){
 
-    float theta=0.0, t_aux=0.0;
+    float theta=0.0, t_aux=0.0, L=0.0, rotacion=0.0;
 
     t_aux = t_Trayectoria/T;
     theta = pi*t_aux;
+    L = (lambda_Transferencia/2)*cos(theta);
 
-    x_S0 = PuntoInicio_x + (lambda_Transferencia/2)*cos(theta);
-    y_S0 = PuntoInicio_y;
+    x_S0 = PuntoInicio_x - L*sin(rotacion);
+    y_S0 = PuntoInicio_y + L*cos(rotacion);
     z_S0 = PuntoInicio_z + dh*sin(theta);
 }
