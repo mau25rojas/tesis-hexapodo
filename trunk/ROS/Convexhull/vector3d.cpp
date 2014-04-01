@@ -382,14 +382,25 @@ punto3d plano3d::proyeccion(punto3d p)	//Devuelve el punto del plano más cercano
     return(interseccion(recta3d(p,normal)));	//Sacando la intersección de una recta normal al plano que pasa por el punto dado
 }
 
-//float segmento3d::longitud()    //devuelve la longitud de un segmento de recta3d
-//{
-//    vector3d v(fin-ini);    //creo un vector que va de 'ini' hasat 'fin'
-//    return v.norma();       //devuelvo su norma
-//}
-//
-//vector3d segmento3d::direccion()    //devuelve un vector que va de 'ini' hasta 'fin'
-//{
-//    vector3d v(fin-ini);    //creo un vector que va de 'ini' hasat 'fin'
-//    return v;       //devuelvo su norma
-//}
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//FUNCIONES PARA EL SEGMENTO
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+segmento3d::segmento3d(punto3d a, punto3d b) // Constructor con argumentos de la clase segmento3d.
+{
+    ini = a;
+    fin = b;
+}
+
+float segmento3d::longitud()    //devuelve la longitud de un segmento de recta3d
+{
+    vector3d v(fin-ini);    //creo un vector que va de 'ini' hasat 'fin'
+    return v.norma();       //devuelvo su norma
+}
+
+vector3d segmento3d::direccion()    //devuelve un vector que va de 'ini' hasta 'fin'
+{
+    vector3d v(fin-ini);    //creo un vector que va de 'ini' hasat 'fin'
+    return v;       //devuelvo su norma
+}
