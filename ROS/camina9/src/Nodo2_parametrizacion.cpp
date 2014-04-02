@@ -30,7 +30,7 @@ int Npata_arg=0, Tripode=0, Estado=0, prevEstado=0;
 bool Inicio=true;
 //-- Calculo de trayectoria
 float T=0.0, beta=0.0, lambda_Apoyo=0.0, lambda_Transferencia=0.0, dh=0.0, desfasaje_t=0.0, phi=0.0;
-punto3d Offset, P_oA, P_oT;
+punto3d Offset, P_oA, P_oT, P0;
 
 camina9::AngulosMotor qMotor;
 ros::Publisher chatter_pub;
@@ -55,7 +55,7 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 {
     int correccion_ID=-1, cambioEstado=0;
     float t_Trayectoria=0.0,alfa=0.0,InicioApoyo=0.0,correccion_di=0.0;
-    punto3d P0, P1, PInicio, P_o;
+    punto3d P1, PInicio, P_o;
 
     T = msg_datoTrayectoria.T_apoyo[Tripode-1];
 	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[Tripode-1];
@@ -67,9 +67,9 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
     cambioEstado = msg_datoTrayectoria.cambio_estado[Tripode-1];
     correccion_di = msg_datoTrayectoria.correccion_di[Npata_arg-1];
     correccion_ID = msg_datoTrayectoria.correccion_ID[Npata_arg-1];
-    P_o.x = msg_datoTrayectoria.posicionActualPata_x[Npata_arg-1];
-    P_o.y = msg_datoTrayectoria.posicionActualPata_y[Npata_arg-1];
-    P_o.z = msg_datoTrayectoria.posicionActualPata_z[Npata_arg-1];
+//    P_o.x = msg_datoTrayectoria.posicionActualPata_x[Npata_arg-1];
+//    P_o.y = msg_datoTrayectoria.posicionActualPata_y[Npata_arg-1];
+//    P_o.z = msg_datoTrayectoria.posicionActualPata_z[Npata_arg-1];
 
     if(cambioEstado==1) {
 //        P_oA = TransformacionHomogenea_Inversa(P0, Offset, phi+alfa);
@@ -79,7 +79,7 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 //        P_oA.x = P_oT.x+correccion_di;
 //        P_oT = P0;
 //        P_oT.x = P_oT.x-lambda_Transferencia/2-correccion_di;
-        P_oA = P_oT = P_o;
+        P_oA = P_oT = P0;
         P_oT.x = P_oT.x-lambda_Transferencia/2;
     }
 
