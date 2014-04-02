@@ -66,7 +66,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
             cuenta++;
             if (cuenta==PasosIni*divisionTrayectoriaPata){
                 Inicio=false;
-                delta_t = T;
+                delta_t=T;
             } else {
                 datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
                 chatter_pub1.publish(datosTrayectoriaPata);
@@ -119,6 +119,9 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     modificacion_T = srv_Planificador.response.modificacion_T;
                     datosTrayectoriaPata.correccion_di = srv_Planificador.response.correccion_di;
+                    datosTrayectoriaPata.posicionActualPata_x = srv_Planificador.response.posicionActualPata_x;
+                    datosTrayectoriaPata.posicionActualPata_y = srv_Planificador.response.posicionActualPata_y;
+                    datosTrayectoriaPata.posicionActualPata_z = srv_Planificador.response.posicionActualPata_z;
                     ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
 
                 } else {
@@ -234,6 +237,9 @@ int main(int argc, char **argv)
     for(int k=0;k<Npatas;k++) {
         datosTrayectoriaPata.correccion_di.push_back(0);
         datosTrayectoriaPata.correccion_ID.push_back(0);
+        datosTrayectoriaPata.posicionActualPata_x.push_back(0);
+        datosTrayectoriaPata.posicionActualPata_y.push_back(0);
+        datosTrayectoriaPata.posicionActualPata_z.push_back(0);
     }
 //-- Tripode 1
     datosTrayectoriaPata.T_apoyo[T1-1]=T;
