@@ -105,7 +105,7 @@ private:
 
 };
 
-class segmento3d								// forma punto-normal al plano
+class segmento3d								// forma punto-punto de segmento de recta
 {
 public:
     segmento3d();								//constructor nulo de plano
