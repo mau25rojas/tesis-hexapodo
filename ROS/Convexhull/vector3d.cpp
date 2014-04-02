@@ -292,9 +292,12 @@ int recta3d::alabeada(recta3d r) // determina si dos rectas son alabeadas (no se
 
 punto3d recta3d::proyeccion(punto3d p)	//Devuelve el punto de la recta más cercano al punto dado
 {
+    //Creo una copia (normalizada) del vector director de la recta
     vector3d v = vector;
     v.normalizar();
+    //Proyecto el vector que va del punto director hasta el punto p, con el vector director
     float f = (p-punto)*v;
+    //El punto proyectado esta a esa distancia 'f', a partir del punto director, en la direccion del vector director
     return punto3d(vector3d(punto) + v*f);
 }
 
@@ -403,4 +406,35 @@ vector3d segmento3d::direccion()    //devuelve un vector que va de 'ini' hasta '
 {
     vector3d v(fin-ini);    //creo un vector que va de 'ini' hasat 'fin'
     return v;       //devuelvo su norma
+}
+
+//funcion que halla el punto3d mas cercano de un segmento3d desde un punto3d 'p'
+punto3d segmento3d::proyeccion(punto3d p)
+{
+    //Hay que determinar a cual de las 3 regiones pertenece. Si pertenece a la region del medio, el punto3d
+    //resultante es el obtenido proyectando el punto 'p' a la recta3d que pasa por el segmento3d
+
+    //Primero hallamos el punto proyeccion del punto3d 'p' sobre la recta3d que pasa por el segmento3d
+
+    //Construyo una recta a partir de los puntos3d que definen el segmento3d
+    recta3d r(ini,fin);
+
+    //Proyecto el punto 'p' sobre esa recta 'r'
+    punto3d proy = r.proyeccion(p);
+
+    //Construyo los dos vectores desde 'p' hasta los extremos
+    vector3d vi(p,ini);
+    vector3d vf(p,fin);
+
+    //Si 'proy' pertenece a la region del medio, ambos vectores 'vi' y 'vf' deben de apuntar a la misma direccion
+    //Calculo la proyeccion (producto punto) de los dos vectores 'vi' y 'vf'
+    float f =vi*vf;
+
+    //Si apuntan a direcciones opuestas, es que esta en la region central, y el producto punto deberia dar negativo
+    //En ese caso, el punto 'proy' proyectado si es el mas cercano al segmento de recta
+    if (f<0) return (proy);
+
+    //Sino, entonces veo cual de los dos extremos esta mas cerca. Para ello comparo la distancia (norma del vector)
+    if (vi.norma() < vf.norma()) return (ini);
+    else return (fin);
 }
