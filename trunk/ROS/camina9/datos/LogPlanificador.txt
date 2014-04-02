@@ -1,4 +1,18 @@
 
 INICIO T[1],Paso[1]
-server_PlanificadorPisada::T[1]: tiempo de simulacion: 4.000 ((((v_y=0.021))))
+server_PlanificadorPisada::T[1]: tiempo de simulacion: 3.500 ((((v_y=0.022))))
 server_PlanificadorPisada: Tripode=1, lambda_correccion=0.090, T_correccion=4.000
+
+INICIO T[2],Paso[2]
+server_PlanificadorPisada::T[2]: tiempo de simulacion: 5.650 ((((v_y=0.025))))
+server_PlanificadorPisada: Tripode=2, lambda_correccion=0.090, T_correccion=4.000
+
+INICIO T[1],Paso[3]
+server_PlanificadorPisada::T[1]: tiempo de simulacion: 7.550 ((((v_y=0.022))))
+pata [3] coincidira con obstaculo[39][6]
+server_PlanificadorPisada: Tripode=1, lambda_correccion=0.078, T_correccion=4.000
+
+INICIO T[2],Paso[4]
+server_PlanificadorPisada::T[2]: tiempo de simulacion: 9.400 ((((v_y=0.024))))
+pata [1] coincidira con obstaculo[33][10]
+server_PlanificadorPisada: Tripode=2, lambda_correccion=0.082, T_correccion=3.453
