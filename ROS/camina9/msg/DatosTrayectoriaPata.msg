@@ -56,6 +56,6 @@ int32[]   correccion_ID	#ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)cor
 float32[]   correccion_di
 
 #Informacion de posicion de patas
-float32[] posicionActualPata_x
-float32[] posicionActualPata_y
-float32[] posicionActualPata_z
+float32[] posicionActualSistemaPata_x
+float32[] posicionActualSistemaPata_y
+float32[] posicionActualSistemaPata_z
