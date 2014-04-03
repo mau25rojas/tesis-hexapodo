@@ -67,9 +67,9 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
     cambioEstado = msg_datoTrayectoria.cambio_estado[Tripode-1];
     correccion_di = msg_datoTrayectoria.correccion_di[Npata_arg-1];
     correccion_ID = msg_datoTrayectoria.correccion_ID[Npata_arg-1];
-//    P_o.x = msg_datoTrayectoria.posicionActualPata_x[Npata_arg-1];
-//    P_o.y = msg_datoTrayectoria.posicionActualPata_y[Npata_arg-1];
-//    P_o.z = msg_datoTrayectoria.posicionActualPata_z[Npata_arg-1];
+    P_o.x = msg_datoTrayectoria.posicionActualSistemaPata_x[Npata_arg-1];
+    P_o.y = msg_datoTrayectoria.posicionActualSistemaPata_y[Npata_arg-1];
+    P_o.z = msg_datoTrayectoria.posicionActualSistemaPata_z[Npata_arg-1];
 
     if(cambioEstado==1) {
 //        P_oA = TransformacionHomogenea_Inversa(P0, Offset, phi+alfa);

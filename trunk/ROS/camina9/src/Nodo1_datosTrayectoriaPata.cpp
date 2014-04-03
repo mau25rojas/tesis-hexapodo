@@ -119,9 +119,9 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     modificacion_T = srv_Planificador.response.modificacion_T;
                     datosTrayectoriaPata.correccion_di = srv_Planificador.response.correccion_di;
-                    datosTrayectoriaPata.posicionActualPata_x = srv_Planificador.response.posicionActualPata_x;
-                    datosTrayectoriaPata.posicionActualPata_y = srv_Planificador.response.posicionActualPata_y;
-                    datosTrayectoriaPata.posicionActualPata_z = srv_Planificador.response.posicionActualPata_z;
+                    datosTrayectoriaPata.posicionActualSistemaPata_x = srv_Planificador.response.posicionActualSistemaPata_x;
+                    datosTrayectoriaPata.posicionActualSistemaPata_y = srv_Planificador.response.posicionActualSistemaPata_y;
+                    datosTrayectoriaPata.posicionActualSistemaPata_z = srv_Planificador.response.posicionActualSistemaPata_z;
                     ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
 
                 } else {
@@ -237,9 +237,9 @@ int main(int argc, char **argv)
     for(int k=0;k<Npatas;k++) {
         datosTrayectoriaPata.correccion_di.push_back(0);
         datosTrayectoriaPata.correccion_ID.push_back(0);
-        datosTrayectoriaPata.posicionActualPata_x.push_back(0);
-        datosTrayectoriaPata.posicionActualPata_y.push_back(0);
-        datosTrayectoriaPata.posicionActualPata_z.push_back(0);
+        datosTrayectoriaPata.posicionActualSistemaPata_x.push_back(0);
+        datosTrayectoriaPata.posicionActualSistemaPata_y.push_back(0);
+        datosTrayectoriaPata.posicionActualSistemaPata_z.push_back(0);
     }
 //-- Tripode 1
     datosTrayectoriaPata.T_apoyo[T1-1]=T;
