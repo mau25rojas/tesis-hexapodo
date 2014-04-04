@@ -30,7 +30,7 @@ int Npata_arg=0, Tripode=0, Estado=0, prevEstado=0;
 bool Inicio=true;
 //-- Calculo de trayectoria
 float T=0.0, beta=0.0, lambda_Apoyo=0.0, lambda_Transferencia=0.0, dh=0.0, desfasaje_t=0.0, phi=0.0;
-punto3d Offset, P_oA, P_oT, P0;
+punto3d Offset, P_oA, P_oT, P0, P_o;
 
 camina9::AngulosMotor qMotor;
 ros::Publisher chatter_pub;
@@ -55,7 +55,7 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 {
     int correccion_ID=-1, cambioEstado=0;
     float t_Trayectoria=0.0,alfa=0.0,InicioApoyo=0.0,correccion_di=0.0;
-    punto3d P1, PInicio, P_o;
+    punto3d P1, PInicio;
 
     T = msg_datoTrayectoria.T_apoyo[Tripode-1];
 	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[Tripode-1];
@@ -79,8 +79,7 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 //        P_oA.x = P_oT.x+correccion_di;
 //        P_oT = P0;
 //        P_oT.x = P_oT.x-lambda_Transferencia/2-correccion_di;
-        P_o = TransformacionHomogenea_Inversa(P_o, Offset, phi+alfa);
-        P_oA = P_oT = P_o;
+        P_oA = P_oT = TransformacionHomogenea_Inversa(P_o, Offset, phi+alfa);
         P_oT.x = P_oT.x-lambda_Transferencia/2;
     }
 
@@ -241,7 +240,8 @@ punto3d TransformacionHomogenea_Inversa(punto3d Punto_in, punto3d L_traslacion, 
 
     Punto_out.x = (-L_traslacion.x*cos(ang_rotacion)-L_traslacion.y*sin(ang_rotacion)) + Punto_in.x*cos(ang_rotacion) + Punto_in.y*sin(ang_rotacion);
     Punto_out.y = (L_traslacion.x*sin(ang_rotacion)-L_traslacion.y*cos(ang_rotacion)) - Punto_in.x*sin(ang_rotacion) + Punto_in.y*cos(ang_rotacion);
-    Punto_out.z = (-L_traslacion.z) + Punto_in.z;
+//    Punto_out.z = (-L_traslacion.z) + Punto_in.z;
+    Punto_out.z = Punto_in.z;
 
     return(Punto_out);
 }
