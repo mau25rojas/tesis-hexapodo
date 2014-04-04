@@ -79,7 +79,8 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 //        P_oA.x = P_oT.x+correccion_di;
 //        P_oT = P0;
 //        P_oT.x = P_oT.x-lambda_Transferencia/2-correccion_di;
-        P_oA = P_oT = P0;
+        P_o = TransformacionHomogenea_Inversa(P_o, Offset, phi+alfa);
+        P_oA = P_oT = P_o;
         P_oT.x = P_oT.x-lambda_Transferencia/2;
     }
 
