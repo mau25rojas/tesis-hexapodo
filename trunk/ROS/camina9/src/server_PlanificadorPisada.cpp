@@ -98,9 +98,6 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     for(int k=0;k<2*Npatas;k++) {
         res.correccion_ID.push_back(0);
         res.correccion_di.push_back(0);
-        res.posicionActualSistemaPata_x.push_back(0);
-        res.posicionActualSistemaPata_y.push_back(0);
-        res.posicionActualSistemaPata_z.push_back(0);
     }
 //-- Variables locales
     int Tripode_Transferencia[Npatas/2];
@@ -129,7 +126,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
         for(int k=0;k<Npatas/2;k++) {
             Tripode_Transferencia[k] = Tripode2[k];
             correccion_ID[Tripode_Transferencia[k]] = -1;
-            correccion_di[Tripode_Transferencia[k]] = 0.0;
+            res.correccion_di[Tripode_Transferencia[k]] = 0.0;
             //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode1[k]];
 //            infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode1[k]];
@@ -141,7 +138,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
         for(int k=0;k<Npatas/2;k++){
             Tripode_Transferencia[k] = Tripode1[k];
             correccion_ID[Tripode_Transferencia[k]] = -1;
-            correccion_di[Tripode_Transferencia[k]] = 0.0;
+            res.correccion_di[Tripode_Transferencia[k]] = 0.0;
     //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode2[k]] = posicionActualPata_x[Tripode2[k]];
 //            infoMapa.coordenadaPata_y[Tripode2[k]] = posicionActualPata_y[Tripode2[k]];
@@ -205,7 +202,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
 
                 correccion = recta_inf_o.distancia(Pata);
                 ROS_WARN("correccion:%.3f",correccion);
-                correccion_di[Tripode_Transferencia[k]] = correccion;
+                res.correccion_di[Tripode_Transferencia[k]] = correccion;
                 modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
 
             } else {
@@ -254,9 +251,6 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
 
 
     for(int k=0;k<Npatas;k++){
-        res.posicionActualSistemaPata_x[k] = posicionActualPataSistemaPata[k].x;
-        res.posicionActualSistemaPata_y[k] = posicionActualPataSistemaPata[k].y;
-        res.posicionActualSistemaPata_z[k] = posicionActualPataSistemaPata[k].z;
         infoMapa.coordenadaPata_x[k] = posicionActualPata[k].x;
         infoMapa.coordenadaPata_y[k] = posicionActualPata[k].y;
         transformacion_yxTOij(p_ij, posicionActualPata[k].y, posicionActualPata[k].x);

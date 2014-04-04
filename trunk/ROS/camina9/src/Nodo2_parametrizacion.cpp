@@ -67,53 +67,29 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
     cambioEstado = msg_datoTrayectoria.cambio_estado[Tripode-1];
     correccion_di = msg_datoTrayectoria.correccion_di[Npata_arg-1];
     correccion_ID = msg_datoTrayectoria.correccion_ID[Npata_arg-1];
-    P_o.x = msg_datoTrayectoria.posicionActualSistemaPata_x[Npata_arg-1];
-    P_o.y = msg_datoTrayectoria.posicionActualSistemaPata_y[Npata_arg-1];
-    P_o.z = msg_datoTrayectoria.posicionActualSistemaPata_z[Npata_arg-1];
 
-    if(cambioEstado==1) {
-//        P_oA = TransformacionHomogenea_Inversa(P0, Offset, phi+alfa);
-//        P_oT = TransformacionHomogenea_Inversa(P0, Offset, phi+alfa);
-//        ROS_WARN("cambio de estado, correccion_di=%.4f",correccion_di);
-//        P_oA = P0;
-//        P_oA.x = P_oT.x+correccion_di;
-//        P_oT = P0;
-//        P_oT.x = P_oT.x-lambda_Transferencia/2-correccion_di;
-        P_oA = P_oT = TransformacionHomogenea_Inversa(P_o, Offset, phi+alfa);
-        P_oT.x = P_oT.x-lambda_Transferencia/2;
-    }
-
-    if (Inicio){
-        Inicio = false;
-        P_oA.x = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo;
-        P_oA.y = 0.0;
-        P_oA.z = 0.0;
-        P_oT.x = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+lambda_Transferencia/2;
-        P_oT.y = 0.0;
-        P_oT.z = 0.0;
-    }
-
-//    InicioApoyo = (y_Offset-FinEspacioTrabajo_y)-lambda_maximo+correccion_di;
+    InicioApoyo = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+correccion_di;
 
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
     // Periodo A-B
     if (Estado==Apoyo)
     {
     //---Apoyo------
-        PInicio=P_oA;
+        PInicio.x=InicioApoyo;
+        PInicio.y=0.0;
+        PInicio.z=0.0;
         P0 = Trayectoria_FaseApoyo(t_Trayectoria,PInicio);
     } else {
     //---Transferencia------
     // Elipsis
-        PInicio=P_oT;
+        PInicio.x=InicioApoyo+lambda_Transferencia/2;
+        PInicio.y=0.0;
+        PInicio.z=0.0;
         P0 = Trayectoria_FaseTrans_Eliptica(t_Trayectoria,PInicio);
     }
 
     //-----Transformacion de trayectoria a Sistema de Pata
     P1 = TransformacionHomogenea(P0, Offset, phi+alfa);
-//    P1.x = Offset.x + P0.x*cos(phi+alfa) - P0.y*sin(phi+alfa);
-//    P1.y = Offset.y + P0.x*sin(phi+alfa) + P0.y*cos(phi+alfa);
-//    P1.z = Offset.z + P0.z;
     //-----Cinematica Inversa
     srv_Cinversa.request.x = P1.x;
     srv_Cinversa.request.y = P1.y;
@@ -240,8 +216,8 @@ punto3d TransformacionHomogenea_Inversa(punto3d Punto_in, punto3d L_traslacion, 
 
     Punto_out.x = (-L_traslacion.x*cos(ang_rotacion)-L_traslacion.y*sin(ang_rotacion)) + Punto_in.x*cos(ang_rotacion) + Punto_in.y*sin(ang_rotacion);
     Punto_out.y = (L_traslacion.x*sin(ang_rotacion)-L_traslacion.y*cos(ang_rotacion)) - Punto_in.x*sin(ang_rotacion) + Punto_in.y*cos(ang_rotacion);
-//    Punto_out.z = (-L_traslacion.z) + Punto_in.z;
-    Punto_out.z = Punto_in.z;
+    Punto_out.z = (-L_traslacion.z) + Punto_in.z;
+//    Punto_out.z = Punto_in.z;
 
     return(Punto_out);
 }
