@@ -30,14 +30,14 @@ int Npata_arg=0, Tripode=0, Estado=0, prevEstado=0;
 bool Inicio=true;
 //-- Calculo de trayectoria
 float T=0.0, beta=0.0, lambda_Apoyo=0.0, lambda_Transferencia=0.0, dh=0.0, desfasaje_t=0.0, phi=0.0;
-punto3d Offset, P_oA, P_oT, P0, P_o;
+punto3d Offset, P_oA, P_oT, P0, P_o, FinApoyo, PFin;
 
 camina9::AngulosMotor qMotor;
 ros::Publisher chatter_pub;
 FILE *fp1;
 //-- Funciones
 punto3d Trayectoria_FaseApoyo(float t_Trayectoria,punto3d PInicio);
-punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio);
+punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punto3d PFin);
 punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 punto3d TransformacionHomogenea_Inversa(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 
@@ -54,8 +54,8 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 {
     int correccion_ID=-1, cambioEstado=0;
-    float t_Trayectoria=0.0,alfa=0.0,InicioApoyo=0.0,correccion_di=0.0;
-    punto3d P1, PInicio;
+    float t_Trayectoria=0.0,alfa=0.0,correccion_x=0.0,correccion_y=0.0;
+    punto3d P1, PInicio, InicioApoyo;
 
     T = msg_datoTrayectoria.T_apoyo[Tripode-1];
 	t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[Tripode-1];
@@ -65,27 +65,43 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
     desfasaje_t = msg_datoTrayectoria.desfasaje_t[Tripode-1];
     Estado = msg_datoTrayectoria.vector_estados[Tripode-1];
     cambioEstado = msg_datoTrayectoria.cambio_estado[Tripode-1];
-    correccion_di = msg_datoTrayectoria.correccion_di[Npata_arg-1];
+    correccion_x = msg_datoTrayectoria.correccion_x[Npata_arg-1];
+    correccion_y = msg_datoTrayectoria.correccion_y[Npata_arg-1];
     correccion_ID = msg_datoTrayectoria.correccion_ID[Npata_arg-1];
 
-    InicioApoyo = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+correccion_di;
+    InicioApoyo.x = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+correccion_y;
+    if(correccion_ID==Correccion_menosX){
+        InicioApoyo.y = -correccion_x;
+    } else {
+        InicioApoyo.y = correccion_x;
+    }
+
+    if(cambioEstado==1){
+        FinApoyo = P0;
+        PFin = InicioApoyo;
+    }
+
+    if(Inicio){
+        Inicio=false;
+        InicioApoyo.x=(Offset.y-FinEspacioTrabajo_y)-lambda_maximo;
+        InicioApoyo.y=0.0;
+        FinApoyo.x=Offset.y-FinEspacioTrabajo_y;
+        FinApoyo.y=0.0;
+        PFin = InicioApoyo;
+    }
 
     //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
     // Periodo A-B
     if (Estado==Apoyo)
     {
     //---Apoyo------
-        PInicio.x=InicioApoyo;
-        PInicio.y=0.0;
-        PInicio.z=0.0;
+        PInicio=InicioApoyo;
         P0 = Trayectoria_FaseApoyo(t_Trayectoria,PInicio);
     } else {
     //---Transferencia------
     // Elipsis
-        PInicio.x=InicioApoyo+lambda_Transferencia/2;
-        PInicio.y=0.0;
-        PInicio.z=0.0;
-        P0 = Trayectoria_FaseTrans_Eliptica(t_Trayectoria,PInicio);
+        PInicio=FinApoyo;
+        P0 = Trayectoria_FaseTrans_Eliptica(t_Trayectoria,PInicio,PFin);
     }
 
     //-----Transformacion de trayectoria a Sistema de Pata
@@ -180,21 +196,27 @@ punto3d Trayectoria_FaseApoyo(float t_Trayectoria,punto3d PInicio){
 
 //---Caso parte 2 trayectoria----
 //-- Elipsis
-punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio){
+punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punto3d PFin){
 
-    punto3d salida;
-    float theta=0.0, t_aux=0.0, L=0.0, rotacion=0.0;
+    punto3d salida, Po;
+    float teta, t_aux, dL;
+    float L, Lx, Ly, gamma;
+
+    Lx = PFin.x - PInicio.x;
+    Ly = PFin.y - PInicio.y;
+    L = sqrt(Lx*Lx + Ly*Ly);
+    gamma = atan2(Ly,Lx);
+    Po.x = PInicio.x + Lx/2;
+    Po.y = PInicio.y + Ly/2;
+    Po.z = 0.0;
 
     t_aux = t_Trayectoria/T;
-    theta = pi*t_aux;
-    L = (lambda_Transferencia/2)*cos(theta);
+    teta = pi*t_aux;
+    dL = (L/2)*cos(teta);
 
-    salida.x = PInicio.x + L;
-    salida.y = PInicio.y;
-    salida.z = PInicio.z + dh*sin(theta);
-//    salida.x = PInicio.x - L*sin(rotacion);
-//    salida.y = PInicio.y + L*cos(rotacion);
-//    salida.z = PInicio.z + dh*sin(theta);
+    salida.x = Po.x + dL*cos(gamma);
+    salida.y = Po.y + dL*sin(gamma);
+    salida.z = Po.z + dh*sin(teta);
 
     return(salida);
 }

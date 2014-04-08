@@ -82,6 +82,9 @@ Lynxmotion:
 //Estados
 #define Apoyo 0
 #define Transferencia 1
+//Correccion
+#define Correccion_menosX 0
+#define Correccion_masX	1
 
 typedef struct {
 		int i;		//Coordenadas matriz
