@@ -26,7 +26,8 @@ float simulationTime=0.0f;
 float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiempo=0.0, desfasaje_t_T1=0.0,desfasaje_t_T2=0.0, beta=0.0, lambda_Apoyo_actual=0.0;
 float modificacion_T = 0.0, modificacion_lambda =0.0;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
-float coordenadaCuerpo_y=0.0,yCuerpo_T1_1=0.0, yCuerpo_T1_2=0.0,yCuerpo_T2_1=0.0, yCuerpo_T2_2=0.0, delta_y=0.0, tiempo_ahora=0.0, velocidadCuerpo_y=0.0;
+float yCuerpo_T1_1=0.0, yCuerpo_T1_2=0.0,yCuerpo_T2_1=0.0, yCuerpo_T2_2=0.0, xCuerpo_T1_1=0.0, xCuerpo_T1_2=0.0, xCuerpo_T2_1=0.0, xCuerpo_T2_2=0.0;
+float coordenadaCuerpo_y=0.0, coordenadaCuerpo_x=0.0, delta_x=0.0, delta_y=0.0, tiempo_ahora=0.0, velocidadCuerpo_y=0.0, velocidadCuerpo_x=0.0, mod_velocidadCuerpo=0.0;
 int pataApoyo[Npatas], tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
 int Tripode=0, cuenta=0, PasosIni=0;
 FILE *fp1;
@@ -46,6 +47,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 
 void ubicacionRobCallback(camina9::UbicacionRobot msgUbicacionRobot)
 {
+     coordenadaCuerpo_x = msgUbicacionRobot.coordenadaCuerpo_x;
      coordenadaCuerpo_y = msgUbicacionRobot.coordenadaCuerpo_y;
      for(int k=0; k<Npatas;k++) {
         pataApoyo[k] = msgUbicacionRobot.pataApoyo[k];
@@ -87,26 +89,30 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 llamadaPlan = false;
             //-- reinicio cuenta para iniciar apoyo
                 delta_t = 0.0;
-                for(int k=0;k<Npatas;k++) datosTrayectoriaPata.correccion_di[k]=0.0;
+                for(int k=0;k<Npatas;k++) datosTrayectoriaPata.correccion_y[k]=0.0;
             //-- la distancia en apoyo se mantiene según la distancia recorrida en transferencia
                 if (Tripode==T1){
                     datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
                     lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T1-1];
                 //-- calculo de velocidad
-//////////////////////////////////////////////////////////////////////////////////////////////
-/* //////////////////FALTA CALCULO DE MODULO DE VELOCIDAD///////////////////////////////////////////////
-*///////////////////////////////////////////////////////////////////////////////////////////////
+                    delta_x = fabs(xCuerpo_T1_1-xCuerpo_T1_2);
                     delta_y = fabs(yCuerpo_T1_1-yCuerpo_T1_2);
                     diff_t = timerT1_1 - timerT1_2;
                     tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+                    velocidadCuerpo_x = delta_x/tiempo_ahora;
                     velocidadCuerpo_y = delta_y/tiempo_ahora;
+                    mod_velocidadCuerpo = sqrt(velocidadCuerpo_x*velocidadCuerpo_x + velocidadCuerpo_y*velocidadCuerpo_y);
                 }else{
                     datosTrayectoriaPata.lambda_Apoyo[T2-1]=datosTrayectoriaPata.lambda_Transferencia[T2-1];
                     lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T2-1];
                 //-- calculo de velocidad
+                    delta_x = fabs(xCuerpo_T2_1-xCuerpo_T2_2);
+                    delta_y = fabs(yCuerpo_T2_1-yCuerpo_T2_2);
                     diff_t = timerT2_1 - timerT2_2;
                     tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+                    velocidadCuerpo_x = delta_x/tiempo_ahora;
                     velocidadCuerpo_y = delta_y/tiempo_ahora;
+                    mod_velocidadCuerpo = sqrt(velocidadCuerpo_x*velocidadCuerpo_x + velocidadCuerpo_y*velocidadCuerpo_y);
                 }
                 ROS_INFO("Nodo1::T[%d]: delta_y=%.3f, diff_t=%.3f, velocidad=%.3f",Tripode,delta_y,tiempo_ahora,velocidadCuerpo_y);
                 fprintf(fp1,"%.3f,%.3f,%.3f\n",delta_y,tiempo_ahora,velocidadCuerpo_y);
@@ -114,11 +120,12 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 srv_Planificador.request.Tripode = Tripode;
                 srv_Planificador.request.T = T;
                 srv_Planificador.request.lambda = lambda_Apoyo_actual;
-                srv_Planificador.request.velApoyo_y = velocidadCuerpo_y;
+                srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
                 if (client_Planificador.call(srv_Planificador)){
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     modificacion_T = srv_Planificador.response.modificacion_T;
-                    datosTrayectoriaPata.correccion_di = srv_Planificador.response.correccion_di;
+                    datosTrayectoriaPata.correccion_x = srv_Planificador.response.correccion_x;
+                    datosTrayectoriaPata.correccion_y = srv_Planificador.response.correccion_y;
                     ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
 
                 } else {
@@ -232,7 +239,8 @@ int main(int argc, char **argv)
         datosTrayectoriaPata.cambio_estado.push_back(0);
     }
     for(int k=0;k<Npatas;k++) {
-        datosTrayectoriaPata.correccion_di.push_back(0);
+        datosTrayectoriaPata.correccion_x.push_back(0);
+        datosTrayectoriaPata.correccion_y.push_back(0);
         datosTrayectoriaPata.correccion_ID.push_back(0);
     }
 //-- Tripode 1
@@ -293,6 +301,7 @@ bool CambioDeEstado(){
     if (InicioApoyo_T1){
         InicioApoyo_T1 = false;
         Tripode = T1;
+        xCuerpo_T1_1 = coordenadaCuerpo_x;
         yCuerpo_T1_1 = coordenadaCuerpo_y;
         timerT1_1 = boost::posix_time::microsec_clock::local_time();
         cambio = true;
@@ -308,6 +317,7 @@ bool CambioDeEstado(){
 
     if (InicioTransf_T1){
         InicioTransf_T1 = false;
+        xCuerpo_T1_2 = coordenadaCuerpo_x;
         yCuerpo_T1_2 = coordenadaCuerpo_y;
         timerT1_2 = boost::posix_time::microsec_clock::local_time();
     }
@@ -324,6 +334,7 @@ bool CambioDeEstado(){
     if (InicioApoyo_T2){
         InicioApoyo_T2 = false;
         Tripode = T2;
+        xCuerpo_T2_1 = coordenadaCuerpo_x;
         yCuerpo_T2_1 = coordenadaCuerpo_y;
         timerT2_1 = boost::posix_time::microsec_clock::local_time();
         cambio = true;
@@ -339,6 +350,7 @@ bool CambioDeEstado(){
 
     if (InicioTransf_T2){
         InicioTransf_T2 = false;
+        xCuerpo_T2_2 = coordenadaCuerpo_x;
         yCuerpo_T2_2 = coordenadaCuerpo_y;
         timerT2_2 = boost::posix_time::microsec_clock::local_time();
     }

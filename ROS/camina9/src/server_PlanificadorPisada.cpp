@@ -40,14 +40,14 @@ Obstaculo obstaculo[100][20];
 //-- Variables de ubicacion robot
 double tiempo_ahora=0.0, tiempo_anterior=0.0;
 //float ajuste_Vel=vel_esperada/vel_teorica;
-float velocidadCuerpo_y=0.0;
+float mod_velocidadCuerpo=0.0;
 punto3d posicionActualPata[Npatas], posicionActualPataSistemaPata[Npatas];
 float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
 camina9::SenalesCambios senales;
 //-- Correccion
 int correccion_ID[Npatas]; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der;(2)corr_aba;
-float di_prueba=0.0, correccion_di[Npatas];
+float di_prueba=0.0, correccion_y[Npatas];
 float di=0.0;
 //-- Publishers
 ros::Publisher chatter_pub1;
@@ -97,7 +97,8 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     res.result = 0;
     for(int k=0;k<2*Npatas;k++) {
         res.correccion_ID.push_back(0);
-        res.correccion_di.push_back(0);
+        res.correccion_y.push_back(0);
+        res.correccion_x.push_back(0);
     }
 //-- Variables locales
     int Tripode_Transferencia[Npatas/2];
@@ -113,12 +114,12 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     Tripode=req.Tripode;
 //    T_actual = req.T;
     lambda_Apoyo_actual = req.lambda;
-    velocidadCuerpo_y = req.velApoyo_y;
+    mod_velocidadCuerpo = req.mod_velApoyo;
 
     cuentaPasos++;
-    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] ((((v_y=%.3f))))",Tripode,cuentaPasos,velocidadCuerpo_y);
+    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] ((((mod_v=%.3f))))",Tripode,cuentaPasos,mod_velocidadCuerpo);
     fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
-    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f ((((v_y=%.3f))))\n",Tripode,simulationTime,velocidadCuerpo_y);
+    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f ((((mod_v=%.3f))))\n",Tripode,simulationTime,mod_velocidadCuerpo);
 
     ros::spinOnce();
     if (req.Tripode == T1){
@@ -126,7 +127,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
         for(int k=0;k<Npatas/2;k++) {
             Tripode_Transferencia[k] = Tripode2[k];
             correccion_ID[Tripode_Transferencia[k]] = -1;
-            res.correccion_di[Tripode_Transferencia[k]] = 0.0;
+            res.correccion_y[Tripode_Transferencia[k]] = 0.0;
             //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode1[k]] = posicionActualPata_x[Tripode1[k]];
 //            infoMapa.coordenadaPata_y[Tripode1[k]] = posicionActualPata_y[Tripode1[k]];
@@ -138,7 +139,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
         for(int k=0;k<Npatas/2;k++){
             Tripode_Transferencia[k] = Tripode1[k];
             correccion_ID[Tripode_Transferencia[k]] = -1;
-            res.correccion_di[Tripode_Transferencia[k]] = 0.0;
+            res.correccion_y[Tripode_Transferencia[k]] = 0.0;
     //-- se reporta posicion de tripode en apoyo
 //            infoMapa.coordenadaPata_x[Tripode2[k]] = posicionActualPata_x[Tripode2[k]];
 //            infoMapa.coordenadaPata_y[Tripode2[k]] = posicionActualPata_y[Tripode2[k]];
@@ -174,7 +175,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
         if (cinversaOK){
 //            ROS_INFO("server_Plan: cinversaOK");
         //-- Calculamos proximo movimiento en el sistema mundo
-            PisadaProxima = TransportaPunto(posicionActualPata[Tripode_Transferencia[k]],lambda_maximo+velocidadCuerpo_y*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
+            PisadaProxima = TransportaPunto(posicionActualPata[Tripode_Transferencia[k]],lambda_maximo+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
             transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
             PisadaProxima_i=ij[0];
             PisadaProxima_j=ij[1];
@@ -202,7 +203,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
 
                 correccion = recta_inf_o.distancia(Pata);
                 ROS_WARN("correccion:%.3f",correccion);
-                res.correccion_di[Tripode_Transferencia[k]] = correccion;
+                res.correccion_y[Tripode_Transferencia[k]] = correccion;
                 modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
 
             } else {
