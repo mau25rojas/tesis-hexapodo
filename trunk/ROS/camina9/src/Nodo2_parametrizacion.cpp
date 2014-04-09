@@ -70,9 +70,12 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
     correccion_ID = msg_datoTrayectoria.correccion_ID[Npata_arg-1];
 
     InicioApoyo.x = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+correccion_y;
+    InicioApoyo.y = 0.0;
+//    correccion_ID=0;
+//    correccion_x=1;
     if(correccion_ID==Correccion_menosX){
         InicioApoyo.y = -correccion_x;
-    } else {
+    } else if (correccion_ID==Correccion_masX){
         InicioApoyo.y = correccion_x;
     }
 
@@ -205,7 +208,7 @@ punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punt
     Lx = PFin.x - PInicio.x;
     Ly = PFin.y - PInicio.y;
     L = sqrt(Lx*Lx + Ly*Ly);
-    gamma = atan2(Ly,Lx);
+    gamma = atan(Ly/Lx);
     Po.x = PInicio.x + Lx/2;
     Po.y = PInicio.y + Ly/2;
     Po.z = 0.0;

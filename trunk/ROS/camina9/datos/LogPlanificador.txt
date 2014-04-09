@@ -1,4 +1,4 @@
 
 INICIO T[1],Paso[1]
-server_PlanificadorPisada::T[1]: tiempo de simulacion: 3.650 ((((mod_v=0.022))))
+server_PlanificadorPisada::T[1]: tiempo de simulacion: 2.350 ((((mod_v=0.003))))
 server_PlanificadorPisada: Tripode=1, lambda_correccion=0.090, T_correccion=4.000
