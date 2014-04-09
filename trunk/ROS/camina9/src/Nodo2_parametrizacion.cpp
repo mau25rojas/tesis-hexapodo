@@ -71,8 +71,8 @@ void datosCallback(const camina9::DatosTrayectoriaPata msg_datoTrayectoria)
 
     InicioApoyo.x = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+correccion_y;
     InicioApoyo.y = 0.0;
-//    correccion_ID=0;
-//    correccion_x=1;
+    correccion_ID=0;
+    correccion_x=0.01;
     if(correccion_ID==Correccion_menosX){
         InicioApoyo.y = -correccion_x;
     } else if (correccion_ID==Correccion_masX){
