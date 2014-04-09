@@ -89,7 +89,10 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 llamadaPlan = false;
             //-- reinicio cuenta para iniciar apoyo
                 delta_t = 0.0;
-                for(int k=0;k<Npatas;k++) datosTrayectoriaPata.correccion_y[k]=0.0;
+                for(int k=0;k<Npatas;k++){
+                    datosTrayectoriaPata.correccion_x[k]=0.0;
+                    datosTrayectoriaPata.correccion_y[k]=0.0;
+                }
             //-- la distancia en apoyo se mantiene según la distancia recorrida en transferencia
                 if (Tripode==T1){
                     datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
