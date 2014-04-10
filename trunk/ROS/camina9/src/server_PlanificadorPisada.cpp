@@ -72,7 +72,6 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
         simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-
 void ubicacionRobCallback(camina9::UbicacionRobot msgUbicacionRobot)
 {
     teta_CuerpoRobot = msgUbicacionRobot.orientacionCuerpo_yaw;
@@ -181,7 +180,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
     fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f\n",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 
-
+//-- Envio y guardo datos
     for(int k=0;k<Npatas;k++){
         infoMapa.coordenadaPata_x[k] = posicionActualPata[k].x;
         infoMapa.coordenadaPata_y[k] = posicionActualPata[k].y;

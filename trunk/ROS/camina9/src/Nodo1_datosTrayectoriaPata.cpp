@@ -27,17 +27,17 @@ float divisionTrayectoriaPata=0.0, T=0.0, lambda_Transferencia=0.0, divisionTiem
 float modificacion_T = 0.0, modificacion_lambda =0.0;
 float delta_t=0.0, t_aux_T1=0.0,t_aux_T2=0.0;
 float yCuerpo_T1_1=0.0, yCuerpo_T1_2=0.0,yCuerpo_T2_1=0.0, yCuerpo_T2_2=0.0, xCuerpo_T1_1=0.0, xCuerpo_T1_2=0.0, xCuerpo_T2_1=0.0, xCuerpo_T2_2=0.0;
-float coordenadaCuerpo_y=0.0, coordenadaCuerpo_x=0.0, delta_x=0.0, delta_y=0.0, tiempo_ahora=0.0, velocidadCuerpo_y=0.0, velocidadCuerpo_x=0.0, mod_velocidadCuerpo=0.0;
+float coordenadaCuerpo_y=0.0, coordenadaCuerpo_x=0.0, velocidadCuerpo_y=0.0, velocidadCuerpo_x=0.0, mod_velocidadCuerpo=0.0;
 int pataApoyo[Npatas], tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2];
 int Tripode=0, cuenta=0, PasosIni=0;
 FILE *fp1;
 boost::posix_time::ptime timerT1_1,timerT1_2,timerT2_1,timerT2_2;
-boost::posix_time::time_duration diff_t;
 camina9::DatosTrayectoriaPata datosTrayectoriaPata;
 ros::Publisher chatter_pub1,chatter_pub2;
 
 // Funciones
 bool CambioDeEstado();
+float VelocidadCuerpo(boost::posix_time::ptime t1, boost::posix_time::ptime t2, float x1, float x2, float y1, float y2);
 // Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 {
@@ -90,6 +90,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
             //-- reinicio cuenta para iniciar apoyo
                 delta_t = 0.0;
                 for(int k=0;k<Npatas;k++){
+                    datosTrayectoriaPata.correccion_ID[k]=-1;
                     datosTrayectoriaPata.correccion_x[k]=0.0;
                     datosTrayectoriaPata.correccion_y[k]=0.0;
                 }
@@ -98,27 +99,15 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                     datosTrayectoriaPata.lambda_Apoyo[T1-1]=datosTrayectoriaPata.lambda_Transferencia[T1-1];
                     lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T1-1];
                 //-- calculo de velocidad
-                    delta_x = fabs(xCuerpo_T1_1-xCuerpo_T1_2);
-                    delta_y = fabs(yCuerpo_T1_1-yCuerpo_T1_2);
-                    diff_t = timerT1_1 - timerT1_2;
-                    tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
-                    velocidadCuerpo_x = delta_x/tiempo_ahora;
-                    velocidadCuerpo_y = delta_y/tiempo_ahora;
-                    mod_velocidadCuerpo = sqrt(velocidadCuerpo_x*velocidadCuerpo_x + velocidadCuerpo_y*velocidadCuerpo_y);
+                    mod_velocidadCuerpo = VelocidadCuerpo(timerT1_1,timerT1_2,xCuerpo_T1_1,xCuerpo_T1_2,yCuerpo_T1_1,yCuerpo_T1_2);
                 }else{
                     datosTrayectoriaPata.lambda_Apoyo[T2-1]=datosTrayectoriaPata.lambda_Transferencia[T2-1];
                     lambda_Apoyo_actual=datosTrayectoriaPata.lambda_Apoyo[T2-1];
                 //-- calculo de velocidad
-                    delta_x = fabs(xCuerpo_T2_1-xCuerpo_T2_2);
-                    delta_y = fabs(yCuerpo_T2_1-yCuerpo_T2_2);
-                    diff_t = timerT2_1 - timerT2_2;
-                    tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
-                    velocidadCuerpo_x = delta_x/tiempo_ahora;
-                    velocidadCuerpo_y = delta_y/tiempo_ahora;
-                    mod_velocidadCuerpo = sqrt(velocidadCuerpo_x*velocidadCuerpo_x + velocidadCuerpo_y*velocidadCuerpo_y);
+                    mod_velocidadCuerpo = VelocidadCuerpo(timerT2_1,timerT2_2,xCuerpo_T2_1,xCuerpo_T2_2,yCuerpo_T2_1,yCuerpo_T2_2);
                 }
-                ROS_INFO("Nodo1::T[%d]: delta_y=%.3f, diff_t=%.3f, velocidad=%.3f",Tripode,delta_y,tiempo_ahora,velocidadCuerpo_y);
-                fprintf(fp1,"%.3f,%.3f,%.3f\n",delta_y,tiempo_ahora,velocidadCuerpo_y);
+                ROS_INFO("Nodo1::T[%d]: velocidad=%.3f",Tripode,velocidadCuerpo_y);
+                fprintf(fp1,"%.3f\n",mod_velocidadCuerpo);
 
                 srv_Planificador.request.Tripode = Tripode;
                 srv_Planificador.request.T = T;
@@ -137,15 +126,16 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                     ROS_ERROR("result=%d", srv_Planificador.response.result);
                 }
 
-//                /////////////////////PRUEBAS///////////////////////////////////
-//                for(int k=0;k<Npatas;k++) {
-//                    datosTrayectoriaPata.correccion_ID[k]=-1;
-//                    datosTrayectoriaPata.correccion_x[k]=0;
-//                    datosTrayectoriaPata.correccion_y[k]=0;
-//                }
-//                ///////////////////////////////////////////////////////////////
-//                datosTrayectoriaPata.correccion_ID[0]=1;
-//                datosTrayectoriaPata.correccion_x[0]=0.01;
+                /////////////////////PRUEBAS///////////////////////////////////
+                for(int k=0;k<Npatas;k++) {
+                    datosTrayectoriaPata.correccion_ID[k]=-1;
+                    datosTrayectoriaPata.correccion_x[k]=0;
+                    datosTrayectoriaPata.correccion_y[k]=0;
+                }
+                ///////////////////////////////////////////////////////////////
+                datosTrayectoriaPata.correccion_ID[2]=1;
+                datosTrayectoriaPata.correccion_x[2]=0.01;
+                datosTrayectoriaPata.correccion_y[2]=0.01;
 
 
                 T = modificacion_T;
@@ -371,4 +361,19 @@ bool CambioDeEstado(){
     }
 
     return cambio;
+}
+
+/* Retorna el modulo de la velocidad del cuerpo, segun el tiempo y distancia del cuerpo
+.. en apoyo y transferencia*/
+float VelocidadCuerpo(boost::posix_time::ptime t1, boost::posix_time::ptime t2, float x1, float x2, float y1, float y2){
+    float delta_x=0.0, delta_y=0.0, tiempo_ahora=0.0;
+    boost::posix_time::time_duration diff_t;
+
+    delta_x = fabs(x1-x2);
+    delta_y = fabs(y1-y2);
+    diff_t = t1 - t2;
+    tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+    velocidadCuerpo_x = delta_x/tiempo_ahora;
+    velocidadCuerpo_y = delta_y/tiempo_ahora;
+    return (sqrt(velocidadCuerpo_x*velocidadCuerpo_x + velocidadCuerpo_y*velocidadCuerpo_y));
 }
