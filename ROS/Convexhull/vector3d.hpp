@@ -116,6 +116,9 @@ public:
     float		longitud();		    //longitud del segmento de recta
     vector3d    direccion();        //vector que va de 'ini' hasat 'fin'
     punto3d     proyeccion (punto3d);   //devuelve el punto del segmento mas cercano a un punto dado
+    int         hemiplano(punto3d); //calcula en que parte del plano esta un punto 'p' con respecto a la recta (segmento)
+    // funcion que determina si este segmento de recta se intersecta con otro. En caso de ser 'true' calcula dicha interseccion
+    bool     interseccion (segmento3d,punto3d*);
 
 protected:
 
