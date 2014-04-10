@@ -438,3 +438,54 @@ punto3d segmento3d::proyeccion(punto3d p)
     if (vi.norma() < vf.norma()) return (ini);
     else return (fin);
 }
+
+//funcion que determina si dos segmentos (this / a) se intersectan
+//en caso de existir la interseccion, calcula el punto en cuestion y lo almacena en 'p'
+bool segmento3d::interseccion(segmento3d a, punto3d* p)
+{
+    //para que exista interseccion, cada segmento de recta debe de separar los puntos del otro, en dos hemiplanos distintos (y de forma reciproca)
+    //primero determinamos si los puntos que forman al segmento 'a' estan a ambos lados de la recta que define (this)
+    //para eso usamos la funcion auxiliar que determina en que hemiplano esta un punto 'p'
+    int reg1,reg2;
+    //determino en que region esta cada punto del segmento de recta 'a' con respecto a la recta 'this'
+    reg1 = this->hemiplano(a.ini);
+    reg2 = this->hemiplano(a.fin);
+    //si ambos resultados son del mismo signo, entonces los dos puntos estan en la misma region (no hay interseccion)
+    if ((reg1*reg2) > 0) return false;
+
+    //ahora prueba el reciproco
+    reg1 = a.hemiplano(ini);
+    reg2 = a.hemiplano(fin);
+    //si ambos resultados son del mismo signo, entonces los dos puntos estan en la misma region (no hay interseccion)
+    if ((reg1*reg2) > 0) return false;
+
+    //si llega a este punto entonces los segmentos de recta se intersectan, y el punto resultante es la interseccion
+    //convencional de las rectas directoras de cada segmento
+    return true;
+}
+
+//IMPORTANTE: esta funcion asume que los puntos existen en el plano XY (se asume Z=0)
+//funcion que calcula en que parte (relativa) del plano se encuentra un punto 'p' con respecto a una recta
+//si es <0 pertenece a la region I, si es >0 pertenece a la region II, si =0 esta sobre la recta
+int segmento3d::hemiplano(punto3d p)
+{
+    //para ello, calculamos la proyeccion de un vector 'u' que va desde el punto 'ini' al punto de entrada 'p', sobre
+    //un vector 'v' perpendicular a la recta (segmento)
+
+    //creo el vector 'u' que va de 'ini' a 'p'
+    vector3d u(ini,p);
+
+    //para crear el vector 'v', rotamos el vector 'director' del segmento de recta: el vector que va de 'ini' a 'fin'
+    vector3d v(ini,fin);
+    float temp;
+    temp = v.x;
+    v.x = -v.y;
+    v.y = temp;
+    //estas operaciones arriba es el equivalente a rotar +90 grados (antihorario) al vector director del segmento de recta.
+    //dicho vector queda apuntando hacia la region I
+    temp = u*v; //calculamos la proyeccion del vector 'u' sobre este vector normal al segmento de la recta.
+    //el signo del resultado indica en que region está
+    if (temp>0) return (1);
+    else if (temp<0) return (-1);
+    else return (0);
+}
