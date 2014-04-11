@@ -461,6 +461,25 @@ bool segmento3d::interseccion(segmento3d a, punto3d* p)
 
     //si llega a este punto entonces los segmentos de recta se intersectan, y el punto resultante es la interseccion
     //convencional de las rectas directoras de cada segmento
+
+    punto3d p1 = ini;
+    punto3d p2 = a.ini;
+    vector3d v1(ini,fin);
+    vector3d v2(a.ini,a.fin);
+
+    register float k1, k2, temp1, temp2;
+
+    if (v1.x==0) v1.x = 0.000001;
+    temp1 = p1.y + (p2.x-p1.x)*(v1.y/v1.x) - p2.y;
+    temp2 = v2.y - v1.y*(v2.x/v1.x);
+
+    if (temp2==0) temp2 = 0.00001; //para preveer divisiones entre cero
+    k2 = temp1/temp2;
+
+    p->x = p2.x + k2*v2.x;
+    p->y = p2.y + k2*v2.y;
+    p->z = p2.z + k2*v2.z; //OJO: Z deberia ser cero siempre ya que esto parte de la hipotesis del plano XY
+
     return true;
 }
 
