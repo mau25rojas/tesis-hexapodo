@@ -111,8 +111,8 @@ int main(int argc, char **argv)
       Narg=1;
 	if (argc>=Narg)
 	{
-        Offset.x = atof(argv[1]);
-        Offset.y = atof(argv[2]);
+        Offset.x = atof(argv[1]);   //offset de la trayectoria
+        Offset.y = atof(argv[2]);   //offset de la trayectoria
         for(int k=0;k<Npatas;k++) phi[k] = atof(argv[3+k]);
     } else {
 		ROS_ERROR("server_EspacioTrabajo: Indique argumentos!\n");
