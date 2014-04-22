@@ -11,6 +11,7 @@
 // Used data structures:
 #include "camina9/InfoMapa.h"
 #include "camina9/CinversaParametros.h"
+#include "camina9/EspacioTrabajoParametros.h"
 #include "camina9/UbicacionRobot.h"
 #include "camina9/PlanificadorParametros.h"
 #include "camina9/SenalesCambios.h"
@@ -21,6 +22,8 @@
 //Clientes y Servicios
 ros::ServiceClient client_Cinversa1;
 camina9::CinversaParametros srv_Cinversa1;
+ros::ServiceClient client_EspacioTrabajo;
+camina9::EspacioTrabajoParametros srv_EspacioTrabajo;
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -242,7 +245,7 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     ros::ServiceServer service = node.advertiseService("PlanificadorPisada", PlanificadorPisada);
     client_Cinversa1=node.serviceClient<camina9::CinversaParametros>("Cinversa");
-
+    client_EspacioTrabajo=node.serviceClient<camina9::EspacioTrabajoParametros>("EspacioTrabajo");
     /* Log de planificador */
     fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina9/datos/RegistroCorridas.txt","a+");
     fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina9/datos/LogPlanificador.txt","w+");
