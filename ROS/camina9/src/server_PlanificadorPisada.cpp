@@ -458,26 +458,32 @@ bool VerificacionCinematica(int Pata, float lambda){
         }
 }
 
-//void CorreccioObstaculos(int Pata, float PisadaProxima_y, float PisadaProxima_x){
-//    punto3d Pata, puntosObstaculo[4];
-//    recta3d recta_inf_o;
-//    float correccion=0.0;
-//
-//    Pata.x = PisadaProxima.x;
-//    Pata.y = PisadaProxima.y;
-//    puntosObstaculo[0].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.x;
-//    puntosObstaculo[0].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.y;
-//    puntosObstaculo[1].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.x;
-//    puntosObstaculo[1].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.y;
-//    puntosObstaculo[2].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.x;
-//    puntosObstaculo[2].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.y;
-//    puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.x;
-//    puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.y;
-//    ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
-//    recta_inf_o = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
-//
-//    correccion = recta_inf_o.distancia(Pata);
-//    ROS_WARN("correccion:%.3f",correccion);
-//    res.correccion_y[Tripode_Transferencia[k]] = correccion;
-//    modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
-//}
+void CorreccioObstaculos(int Pata, float PisadaProxima_y, float PisadaProxima_x){
+    punto3d Pata, puntosObstaculo[4];
+    recta3d recta_inf_o;
+    float correccion=0.0;
+
+    infoMapa.coordenadaPata_x[k] = posicionActualPata[k].x;
+    infoMapa.coordenadaPata_y[k] = posicionActualPata[k].y;
+    transformacion_yxTOij(p_ij, posicionActualPata[k].y, posicionActualPata[k].x);
+    infoMapa.coordenadaPata_i[k] = ij[0];
+    infoMapa.coordenadaPata_j[k] = ij[1];
+
+    Pata.x = PisadaProxima.x;
+    Pata.y = PisadaProxima.y;
+    puntosObstaculo[0].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.x;
+    puntosObstaculo[0].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.y;
+    puntosObstaculo[1].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.x;
+    puntosObstaculo[1].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.y;
+    puntosObstaculo[2].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.x;
+    puntosObstaculo[2].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.y;
+    puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.x;
+    puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.y;
+    ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
+    recta_inf_o = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
+
+    correccion = recta_inf_o.distancia(Pata);
+    ROS_WARN("correccion:%.3f",correccion);
+    res.correccion_y[Tripode_Transferencia[k]] = correccion;
+    modificacion_lambda[k] = lambda_maximo-correccion-delta_correccion;
+}
