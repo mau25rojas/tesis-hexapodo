@@ -312,81 +312,6 @@ recta3d recta3d::recta_minima(recta3d r)
 
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
-//FUNCIONES PARA EL PLANO
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
-
-plano3d::plano3d()	//constructor nulo de plano
-{
-    punto = vector3d(0,0,0);
-    normal = punto;	//creo los vectores nulos para el punto y la normal
-}
-
-plano3d::plano3d(punto3d a, punto3d b, punto3d c) //constructor a partir de 3 puntos (no colineales)
-{
-    punto = vector3d(a); //agarro cualquier punto
-    vector3d u(a,b), v(b,c);
-    normal = u ^ v; //la normal es el producto cruz de los dos vectores a-b y b-c
-}
-
-plano3d::plano3d(punto3d p, vector3d v) //constructor a partir del vector y la normal (directo)
-{
-    punto = vector3d(p);
-    normal = v; //lo hago por asignacion directa
-}
-
-plano3d::plano3d(punto3d p, recta3d r)	 //constructor a partir de un punto y una recta (que no pase por el punto)
-{
-    punto = vector3d(p); //asigno el punto
-    normal = vector3d(vector3d(p)-r.punto) ^ r.vector;
-    //la normal es el producto cruz entre un vector desde la recta al punto y el vector de la recta
-}
-
-plano3d::plano3d(recta3d ra, recta3d rb)	//constructor a partir de un punto y una recta (que no pase por el punto)
-{
-    *this = plano3d(punto3d(ra.punto), rb); //reciclando codigo
-}
-
-float plano3d::distancia(punto3d p) //devuelve la distancia desde un punto hasta la superficie del plano
-{
-    register float na = normal.norma();
-    if (na == 0) return (NULL);
-    return ((p-punto)*normal)/na;
-}
-
-float plano3d::distancia(recta3d r)	//devuelve la distancia entre una recta y un plano
-{
-    if (normal.ortogonal(r.vector)==0) return 0; //verifico primero si son paralelos la recta y el plano, si no distancia es 0
-    return(distancia(r.punto));	 // La distancia es la del punto que define la recta al plano
-}
-
-float plano3d::distancia(plano3d p) 		//Distancia entre dos planos paralelos
-{
-    if ((normal^p.normal).norma() != 0) return 0; //verifico si de verdad son paralelos, si no distancia es 0
-    return (distancia(p.punto));   // La distancia es la del punto que define la recta al plano
-}
-
-punto3d plano3d::interseccion(recta3d r)	//devuelve el punto de interseccion entre una recta y un plano
-{
-    if (normal.ortogonal(r.vector)!=0) return r.punto; //me aseguro que la recta no sea paralela al plano
-    return punto3d(vector3d(r.punto)+r.vector*(((punto-r.punto)*normal)/(normal*r.vector)));
-}
-
-recta3d  plano3d::interseccion(plano3d p)	//devuelve la recta de interseccion entre un plano y este plano
-{
-    recta3d r;
-    r.vector = normal^(normal^(p.normal));
-    r.punto = punto;
-    return (recta3d(interseccion(r),normal^p.normal));
-}
-
-punto3d plano3d::proyeccion(punto3d p)	//Devuelve el punto del plano más cercano al punto dado
-{
-    return(interseccion(recta3d(p,normal)));	//Sacando la intersección de una recta normal al plano que pasa por el punto dado
-}
-
-//------------------------------------------------------------------------------
-//------------------------------------------------------------------------------
 //FUNCIONES PARA EL SEGMENTO
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -508,3 +433,80 @@ int segmento3d::hemiplano(punto3d p)
     else if (temp<0) return (-1);
     else return (0);
 }
+
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+//FUNCIONES PARA EL PLANO
+//------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+plano3d::plano3d()	//constructor nulo de plano
+{
+    punto = vector3d(0,0,0);
+    normal = punto;	//creo los vectores nulos para el punto y la normal
+}
+
+plano3d::plano3d(punto3d a, punto3d b, punto3d c) //constructor a partir de 3 puntos (no colineales)
+{
+    punto = vector3d(a); //agarro cualquier punto
+    vector3d u(a,b), v(b,c);
+    normal = u ^ v; //la normal es el producto cruz de los dos vectores a-b y b-c
+}
+
+plano3d::plano3d(punto3d p, vector3d v) //constructor a partir del vector y la normal (directo)
+{
+    punto = vector3d(p);
+    normal = v; //lo hago por asignacion directa
+}
+
+plano3d::plano3d(punto3d p, recta3d r)	 //constructor a partir de un punto y una recta (que no pase por el punto)
+{
+    punto = vector3d(p); //asigno el punto
+    normal = vector3d(vector3d(p)-r.punto) ^ r.vector;
+    //la normal es el producto cruz entre un vector desde la recta al punto y el vector de la recta
+}
+
+plano3d::plano3d(recta3d ra, recta3d rb)	//constructor a partir de un punto y una recta (que no pase por el punto)
+{
+    *this = plano3d(punto3d(ra.punto), rb); //reciclando codigo
+}
+
+float plano3d::distancia(punto3d p) //devuelve la distancia desde un punto hasta la superficie del plano
+{
+    register float na = normal.norma();
+    if (na == 0) return (NULL);
+    return ((p-punto)*normal)/na;
+}
+
+float plano3d::distancia(recta3d r)	//devuelve la distancia entre una recta y un plano
+{
+    if (normal.ortogonal(r.vector)==0) return 0; //verifico primero si son paralelos la recta y el plano, si no distancia es 0
+    return(distancia(r.punto));	 // La distancia es la del punto que define la recta al plano
+}
+
+float plano3d::distancia(plano3d p) 		//Distancia entre dos planos paralelos
+{
+    if ((normal^p.normal).norma() != 0) return 0; //verifico si de verdad son paralelos, si no distancia es 0
+    return (distancia(p.punto));   // La distancia es la del punto que define la recta al plano
+}
+
+punto3d plano3d::interseccion(recta3d r)	//devuelve el punto de interseccion entre una recta y un plano
+{
+    if (normal.ortogonal(r.vector)!=0) return r.punto; //me aseguro que la recta no sea paralela al plano
+    return punto3d(vector3d(r.punto)+r.vector*(((punto-r.punto)*normal)/(normal*r.vector)));
+}
+
+recta3d  plano3d::interseccion(plano3d p)	//devuelve la recta de interseccion entre un plano y este plano
+{
+    recta3d r;
+    r.vector = normal^(normal^(p.normal));
+    r.punto = punto;
+    return (recta3d(interseccion(r),normal^p.normal));
+}
+
+punto3d plano3d::proyeccion(punto3d p)	//Devuelve el punto del plano más cercano al punto dado
+{
+    return(interseccion(recta3d(p,normal)));	//Sacando la intersección de una recta normal al plano que pasa por el punto dado
+}
+
+
