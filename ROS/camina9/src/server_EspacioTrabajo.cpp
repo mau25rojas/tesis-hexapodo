@@ -42,19 +42,19 @@ bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
     res.EspacioTrabajoP4_y=0.0;
 
 //-- Transformacion 1: trayectoria
-    //--Punto1
+    //--Punto1 - izq/arr
     P_aux.x = EspacioTrabajo_X1;
     P_aux.y = EspacioTrabajo_Y1;
     P1 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);
-    //--Punto2
+    //--Punto2 - der/arr
     P_aux.x = EspacioTrabajo_X2;
     P_aux.y = EspacioTrabajo_Y1;
     P2 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);
-    //--Punto3
+    //--Punto3 - der/aba
     P_aux.x = EspacioTrabajo_X2;
     P_aux.y = EspacioTrabajo_Y2;
     P3 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);
-    //--Punto4
+    //--Punto4 - izq/aba
     P_aux.x = EspacioTrabajo_X1;
     P_aux.y = EspacioTrabajo_Y2;
     P4 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+req.alfa);

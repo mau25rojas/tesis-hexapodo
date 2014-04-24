@@ -40,11 +40,12 @@ bool matrizMapa[100][20];
 int nCeldas_i=0, nCeldas_j=0;
 float LongitudCeldaY=0, LongitudCeldaX=0;
 Obstaculo obstaculo[100][20];
+punto3d EspacioTrabajo[Npatas][Npuntos];
 //-- Variables de ubicacion robot
 double tiempo_ahora=0.0, tiempo_anterior=0.0;
 //float ajuste_Vel=vel_esperada/vel_teorica;
 float mod_velocidadCuerpo=0.0;
-punto3d posicionActualPata[Npatas], posicionActualPataSistemaPata[Npatas];
+punto3d posicionActualCuerpo, posicionActualPata[Npatas], posicionActualPataSistemaPata[Npatas];
 float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
 camina9::SenalesCambios senales;
@@ -66,6 +67,7 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos);
 punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 punto3d TransportaPunto(punto3d Punto_in,float L_traslacion, float ang_rotacion);
 bool VerificacionCinematica(int Pata, float lambda);
+punto3d TransformacionEDT_CoordenadasCuerpo(punto3d *Punto_in, punto3d P_Ocuerpo, float ang_rotacion);
 
 
 //-- Topic subscriber callbacks:
@@ -77,6 +79,8 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 
 void ubicacionRobCallback(camina9::UbicacionRobot msgUbicacionRobot)
 {
+    posicionActualCuerpo.x = msgUbicacionRobot.coordenadaCuerpo_x;
+    posicionActualCuerpo.y = msgUbicacionRobot.coordenadaCuerpo_y;
     teta_CuerpoRobot = msgUbicacionRobot.orientacionCuerpo_yaw;
     for(int k=0; k<Npatas;k++) {
         posicionActualPata[k].x = msgUbicacionRobot.coordenadaPata_x[k];
@@ -154,7 +158,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
             infoMapa.correccion=false;
             ROS_WARN("server_PlanificadorPisada: pata [%d] coincidira con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
             fprintf(fp2,"pata [%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-//                lambda_posible = CorreccioObstaculos(Tripode_Transferencia[k],PisadaProxima_y,PisadaProxima_x);
+//                lambda_posible = CorreccioObstaculos(Tripode_Transferencia[k],PisadaProxima_y,PisadaProxima_x, PisadaProxima_i, PisadaProxima_j);
         }
             modificacion_lambda[k] = lambda_posible;
         //-- Pisada maxima
@@ -296,6 +300,26 @@ int main(int argc, char **argv)
 //    print_matrizMapa(nCeldas_i,nCeldas_j);
 //    ROS_INFO("Nobstaculos=%d",cuentaObs);
 //    ROS_INFO("variables de mapa: Ni=%d,Nj=%d,LY=%.3f,LX=%.3f",nCeldas_i,nCeldas_j,LongitudCeldaY,LongitudCeldaX);
+
+//-- puntos de EDT para cada pata
+    for(int k=0;k<Npatas;k++) {
+        srv_EspacioTrabajo.request.alfa = alfa;
+        srv_EspacioTrabajo.request.Pata = k;
+        if (client_EspacioTrabajo.call(srv_EspacioTrabajo)){
+        //-- Funciona servicio
+            EspacioTrabajo[k][0].x = res.EspacioTrabajoP1_x;
+            EspacioTrabajo[k][0].y = res.EspacioTrabajoP1_y;
+            EspacioTrabajo[k][1].x = res.EspacioTrabajoP2_x;
+            EspacioTrabajo[k][1].y = res.EspacioTrabajoP2_y;
+            EspacioTrabajo[k][2].x = res.EspacioTrabajoP3_x;
+            EspacioTrabajo[k][2].y = res.EspacioTrabajoP3_y;
+            EspacioTrabajo[k][3].x = res.EspacioTrabajoP4_x;
+            EspacioTrabajo[k][3].y = res.EspacioTrabajoP4_y;
+        } else {
+            ROS_ERROR("server_PlanificadorPisada: servicio de Cinversa no funciona\n");
+            return (false);
+        }
+    }
 
     while (ros::ok() && simulationRunning){
         ros::spinOnce();
@@ -458,16 +482,34 @@ bool VerificacionCinematica(int Pata, float lambda){
         }
 }
 
-void CorreccioObstaculos(int Pata, float PisadaProxima_y, float PisadaProxima_x){
-    punto3d Pata, puntosObstaculo[4];
-    recta3d recta_inf_o;
+punto3d TransformacionEDT_CoordenadasCuerpo(punto3d *Punto_in, punto3d P_Ocuerpo, float ang_rotacion){
+
+    Punto_in[0] = TransformacionHomogenea(P1,P_Ocuerpo,ang_rotacion);
+    Punto_in[1] = TransformacionHomogenea(P2,P_Ocuerpo,ang_rotacion);
+    Punto_in[2] = TransformacionHomogenea(P3,P_Ocuerpo,ang_rotacion);
+    Punto_in[3] = TransformacionHomogenea(P4,P_Ocuerpo,ang_rotacion);
+}
+
+void CorreccioObstaculos(int nPata, punto3d PisadaProxima){
+    punto3d Pata, puntosObstaculo[4], EDT[4], *ptrEDT, P_aux;
+    recta3d recta_borde;
     float correccion=0.0;
 
-    infoMapa.coordenadaPata_x[k] = posicionActualPata[k].x;
-    infoMapa.coordenadaPata_y[k] = posicionActualPata[k].y;
-    transformacion_yxTOij(p_ij, posicionActualPata[k].y, posicionActualPata[k].x);
-    infoMapa.coordenadaPata_i[k] = ij[0];
-    infoMapa.coordenadaPata_j[k] = ij[1];
+    for(int k=0;k<Npuntos;k++) EDT[k] = EspacioTrabajo[nPata][k];
+    ptrEDT = EDT;
+    TransformacionEDT_CoordenadasCuerpo(ptrEDT,posicionActualCuerpo,teta_CuerpoRobot);
+//-- creo recta del espacio de trabajo para comparar
+    if(nPata==Pata1 or nPata==Pata3 or nPata==Pata5){
+    //-- Pata del lado izquierdo
+        recta_borde = recta3d(EDT[0],EDT[3]);
+
+    } else{
+    //-- Pata del lado derecho
+        recta_borde = recta3d(EDT[1],EDT[2]);
+    }
+
+    P_aux = recta_borde.distancia(PisadaProxima);
+
 
     Pata.x = PisadaProxima.x;
     Pata.y = PisadaProxima.y;
@@ -480,6 +522,8 @@ void CorreccioObstaculos(int Pata, float PisadaProxima_y, float PisadaProxima_x)
     puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.x;
     puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.y;
     ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
+
+
     recta_inf_o = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
 
     correccion = recta_inf_o.distancia(Pata);
