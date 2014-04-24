@@ -315,6 +315,13 @@ recta3d recta3d::recta_minima(recta3d r)
 //FUNCIONES PARA EL SEGMENTO
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
+segmento3d::segmento3d() // //constructor nulo de la clase segmento3d.
+{
+    ini.x = 0;  fin.x = 0;
+    ini.y = 0;  fin.y = 0;
+    ini.z = 0;  fin.z = 0;
+}
+
 segmento3d::segmento3d(punto3d a, punto3d b) // Constructor con argumentos de la clase segmento3d.
 {
     ini = a;
