@@ -120,22 +120,21 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                     datosTrayectoriaPata.correccion_x = srv_Planificador.response.correccion_x;
                     datosTrayectoriaPata.correccion_y = srv_Planificador.response.correccion_y;
                     ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
-
                 } else {
                     ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
                     ROS_ERROR("result=%d", srv_Planificador.response.result);
                 }
 
-                /////////////////////PRUEBAS///////////////////////////////////
-                for(int k=0;k<Npatas;k++) {
-                    datosTrayectoriaPata.correccion_ID[k]=-1;
-                    datosTrayectoriaPata.correccion_x[k]=0;
-                    datosTrayectoriaPata.correccion_y[k]=0;
-                }
-                ///////////////////////////////////////////////////////////////
-                datosTrayectoriaPata.correccion_ID[2]=1;
-                datosTrayectoriaPata.correccion_x[2]=0.01;
-                datosTrayectoriaPata.correccion_y[2]=0.01;
+//                /////////////////////PRUEBAS///////////////////////////////////
+//                for(int k=0;k<Npatas;k++) {
+//                    datosTrayectoriaPata.correccion_ID[k]=-1;
+//                    datosTrayectoriaPata.correccion_x[k]=0;
+//                    datosTrayectoriaPata.correccion_y[k]=0;
+//                }
+//                ///////////////////////////////////////////////////////////////
+//                datosTrayectoriaPata.correccion_ID[2]=1;
+//                datosTrayectoriaPata.correccion_x[2]=0.01;
+//                datosTrayectoriaPata.correccion_y[2]=0.01;
 
 
                 T = modificacion_T;

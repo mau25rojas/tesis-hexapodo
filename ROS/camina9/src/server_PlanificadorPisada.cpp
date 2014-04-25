@@ -105,8 +105,8 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     res.result = 0;
     for(int k=0;k<2*Npatas;k++) {
         res.correccion_ID.push_back(-1);
-        res.correccion_y.push_back(0);
         res.correccion_x.push_back(0);
+        res.correccion_y.push_back(0);
     }
 //-- Variables locales
     int Tripode_Transferencia[Npatas/2];
@@ -114,7 +114,7 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
     bool cinversaOK;
     float modificacion_lambda[Npatas/2], lambda_posible;
     float T_actual=0.0,lambda_Apoyo_actual=0.0;
-    punto3d PisadaProxima;
+    punto3d PisadaProxima, correccion;
 
     p_ij = ij;    // Inicialización de apuntador
     Tripode=req.Tripode;
@@ -133,12 +133,14 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
         for(int k=0;k<Npatas/2;k++) {
             Tripode_Transferencia[k] = Tripode2[k];
             res.correccion_ID[Tripode_Transferencia[k]] = -1;
+            res.correccion_x[Tripode_Transferencia[k]] = 0.0;
             res.correccion_y[Tripode_Transferencia[k]] = 0.0;
         }
     } else{
         for(int k=0;k<Npatas/2;k++){
             Tripode_Transferencia[k] = Tripode1[k];
             res.correccion_ID[Tripode_Transferencia[k]] = -1;
+            res.correccion_x[Tripode_Transferencia[k]] = 0.0;
             res.correccion_y[Tripode_Transferencia[k]] = 0.0;
         }
     }
@@ -156,9 +158,29 @@ bool PlanificadorPisada(camina9::PlanificadorParametros::Request  &req,
         if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
         //-- La pisada COINCIDE con obstaculo
             infoMapa.correccion=false;
-            ROS_WARN("server_PlanificadorPisada: pata [%d] coincidira con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-            fprintf(fp2,"pata [%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-//                lambda_posible = CorreccioObstaculos(Tripode_Transferencia[k],PisadaProxima_y,PisadaProxima_x, PisadaProxima_i, PisadaProxima_j);
+            ROS_WARN("server_PlanificadorPisada::pata[%d] coincidira con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
+            fprintf(fp2,"pata[%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
+        //-- Revision de pisada para correccion
+            correccion = CorreccioObstaculos(Tripode_Transferencia[k],PisadaProxima);
+
+        //-- Prueba con pata 1
+            if(Tripode_Transferencia[k]==1){
+                res.correccion_ID[Tripode_Transferencia[k]]=correccion_ID[Tripode_Transferencia[k]];
+                res.correccion_x[Tripode_Transferencia[k]]=correccion.x;
+                res.correccion_y[Tripode_Transferencia[k]]=correccion.y;
+                lambda_posible = lambda_maximo-correccion.y;
+                ROS_WARN("server_PlanificadorPisada::Correccion[%.4f][%.4f], lambda[%.4f]",correccion.x,correccion.y,lambda_posible);
+            } else {
+                res.correccion_ID[Tripode_Transferencia[k]]=-1;
+                res.correccion_x[Tripode_Transferencia[k]]=0.0;
+                res.correccion_y[Tripode_Transferencia[k]]=0.0;
+                lambda_posible = lambda_maximo;
+            }
+        } else{
+            res.correccion_ID[Tripode_Transferencia[k]]=-1;
+            res.correccion_x[Tripode_Transferencia[k]]=0.0;
+            res.correccion_y[Tripode_Transferencia[k]]=0.0;
+            lambda_posible = lambda_maximo;
         }
             modificacion_lambda[k] = lambda_posible;
         //-- Pisada maxima
@@ -316,8 +338,8 @@ int main(int argc, char **argv)
             EspacioTrabajo[k][3].x = srv_EspacioTrabajo.response.EspacioTrabajoP4_x;
             EspacioTrabajo[k][3].y = srv_EspacioTrabajo.response.EspacioTrabajoP4_y;
         } else {
-            ROS_ERROR("server_PlanificadorPisada: servicio de Cinversa no funciona\n");
-            return (false);
+            ROS_ERROR("server_PlanificadorPisada: servicio de EDT no funciona, Pata[%d]\n",k+1);
+//            return (false);
         }
     }
 
@@ -477,7 +499,7 @@ bool VerificacionCinematica(int Pata, float lambda){
         //-- Funciona servicio
             return (true);
         } else {
-            ROS_ERROR("server_PlanificadorPisada: servicio de Cinversa no funciona\n");
+            ROS_ERROR("server_PlanificadorPisada::servicio de Cinversa no funciona\n");
             return (false);
         }
 }
@@ -496,6 +518,7 @@ punto3d CorreccioObstaculos(int nPata,punto3d PisadaProxima){
 //-- transformacion del EDT hacia las coordenadas del mundo (por ubicacion de robot)
     for(int k=0;k<Npuntos;k++) {
         EDT[k] = TransformacionHomogenea(EspacioTrabajo[nPata][k],posicionActualCuerpo,teta_CuerpoRobot);
+        ROS_INFO("server_PlanificadorPisada::EDT[%d]:%.3f,%.3f",k,EDT[k].x,EDT[k].y);
     }
 //-- creo recta del espacio de trabajo para comparar
     if((nPata+1)==Pata1 or (nPata+1)==Pata3 or (nPata+1)==Pata5){
@@ -509,48 +532,53 @@ punto3d CorreccioObstaculos(int nPata,punto3d PisadaProxima){
     }
     P_aux = recta_borde.proyeccion(PisadaProxima);
     seg_prueba = segmento3d(PisadaProxima,P_aux);
+    ROS_INFO("server_PlanificadorPisada::SegPuerba[ini:%.3f,%.3f][fin:%.3f,%.3f]",seg_prueba.ini.x,seg_prueba.ini.y,seg_prueba.fin.x,seg_prueba.fin.y);
 ///--- Revision estandar
 //-- Revision de pisada hacia ESTE LADO
+    ROS_WARN("server_PlanificadorPisada::Pata[%d] correccion lado",nPata+1);
     PisadaOk = Revision_PisadaObstaculos_X(nPata,PisadaProxima,seg_prueba,&correccion_x);
 
-///--- Si la pisada corregida no esta bien sigo revisando
-    if(!PisadaOk){
-    //-- AHORA REVISO EL OTRO LADO
-        if((nPata+1)==Pata1 or (nPata+1)==Pata3 or (nPata+1)==Pata5){
-        //-- Pata del lado izquierdo -- reviso hacia la derecha
-            recta_borde = recta3d(EDT[1],EDT[2]);
-            correccion_ID[nPata]=Correccion_masX;
-        } else{
-        //-- Pata del lado derecho -- reviso hacia la izquierda
-            recta_borde = recta3d(EDT[0],EDT[3]);
-            correccion_ID[nPata]=Correccion_menosX;
-        }
-        P_aux = recta_borde.proyeccion(PisadaProxima);
-        seg_prueba = segmento3d(PisadaProxima,P_aux);
-    //-- Revision de pisada hacia este lado
-        PisadaOk = Revision_PisadaObstaculos_X(nPata,PisadaProxima,seg_prueba,&correccion_x);
-    }
-
-///--- Si la pisada corregida no esta bien sigo revisando
-    if(!PisadaOk){
-    //-- AHORA REVISO HACIA ABAJO
-        correccion_ID[nPata]=-1;
-        float EDT_LongY; segmento3d aux_seg;
-        aux_seg = segmento3d(EDT[1],EDT[2]);
-        EDT_LongY = aux_seg.longitud();
-        PisadaOk = Revision_PisadaObstaculos_Y(nPata,PisadaProxima,&correccion_y,EDT_LongY);
-    }
-
-    if(PisadaOk){
-        correccion.x = correccion_x;
-        correccion.y = correccion_y;
-    } else {
-        ROS_ERROR("NO SE PUDO CONSEGUIR CORRECCION PARA PISADA, PATA[%d]", nPata);
-        correccion_ID[nPata]=-1;
-        correccion.x = 0.0;
-        correccion.y = 0.0;
-        return correccion;
-    }
+/////--- Si la pisada corregida no esta bien sigo revisando
+//    if(!PisadaOk){
+//    //-- AHORA REVISO EL OTRO LADO
+//    ROS_WARN("server_PlanificadorPisada::Pata[%d] correccion OTRO lado",nPata+1);
+//        if((nPata+1)==Pata1 or (nPata+1)==Pata3 or (nPata+1)==Pata5){
+//        //-- Pata del lado izquierdo -- reviso hacia la derecha
+//            recta_borde = recta3d(EDT[1],EDT[2]);
+//            correccion_ID[nPata]=Correccion_masX;
+//        } else{
+//        //-- Pata del lado derecho -- reviso hacia la izquierda
+//            recta_borde = recta3d(EDT[0],EDT[3]);
+//            correccion_ID[nPata]=Correccion_menosX;
+//        }
+//        P_aux = recta_borde.proyeccion(PisadaProxima);
+//        seg_prueba = segmento3d(PisadaProxima,P_aux);
+//    //-- Revision de pisada hacia este lado
+//        PisadaOk = Revision_PisadaObstaculos_X(nPata,PisadaProxima,seg_prueba,&correccion_x);
+//    }
+//
+/////--- Si la pisada corregida no esta bien sigo revisando
+//    if(!PisadaOk){
+//    //-- AHORA REVISO HACIA ABAJO
+//        ROS_WARN("server_PlanificadorPisada::Pata[%d] correccion abajo",nPata+1);
+//        correccion_ID[nPata]=-1;
+//        float EDT_LongY; segmento3d aux_seg;
+//        aux_seg = segmento3d(EDT[1],EDT[2]);
+//        EDT_LongY = aux_seg.longitud();
+//        PisadaOk = Revision_PisadaObstaculos_Y(nPata,PisadaProxima,&correccion_y,EDT_LongY);
+//    }
+//
+//    if(PisadaOk){
+//        ROS_WARN("server_PlanificadorPisada::Pisada Pata[%d] Ok", nPata+1);
+//        correccion.x = correccion_x;
+//        correccion.y = correccion_y;
+//    } else {
+//        ROS_ERROR("server_PlanificadorPisada::NO SE PUDO CONSEGUIR CORRECCION PARA PISADA, PATA[%d]", nPata);
+//        correccion_ID[nPata]=-1;
+//        correccion.x = 0.0;
+//        correccion.y = 0.0;
+//        return correccion;
+//    }
     return(correccion);
 }
 
@@ -564,7 +592,7 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
     transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
     PisadaProxima_i=ij[0];
     PisadaProxima_j=ij[1];
-    while(!PisadaOk){
+//    while(!PisadaOk){
     //-- puntos de obstaculo
         puntosObstaculo[0].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.x;
         puntosObstaculo[0].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.y;
@@ -574,7 +602,6 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
         puntosObstaculo[2].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.y;
         puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.x;
         puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.y;
-    //    ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
     //-- segmentos de obstaculo
         segObstaculos[0] = segmento3d(puntosObstaculo[0],puntosObstaculo[1]);
         segObstaculos[1] = segmento3d(puntosObstaculo[1],puntosObstaculo[2]);
@@ -582,11 +609,11 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
         segObstaculos[3] = segmento3d(puntosObstaculo[3],puntosObstaculo[0]);
 
         for(int k=0;k<Npuntos;k++){
-            interseccion = seg_prueba.interseccion(segObstaculos[0],&P_interseccion);
+            interseccion = seg_prueba.interseccion(segObstaculos[k],&P_interseccion);
             if (interseccion) break;
         }
         if (!interseccion){
-            ROS_ERROR("No hubo interseccion entre obstaculo con seg de pata");
+            ROS_ERROR("server_PlanificadorPisada::No hubo interseccion entre obstaculo[%d][%d] con seg de pata[%d]",PisadaProxima_i, PisadaProxima_j,nPata+1);
             return -1;
         }
         interseccion = false;
@@ -595,29 +622,31 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
         if(*correccion > seg_prueba.longitud()){
         //-- la correccion hallada sale del espacio de trabajo
         //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
-            ROS_WARN("correccion %d sale del EDT", correccion_ID[nPata]);
-            break;
+            ROS_WARN("server_PlanificadorPisada::correccion %d sale del EDT", correccion_ID[nPata]);
+//            break;
         }
-
-        if(correccion_ID[nPata]==Correccion_menosX){
-            aux_PisadaProxima.x = PisadaProxima.x-(*correccion+delta_correccion);
-        } else {
-            aux_PisadaProxima.x = PisadaProxima.x+(*correccion+delta_correccion);
-        }
-
-        transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
-        PisadaProxima_i=ij[0];
-        PisadaProxima_j=ij[1];
-        if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
-            PisadaOk = false;
-        } else {
-            PisadaOk = true;
-        }
-    }
+        ROS_WARN("correccion:%.4f",*correccion);
+//        aux_PisadaProxima.y = PisadaProxima.y;
+//        if(correccion_ID[nPata]==Correccion_menosX){
+//            aux_PisadaProxima.x = PisadaProxima.x-(*correccion+delta_correccion);
+//        } else {
+//            aux_PisadaProxima.x = PisadaProxima.x+(*correccion+delta_correccion);
+//        }
+////        ROS_WARN("server_PlanificadorPisada::Correccion Pata[%d] aux_PisadaProxima[%d][%d]",nPata+1,PisadaProxima_i,PisadaProxima_j);
+//        transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
+//        PisadaProxima_i=ij[0];
+//        PisadaProxima_j=ij[1];
+////        ROS_WARN("server_PlanificadorPisada::Correccion Pata[%d] PisadaProxima_ij[%d][%d]",nPata+1,PisadaProxima_i,PisadaProxima_j);
+//        if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
+//            PisadaOk = false;
+//        } else {
+//            PisadaOk = true;
+//        }
+//    }
         return (PisadaOk);
 }
 
-bool Revision_PisadaObstaculos_Y (int nPata, punto3d PisadaProxima, float *correccion, float EDT_LongY){
+bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correccion, float EDT_LongY){
     bool PisadaOk=false;
     int PisadaProxima_i=0, PisadaProxima_j=0;
     punto3d aux_PisadaProxima, puntosObstaculo[4];
@@ -643,7 +672,7 @@ bool Revision_PisadaObstaculos_Y (int nPata, punto3d PisadaProxima, float *corre
         if(*correccion > EDT_LongY){
         //-- la correccion hallada sale del espacio de trabajo
         //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
-            ROS_WARN("correccion Y sale del EDT");
+            ROS_WARN("server_PlanificadorPisada::correccion Y sale del EDT");
             break;
         }
 
@@ -652,7 +681,9 @@ bool Revision_PisadaObstaculos_Y (int nPata, punto3d PisadaProxima, float *corre
         transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
         PisadaProxima_i=ij[0];
         PisadaProxima_j=ij[1];
+        ROS_WARN("server_PlanificadorPisada::Correccion Pata[%d] aux_PisadaProxima[%d][%d]",nPata+1,PisadaProxima_i,PisadaProxima_j);
         if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
+//            ROS_WARN("server_PlanificadorPisada::Correccion Pata[%d] coincidira con obstaculo [%d][%d]",nPata+1,PisadaProxima_i,PisadaProxima_j);
             PisadaOk = false;
         } else {
             PisadaOk = true;

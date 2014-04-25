@@ -146,9 +146,9 @@ void ajusteCallback(camina9::InfoMapa msgInfoMapa)
             Pata.x=coordenadaPata_x[k]; Pata.y=coordenadaPata_y[k];
             di = margen_est (Pata,Q,4,S);
 //            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_x,obstaculo[coordenadaPata_i[k]][coordenadaPata_j[k]].O_y);
-            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
+//            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
             fprintf(fp2,"\nPata[%d]:%.3f,%.3f->Coincide Obstaculo [%d][%d]; distancia_min:%.3f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
-            ROS_WARN("Pata[%d]:%.3f,%.3f->coincide con obstaculo [%d][%d]; di=%.4f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
+            ROS_WARN("Mapa::Pata[%d]:%.3f,%.3f->coincide con obstaculo [%d][%d]; di=%.4f",k+1,Pata.x,Pata.y,coordenadaPata_i[k],coordenadaPata_j[k],di);
             fprintf(fp1,"%d\t%.5f\n",k+1,di);
         }
     }

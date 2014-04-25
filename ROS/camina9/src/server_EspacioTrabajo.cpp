@@ -108,7 +108,7 @@ bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
 int main(int argc, char **argv)
 {
     int Narg=0;
-      Narg=1;
+      Narg=8;
 	if (argc>=Narg)
 	{
         Offset.x = atof(argv[1]);   //offset de la trayectoria
