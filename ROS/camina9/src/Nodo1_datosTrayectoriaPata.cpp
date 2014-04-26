@@ -106,7 +106,7 @@ void relojCallback(camina9::SenalesCambios msgSenal)
                 //-- calculo de velocidad
                     mod_velocidadCuerpo = VelocidadCuerpo(timerT2_1,timerT2_2,xCuerpo_T2_1,xCuerpo_T2_2,yCuerpo_T2_1,yCuerpo_T2_2);
                 }
-                ROS_INFO("Nodo1::T[%d]: velocidad=%.3f",Tripode,velocidadCuerpo_y);
+//                ROS_INFO("Nodo1::T[%d]: velocidad=%.3f",Tripode,velocidadCuerpo_y);
                 fprintf(fp1,"%.3f\n",mod_velocidadCuerpo);
 
                 srv_Planificador.request.Tripode = Tripode;
