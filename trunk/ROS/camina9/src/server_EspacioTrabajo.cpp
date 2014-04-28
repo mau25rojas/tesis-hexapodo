@@ -47,19 +47,19 @@ bool EspacioTrabajoPatas(camina9::EspacioTrabajoParametros::Request  &req,
     //--Punto1 - izq/arr
     P_aux.x = EspacioTrabajo_X1;
     P_aux.y = EspacioTrabajo_Y1;
-    P1 = TransformacionHomogenea(P_aux,Offset,phi[Npata]);//+ang_offset+req.alfa);
+    P1 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+ang_offset);//+ang_offset+req.alfa);
     //--Punto2 - der/arr
     P_aux.x = EspacioTrabajo_X2;
     P_aux.y = EspacioTrabajo_Y1;
-    P2 = TransformacionHomogenea(P_aux,Offset,phi[Npata]);//+ang_offset+req.alfa);
+    P2 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+ang_offset);//+ang_offset+req.alfa);
     //--Punto3 - der/aba
     P_aux.x = EspacioTrabajo_X2;
     P_aux.y = EspacioTrabajo_Y2;
-    P3 = TransformacionHomogenea(P_aux,Offset,phi[Npata]);//+ang_offset+req.alfa);
+    P3 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+ang_offset);//+ang_offset+req.alfa);
     //--Punto4 - izq/aba
     P_aux.x = EspacioTrabajo_X1;
     P_aux.y = EspacioTrabajo_Y2;
-    P4 = TransformacionHomogenea(P_aux,Offset,phi[Npata]);//+ang_offset+req.alfa);
+    P4 = TransformacionHomogenea(P_aux,Offset,phi[Npata]+ang_offset);//+ang_offset+req.alfa);
 
 //-- Transformacion 2: a origen de cada pata
     //--Punto1

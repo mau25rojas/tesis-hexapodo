@@ -328,6 +328,12 @@ segmento3d::segmento3d(punto3d a, punto3d b) // Constructor con argumentos de la
     fin = b;
 }
 
+bool segmento3d::operator ==(segmento3d s)	//operador == comparacion entre dos segmentos
+{
+    if ((ini==s.ini) && (fin==s.fin)) return true;
+    return false;
+}
+
 float segmento3d::longitud()    //devuelve la longitud de un segmento de recta3d
 {
     vector3d v(fin-ini);    //creo un vector que va de 'ini' hasat 'fin'
