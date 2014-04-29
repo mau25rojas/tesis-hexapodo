@@ -1,0 +1,22 @@
+# Servicio para calculo de cinematica inversa
+# -->>Entra coordenadas cartesianas
+# <<--Salen posiciones de motores
+
+# Request
+int32 modo
+int32 Npata
+float32 x_S0
+float32 y_S0
+float32 z_S0
+float32 x_UbicacionRob
+float32 y_UbicacionRob
+float32 theta_Rob
+---
+# Response
+float32 x_Pata
+float32 y_Pata
+float32 z_Pata
+float32 x_Mundo
+float32 y_Mundo
+float32 z_Mundo
+
