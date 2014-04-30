@@ -3,19 +3,17 @@
 # <<--Salen posiciones de motores
 
 # Request
-int32 Tripode
 float32 T
 float32 lambda
-float32[] tripode
 float32 mod_velApoyo
 ---
 # Response
 int32 result
-float32 modificacion_T
+float32 modificacion_T_apoyo
 float32 modificacion_lambda
-float32[] correccion_y	#La correccion en y siempre es hacia -y
-float32[] correccion_x
-int32[] correccion_ID	#ID de la correccion_x: (-1)no hay corr;(0)corr_izq-> -x;(1)corr_der-> +x;
+float32 correccion_y	#La correccion en y siempre es hacia -y
+float32 correccion_x
+int32 correccion_ID	#ID de la correccion_x: (-1)no hay corr;(0)corr_izq-> -x;(1)corr_der-> +x;
 float32[] posicionActualSistemaPata_x
 float32[] posicionActualSistemaPata_y
 float32[] posicionActualSistemaPata_z
