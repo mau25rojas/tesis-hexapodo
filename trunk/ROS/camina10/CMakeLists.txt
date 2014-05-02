@@ -30,6 +30,7 @@ rosbuild_gensrv()
 #target_link_libraries(example ${PROJECT_NAME})
 
 rosbuild_add_executable(Nodo0_controlMovimientoRob src/Nodo0_controlMovimientoRob.cpp)
+rosbuild_add_library(Nodo1_datosTrayectoriaPata ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
 rosbuild_add_executable(Nodo1_datosTrayectoriaPata src/Nodo1_datosTrayectoriaPata.cpp)
 rosbuild_add_library(Nodo2_parametrizacion ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
 rosbuild_add_executable(Nodo2_parametrizacion src/Nodo2_parametrizacion.cpp)
@@ -48,8 +49,8 @@ rosbuild_add_executable(server_Cinversa src/server_Cinversa.cpp)
 rosbuild_add_library(server_EspacioTrabajo ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
 rosbuild_add_executable(server_EspacioTrabajo src/server_EspacioTrabajo.cpp)
 rosbuild_add_executable(server_TrayectoriaMundoPata src/server_TrayectoriaMundoPata.cpp)
-rosbuild_add_library(server_PlanificadorPisada ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
-rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp)
+#rosbuild_add_library(server_PlanificadorPisada ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
+#rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp)
 
 
 
