@@ -3,6 +3,9 @@
 
 uint8     iteracion
 
+#Periodo de un paso
+float32[]   T
+
 #delta de tiempo de trayectoria entre [0-1]
 float32[]   t_Trayectoria
 
@@ -20,6 +23,7 @@ float32[] lambda
 
 #Vector de estados: 0-apoyo, 1-transferencia
 uint8[] vector_estados
+uint8[] cambioEstado
 
 #Distancia en Z a recorrer en transferencia
 float32   dh
