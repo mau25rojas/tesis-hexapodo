@@ -214,6 +214,7 @@ punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punt
     t_aux = t_Trayectoria/T;
     teta = pi*t_aux;
     dL = (L/2)*cos(teta);
+//    if(Npata_arg==1) ROS_INFO("Pi.x=%.4f\t Pi.y=%.4f\t Pf.x=%.4f\t Pf.y=%.4f\t",PInicio.x,PInicio.y,PFin.x,PFin.y);
 
     salida.x = Po.x + dL*cos(gamma);
     salida.y = Po.y + dL*sin(gamma);

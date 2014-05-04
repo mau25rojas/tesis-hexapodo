@@ -23,7 +23,7 @@ float32[] lambda
 
 #Vector de estados: 0-apoyo, 1-transferencia
 uint8[] vector_estados
-uint8[] cambioEstado
+uint8[] cambio_estado
 
 #Distancia en Z a recorrer en transferencia
 float32   dh

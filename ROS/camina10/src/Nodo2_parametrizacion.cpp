@@ -63,7 +63,7 @@ void datosCallback(const camina10::DatosTrayectoriaPata msg_datoTrayectoria)
     alfa = msg_datoTrayectoria.alfa[Npata_arg-1];
 //    desfasaje_t = msg_datoTrayectoria.desfasaje_t[Npata_arg-1];
     Estado = msg_datoTrayectoria.vector_estados[Npata_arg-1];
-    cambioEstado = msg_datoTrayectoria.vector_estados[Npata_arg-1];
+    cambioEstado = msg_datoTrayectoria.cambio_estado[Npata_arg-1];
     correccion_x = msg_datoTrayectoria.correccion_x[Npata_arg-1];
     correccion_y = msg_datoTrayectoria.correccion_y[Npata_arg-1];
     correccion_ID = msg_datoTrayectoria.correccion_ID[Npata_arg-1];
@@ -120,7 +120,7 @@ void datosCallback(const camina10::DatosTrayectoriaPata msg_datoTrayectoria)
 //        return;
     }
 
-    fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",qMotor.q1,qMotor.q2,qMotor.q3,t_Trayectoria,P1.x,P1.y,P1.z);
+    fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1,qMotor.q2,qMotor.q3,t_Trayectoria,P1.x,P1.y,P1.z);
     //---Publica angulos motores----
     qMotor.Npata = Npata_arg;
 	chatter_pub.publish(qMotor);
@@ -210,6 +210,7 @@ punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punt
     t_aux = t_Trayectoria/T;
     teta = pi*t_aux;
     dL = (L/2)*cos(teta);
+//    if(Npata_arg==1) ROS_INFO("Pi.x=%.4f\t Pi.y=%.4f\t Pf.x=%.4f\t Pf.y=%.4f\t",PInicio.x,PInicio.y,PFin.x,PFin.y);
 
     salida.x = Po.x + dL*cos(gamma);
     salida.y = Po.y + dL*sin(gamma);

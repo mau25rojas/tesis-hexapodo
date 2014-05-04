@@ -235,12 +235,18 @@ int main(int argc,char* argv[])
             infoCuerpo=false;
             infoPatas=false;
 //            infoVel=false;
-            fprintf(fp1,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[0],ubicacionRobot.coordenadaPata_x[0],ubicacionRobot.coordenadaPata_y[0],ubicacionRobot.coordenadaPata_z[0]);
-            fprintf(fp2,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[1],ubicacionRobot.coordenadaPata_x[1],ubicacionRobot.coordenadaPata_y[1],ubicacionRobot.coordenadaPata_z[1]);
-            fprintf(fp3,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[2],ubicacionRobot.coordenadaPata_x[2],ubicacionRobot.coordenadaPata_y[2],ubicacionRobot.coordenadaPata_z[2]);
-            fprintf(fp4,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[3],ubicacionRobot.coordenadaPata_x[3],ubicacionRobot.coordenadaPata_y[3],ubicacionRobot.coordenadaPata_z[3]);
-            fprintf(fp5,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[4],ubicacionRobot.coordenadaPata_x[4],ubicacionRobot.coordenadaPata_y[4],ubicacionRobot.coordenadaPata_z[4]);
-            fprintf(fp6,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[5],ubicacionRobot.coordenadaPata_x[5],ubicacionRobot.coordenadaPata_y[5],ubicacionRobot.coordenadaPata_z[5]);
+//            fprintf(fp1,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[0],ubicacionRobot.coordenadaPata_x[0],ubicacionRobot.coordenadaPata_y[0],ubicacionRobot.coordenadaPata_z[0]);
+//            fprintf(fp2,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[1],ubicacionRobot.coordenadaPata_x[1],ubicacionRobot.coordenadaPata_y[1],ubicacionRobot.coordenadaPata_z[1]);
+//            fprintf(fp3,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[2],ubicacionRobot.coordenadaPata_x[2],ubicacionRobot.coordenadaPata_y[2],ubicacionRobot.coordenadaPata_z[2]);
+//            fprintf(fp4,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[3],ubicacionRobot.coordenadaPata_x[3],ubicacionRobot.coordenadaPata_y[3],ubicacionRobot.coordenadaPata_z[3]);
+//            fprintf(fp5,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[4],ubicacionRobot.coordenadaPata_x[4],ubicacionRobot.coordenadaPata_y[4],ubicacionRobot.coordenadaPata_z[4]);
+//            fprintf(fp6,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[5],ubicacionRobot.coordenadaPata_x[5],ubicacionRobot.coordenadaPata_y[5],ubicacionRobot.coordenadaPata_z[5]);
+            fprintf(fp1,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[0],ubicacionRobot.coordenadaPataSistemaPata_x[0],ubicacionRobot.coordenadaPataSistemaPata_y[0],ubicacionRobot.coordenadaPataSistemaPata_z[0]);
+            fprintf(fp2,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[1],ubicacionRobot.coordenadaPataSistemaPata_x[1],ubicacionRobot.coordenadaPataSistemaPata_y[1],ubicacionRobot.coordenadaPataSistemaPata_z[1]);
+            fprintf(fp3,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[2],ubicacionRobot.coordenadaPataSistemaPata_x[2],ubicacionRobot.coordenadaPataSistemaPata_y[2],ubicacionRobot.coordenadaPataSistemaPata_z[2]);
+            fprintf(fp4,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[3],ubicacionRobot.coordenadaPataSistemaPata_x[3],ubicacionRobot.coordenadaPataSistemaPata_y[3],ubicacionRobot.coordenadaPataSistemaPata_z[3]);
+            fprintf(fp5,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[4],ubicacionRobot.coordenadaPataSistemaPata_x[4],ubicacionRobot.coordenadaPataSistemaPata_y[4],ubicacionRobot.coordenadaPataSistemaPata_z[4]);
+            fprintf(fp6,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[5],ubicacionRobot.coordenadaPataSistemaPata_x[5],ubicacionRobot.coordenadaPataSistemaPata_y[5],ubicacionRobot.coordenadaPataSistemaPata_z[5]);
             chatter_pub.publish(ubicacionRobot);
         }
 	}
