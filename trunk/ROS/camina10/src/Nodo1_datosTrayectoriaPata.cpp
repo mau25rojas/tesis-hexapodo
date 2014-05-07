@@ -119,8 +119,10 @@ void relojCallback(camina10::SenalesCambios msgSenal)
                 llegada_FEDT = LlegadaFinEDT(k);
                 if(llegada_FEDT){
                     llegada_FEDT = false;
+                    ROS_INFO("------Inicia Transferencia pata[%d]",k);
                     datosTrayectoriaPata.cambio_estado[k]=1;
                     datosTrayectoriaPata.vector_estados[k]=1;
+                    contadores[k] = contadores[k] + 3*T[k]/divisionTrayectoriaPata[k];
                 }
 //                //-------------------------------
 //                if(cambio_a_Apoyo){
@@ -165,6 +167,13 @@ void relojCallback(camina10::SenalesCambios msgSenal)
 //                    datosTrayectoriaPata.lambda[k]=modificacion_lambda;
 //                }// Fin cambio de estado
 
+//                if (fabs(contadores[k]-beta*T[k])<(T[k]/divisionTrayectoriaPata[k])) {
+//                    ROS_INFO("Inicia Transferencia pata[%d]",k);
+////                    contadores[k] = beta*T[k];
+//                    datosTrayectoriaPata.cambio_estado[k]=1;
+//                    datosTrayectoriaPata.vector_estados[k]=1;
+//                }
+
                 if (datosTrayectoriaPata.vector_estados[k]==1) {
                     delta_t[k] = contadores[k]-T_apoyo[k];
                 } else {
@@ -178,6 +187,9 @@ void relojCallback(camina10::SenalesCambios msgSenal)
                 if (fabs(contadores[k]-T[k])<=(T[k]/divisionTrayectoriaPata[k])){
                     contadores[k] = contadores[k];
     //                ROS_INFO("Esperando apoyo, contadores=%.4f",contadores);
+                } else if(fabs(contadores[k]-beta*T[k])<(T[k]/divisionTrayectoriaPata[k])){
+                    contadores[k] = beta*T[k];
+                    ROS_INFO("espera transferencia pata[%d]",k);
                 } else {
                     contadores[k] = contadores[k] + T[k]/divisionTrayectoriaPata[k];
                 }
@@ -323,18 +335,24 @@ bool CambioDeEstado_Transf(int nPata){
 
 bool LlegadaFinEDT(int nPata){
 
-    punto3d P0, P1;
+    bool cambio = false; punto3d P0, P1;
 
     P0.x = Offset.y-FinEspacioTrabajo_y;
     //-----Transformacion de trayectoria a Sistema de Pata
     P1 = TransformacionHomogenea(P0,Offset,phi[nPata]+alfa);
-    if(nPata==2) ROS_INFO("Pata.y=%.4f\tfinEDT.y=%.4f",posicionActualPataSistemaPata[nPata].y,P1.y);
-
-    if(fabs(posicionActualPataSistemaPata[nPata].y-P1.y)<=0.0015){
-        return (true);
+    if(nPata==5) ROS_INFO("Pata.y=%.4f\tfinEDT.y=%.4f",posicionActualPataSistemaPata[nPata].y,P1.y);
+    if (fabs(posicionActualPataSistemaPata[nPata].y-P1.y)<0.0015 and FinTransf[nPata]) {
+        InicioTransf[nPata]=true;
+        FinTransf[nPata]=false;
     }
-
-    return (false);
+    if (pataApoyo[nPata]==0) {
+        FinTransf[nPata]=true;
+    }
+    if (InicioTransf[nPata]){
+        InicioTransf[nPata] = false;
+        cambio = true;
+    }
+    return cambio;
 }
 
 /* Toma de muestras de tiempo y posicion para calculo de velocidad
