@@ -11,7 +11,7 @@ bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
 float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0;
-float origenPata_x[6], origenPata_y[6], rotacionPata[6];
+float origenPata_x[Npatas], origenPata_y[Npatas], rotacionPata[Npatas];
 
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 {
@@ -28,6 +28,8 @@ bool TrayectoriaMundoPata(camina10::TransTrayectoriaParametros::Request  &req,
 {
     float x_Robot=0.0,y_Robot=0.0;
 
+
+//---NOTA: LA TRANSFORMACION SOBRE Z NO SE REALIZA
     switch (req.modo){
         case Pata_Mundo:
         //--Primera transformacion: Sistema ROBOT en el Sistema MUNDO
