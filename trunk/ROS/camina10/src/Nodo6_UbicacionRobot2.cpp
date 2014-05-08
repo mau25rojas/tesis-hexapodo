@@ -52,6 +52,7 @@ void ubicacionCallback(const vrep_common::ObjectGroupData msgUbicacionPatas)
         ubicacionRobot.coordenadaPata_z[k-1]=msgUbicacionPatas.floatData.data[2+k*Npatas/2];
 
     //-- Transformacion de trayectoria a Sistema de Pata
+    //-- NOTA: la trasnsformacion sobre Z no se realiza
         srv_Trans_MundoPata.request.modo=Mundo_Pata;
         srv_Trans_MundoPata.request.Npata=k-1;
         srv_Trans_MundoPata.request.x_S0=ubicacionRobot.coordenadaPata_x[k-1];
