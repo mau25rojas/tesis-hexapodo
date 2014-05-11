@@ -80,8 +80,8 @@ Lynxmotion:
 #define T1 1
 #define T2 2
 //Estados
-#define Apoyo 0
-#define Transferencia 1
+#define Apoyo 1
+#define Transferencia 0
 //Correccion
 #define Correccion_menosX 0
 #define Correccion_masX	1
