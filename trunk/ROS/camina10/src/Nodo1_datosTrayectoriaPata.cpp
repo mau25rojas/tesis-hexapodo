@@ -39,11 +39,13 @@ camina10::DatosTrayectoriaPata datosTrayectoriaPata;
 ros::Publisher chatter_pub1,chatter_pub2;
 
 // Funciones
+void Inizializacion();
 bool CambioDeEstado_Apoyo(int nPata);
 bool CambioDeEstado_Transf(int nPata);
+int VerificacionEstadoPata(int nPata, int estadoActual);
+bool LlegadaFinEDT(int nPata);
 void ParametrosVelocidad();
 float VelocidadCuerpo(boost::posix_time::ptime t1, boost::posix_time::ptime t2, punto3d Pos1, punto3d Pos2);
-bool LlegadaFinEDT(int nPata);
 punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 
 // Topic subscriber callbacks:
@@ -72,154 +74,50 @@ void relojCallback(camina10::SenalesCambios msgSenal)
 
     if (!msgSenal.Stop){
 
-    for(int k=0;k<Npatas;k++) {
-        llegada_FEDT = LlegadaFinEDT(k);
-        if(llegada_FEDT){
-            llegada_FEDT = false;
-//            datosTrayectoriaPata.cambio_estado[k]=1;
-//            datosTrayectoriaPata.vector_estados[k]=1;
-//            contadores[k] = contadores[k] + T[k]/divisionTrayectoriaPata[k];
-        }
-    }
-
-
         ParametrosVelocidad();
+
         if (Inicio){
-            cuenta++;
-            if (cuenta==PasosIni*divisionTrayectoriaPata_ini){
-                Inicio=false;
-            } else {
-
-                for(int k=0;k<Npatas;k++) {
-                    datosTrayectoriaPata.t_Trayectoria[k]=delta_t[k];
-                    datosTrayectoriaPata.T[k]=T_transf[k];
-                }
-                chatter_pub1.publish(datosTrayectoriaPata);
-
-                for(int k=0;k<Npatas;k++){
-                    datosTrayectoriaPata.cambio_estado[k]=0;
-                    fprintf(fp1,"%.3f\t",delta_t[k]);
-
-                    contadores[k] = contadores[k] + T[k]/divisionTrayectoriaPata[k];
-
-                    if (contadores[k]>=beta*T[k]) {
-                        delta_t[k] = contadores[k]-T_apoyo[k];
-                        datosTrayectoriaPata.vector_estados[k]=1;
-                    } else {
-                        delta_t[k] = contadores[k];
-                        datosTrayectoriaPata.vector_estados[k]=0;
-                    }
-                    if (fabs(contadores[k]-T[k])<=(T[k]/divisionTrayectoriaPata[k])){
-                        contadores[k] = 0.0;
-                    }
-                }
-                fprintf(fp1,"\n");
-            }
+            Inizializacion();
         } else {
+            chatter_pub1.publish(datosTrayectoriaPata);
+
             for(int k=0;k<Npatas;k++){
                 datosTrayectoriaPata.cambio_estado[k]=0;
-            //-- Hay llamada al planificador?
-//                cambio_a_Apoyo = CambioDeEstado_Apoyo(k);
-//                if(cambio_a_Apoyo){
-//                    cambio_a_Apoyo = false;
-//                //-- reinicio cuenta para iniciar apoyo
-//                    contadores[k] = 0.0;
-//                    datosTrayectoriaPata.cambio_estado[k]=1;
-//                    datosTrayectoriaPata.vector_estados[k]=0;
-//                }
-//                llegada_FEDT = LlegadaFinEDT(k);
-//                if(llegada_FEDT){
-//                    llegada_FEDT = false;
-//                    ROS_INFO("------Inicia Transferencia pata[%d]",k);
-//                    datosTrayectoriaPata.cambio_estado[k]=1;
-//                    datosTrayectoriaPata.vector_estados[k]=1;
-//                    contadores[k] = contadores[k] + 3*T[k]/divisionTrayectoriaPata[k];
-//                }
-//                //-------------------------------
-//                if(cambio_a_Apoyo){
-//                    cambio_a_Apoyo = false;
-//                //-- reinicio cuenta para iniciar apoyo
-//                    contadores[k] = 0.0;
-//                    datosTrayectoriaPata.correccion_ID[k]=-1;
-//                    datosTrayectoriaPata.correccion_x[k]=0.0;
-//                    datosTrayectoriaPata.correccion_y[k]=0.0;
-//                    mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
-//
-//                    srv_Planificador.request.T = T[k];
-//                    srv_Planificador.request.lambda = lambda;
-//                    srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
-//                    if (client_Planificador.call(srv_Planificador)){
-//                        modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-//                        modificacion_T_apoyo = srv_Planificador.response.modificacion_T_apoyo;
-//                        datosTrayectoriaPata.correccion_ID[k] = srv_Planificador.response.correccion_ID;
-//                        datosTrayectoriaPata.correccion_x[k] = srv_Planificador.response.correccion_x;
-//                        datosTrayectoriaPata.correccion_y[k] = srv_Planificador.response.correccion_y;
-//                        ROS_INFO("Nodo1::t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",simulationTime,modificacion_lambda,modificacion_T_apoyo);
-//                    } else {
-//                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
-//                        ROS_ERROR("result=%d", srv_Planificador.response.result);
-//                    }
-//
-////                /////////////////////PRUEBAS///////////////////////////////////
-////                for(int k=0;k<Npatas;k++) {
-////                    datosTrayectoriaPata.correccion_ID[k]=-1;
-////                    datosTrayectoriaPata.correccion_x[k]=0;
-////                    datosTrayectoriaPata.correccion_y[k]=0;
-////                }
-////                ///////////////////////////////////////////////////////////////
-////                datosTrayectoriaPata.correccion_ID[2]=1;
-////                datosTrayectoriaPata.correccion_x[2]=0.01;
-////                datosTrayectoriaPata.correccion_y[2]=0.01;
-//
-//
-//                    T_apoyo[k] = modificacion_T_apoyo;
-//                    T[k] = T_apoyo[k]/beta;
-//                    divisionTrayectoriaPata[k] = T[k]/divisionTiempo;
-//                    datosTrayectoriaPata.lambda[k]=modificacion_lambda;
-//                }// Fin cambio de estado
 
-//                if (fabs(contadores[k]-beta*T[k])<(T[k]/divisionTrayectoriaPata[k])) {
-//                    ROS_INFO("Inicia Transferencia pata[%d]",k);
-////                    contadores[k] = beta*T[k];
-//                    datosTrayectoriaPata.cambio_estado[k]=1;
-//                    datosTrayectoriaPata.vector_estados[k]=1;
-//                }
+                //-- Verificacion por posicion actual de pata recibida
+                //-- Seleccion de estado proximo de la pata
+                //-- si hay cambio de estado se activa la bandera correspondiente
+                datosTrayectoriaPata.vector_estados[k]=VerificacionEstadoPata(k,datosTrayectoriaPata.vector_estados[k]);
 
-                if (contadores[k]>=beta*T[k]) {
-                    delta_t[k] = contadores[k]-T_apoyo[k];
-                    datosTrayectoriaPata.vector_estados[k]=1;
-                } else {
-                    delta_t[k] = contadores[k];
-                    datosTrayectoriaPata.vector_estados[k]=0;
-                }
 
-//                if (datosTrayectoriaPata.vector_estados[k]==1) {
+//                if (contadores[k]>=beta*T[k]) {
 //                    delta_t[k] = contadores[k]-T_apoyo[k];
+//                    datosTrayectoriaPata.vector_estados[k]=1;
 //                } else {
 //                    delta_t[k] = contadores[k];
-//                }
-
-                datosTrayectoriaPata.T[k]=T_transf[k];
-                datosTrayectoriaPata.t_Trayectoria[k]=delta_t[k];
-//               if(k==5) ROS_INFO("Pata[%d] contador=%.4f",k,contadores[k]);
-
-                if (fabs(contadores[k]-T[k])<(T[k]/divisionTrayectoriaPata[k])){
-                    contadores[k] = 0.0;
-//                    datosTrayectoriaPata.cambio_estado[k]=1;
 //                    datosTrayectoriaPata.vector_estados[k]=0;
+//                }
+                if (datosTrayectoriaPata.cambio_estado[k]==1) contadores[k]=0.0;
+
+                if (datosTrayectoriaPata.vector_estados[k]==1) {
+//                    delta_t[k] = contadores[k]-T_apoyo[k];
+                    T_contador[k]=T_transf[k];
+                } else {
+//                    delta_t[k] = contadores[k];
+                    T_contador[k]=T_apoyo[k];
                 }
 
-//                if(fabs(contadores[k]-beta*T[k])<(T[k]/divisionTrayectoriaPata[k])){
-////                    contadores[k] = beta*T[k] + T[k]/divisionTrayectoriaPata[k];
-////                    ROS_INFO("espera transferencia pata[%d], cont[%.4f]",k,contadores[k]);
-//                    datosTrayectoriaPata.vector_estados[k]=1;
-//                }
+                if (fabs(contadores[k]-T_contador[k])<(T_contador[k]/divisionTrayectoriaPata[k])){
+                    contadores[k] = contadores[k];
+                } else {
+                    contadores[k] = contadores[k] + T_contador[k]/divisionTrayectoriaPata[k];
+                }
 
-                contadores[k] = contadores[k] + T[k]/divisionTrayectoriaPata[k];
-
+                datosTrayectoriaPata.T[k]=T_transf[k];
+                datosTrayectoriaPata.t_Trayectoria[k]=contadores[k];
             }// fin del for
-                chatter_pub1.publish(datosTrayectoriaPata);
-        }
+
+        }//-- Checkea por inicio
     }//-- fin is !Stop
 } //-- fin de callback
 
@@ -326,6 +224,43 @@ int main(int argc, char **argv)
 
 /* Funciones */
 
+void Inizializacion(){
+
+    cuenta++;
+    if (cuenta==PasosIni*divisionTrayectoriaPata_ini){
+        Inicio=false;
+    } else {
+
+        for(int k=0;k<Npatas;k++) {
+            datosTrayectoriaPata.t_Trayectoria[k]=delta_t[k];
+            datosTrayectoriaPata.T[k]=T_transf[k];
+        }
+        chatter_pub1.publish(datosTrayectoriaPata);
+
+        for(int k=0;k<Npatas;k++){
+            datosTrayectoriaPata.cambio_estado[k]=0;
+            fprintf(fp1,"%.3f\t",delta_t[k]);
+
+            contadores[k] = contadores[k] + T[k]/divisionTrayectoriaPata[k];
+
+            if (contadores[k]>=beta*T[k]) {
+                delta_t[k] = contadores[k]-T_apoyo[k];
+                datosTrayectoriaPata.vector_estados[k]=1;
+            } else {
+                delta_t[k] = contadores[k];
+                datosTrayectoriaPata.vector_estados[k]=0;
+            }
+            if (fabs(contadores[k]-T[k])<=(T[k]/divisionTrayectoriaPata[k])){
+                contadores[k] = 0.0;
+            }
+            CambioDeEstado_Apoyo(k);
+            LlegadaFinEDT(k);
+        }
+        fprintf(fp1,"\n");
+    }
+}
+
+
 bool CambioDeEstado_Apoyo(int nPata){
     bool cambio = false;
 //--- Apoyo de Pata
@@ -371,19 +306,19 @@ bool LlegadaFinEDT(int nPata){
     //-----Transformacion de trayectoria a Sistema de Pata
     Fin_EDT = TransformacionHomogenea(P0,Offset,phi[nPata]+alfa);
 
-    if(nPata==n) ROS_WARN("pata.y=%.4f,finEDT.y=%.4f",nPata,posicionActualPataSistemaPata[nPata].y,Fin_EDT.y);
-    if (fabs(posicionActualPataSistemaPata[nPata].y-Fin_EDT.y)<=0.002 and FinTransf[nPata]) {
+//    if(nPata==n) ROS_WARN("pata.y=%.4f,finEDT.y=%.4f",posicionActualPataSistemaPata[nPata].y,Fin_EDT.y);
+    if (fabs(posicionActualPataSistemaPata[nPata].y-Fin_EDT.y)<=0.005 and FinTransf[nPata]) {
         InicioTransf[nPata]=true;
         FinTransf[nPata]=false;
         mediaTransf[nPata]=true;
-        if(nPata==n) ROS_WARN("------Inicia Transferencia pata");
     }
 
-    if(nPata==n) ROS_WARN("Pata.z=%.4f",posicionActualPataSistemaPata[nPata].z);
+//    if(nPata==n) ROS_WARN("Pata.z=%.4f",posicionActualPataSistemaPata[nPata].z);
     if (posicionActualPataSistemaPata[nPata].z>=(dh-0.002) and mediaTransf[nPata]) {
         FinTransf[nPata]=true;
         mediaTransf[nPata]=false;
-        if(nPata==n) ROS_WARN("------Pata arriba");
+//        if(nPata==n)
+        ROS_WARN("------Pata[%d] arriba",nPata+1);
     }
     if (InicioTransf[nPata]){
         InicioTransf[nPata] = false;
@@ -435,3 +370,94 @@ punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float an
 
     return(Punto_out);
 }
+
+//-- Verificacion por posicion actual de pata recibida
+int VerificacionEstadoPata(int nPata, int estadoActual){
+    bool cambio_a_Apoyo=false,llegada_FEDT=false;
+    int estadoSiguiente;
+    estadoSiguiente=estadoActual;
+
+    cambio_a_Apoyo = CambioDeEstado_Apoyo(nPata);
+    if(cambio_a_Apoyo){
+        cambio_a_Apoyo = false;
+        estadoSiguiente = 1;
+        datosTrayectoriaPata.cambio_estado[nPata]=1;
+        ROS_WARN("****Inicia Apoyo pata[%d]",nPata+1);
+    }
+    llegada_FEDT = LlegadaFinEDT(nPata);
+    if(llegada_FEDT){
+        llegada_FEDT = false;
+        estadoSiguiente = 0;
+        datosTrayectoriaPata.cambio_estado[nPata]=1;
+        ROS_WARN("------Inicia Transferencia pata[%d]",nPata+1);
+    }
+
+    return(estadoSiguiente);
+}
+
+            //-- Hay llamada al planificador?
+//                cambio_a_Apoyo = CambioDeEstado_Apoyo(k);
+//                if(cambio_a_Apoyo){
+//                    cambio_a_Apoyo = false;
+//                //-- reinicio cuenta para iniciar apoyo
+//                    contadores[k] = 0.0;
+//                    datosTrayectoriaPata.cambio_estado[k]=1;
+//                    datosTrayectoriaPata.vector_estados[k]=0;
+//                }
+//                llegada_FEDT = LlegadaFinEDT(k);
+//                if(llegada_FEDT){
+//                    llegada_FEDT = false;
+//                    ROS_INFO("------Inicia Transferencia pata[%d]",k);
+//                    datosTrayectoriaPata.cambio_estado[k]=1;
+//                    datosTrayectoriaPata.vector_estados[k]=1;
+//                    contadores[k] = contadores[k] + 3*T[k]/divisionTrayectoriaPata[k];
+//                }
+//                //-------------------------------
+//                if(cambio_a_Apoyo){
+//                    cambio_a_Apoyo = false;
+//                //-- reinicio cuenta para iniciar apoyo
+//                    contadores[k] = 0.0;
+//                    datosTrayectoriaPata.correccion_ID[k]=-1;
+//                    datosTrayectoriaPata.correccion_x[k]=0.0;
+//                    datosTrayectoriaPata.correccion_y[k]=0.0;
+//                    mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
+//
+//                    srv_Planificador.request.T = T[k];
+//                    srv_Planificador.request.lambda = lambda;
+//                    srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
+//                    if (client_Planificador.call(srv_Planificador)){
+//                        modificacion_lambda = srv_Planificador.response.modificacion_lambda;
+//                        modificacion_T_apoyo = srv_Planificador.response.modificacion_T_apoyo;
+//                        datosTrayectoriaPata.correccion_ID[k] = srv_Planificador.response.correccion_ID;
+//                        datosTrayectoriaPata.correccion_x[k] = srv_Planificador.response.correccion_x;
+//                        datosTrayectoriaPata.correccion_y[k] = srv_Planificador.response.correccion_y;
+//                        ROS_INFO("Nodo1::t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",simulationTime,modificacion_lambda,modificacion_T_apoyo);
+//                    } else {
+//                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
+//                        ROS_ERROR("result=%d", srv_Planificador.response.result);
+//                    }
+//
+////                /////////////////////PRUEBAS///////////////////////////////////
+////                for(int k=0;k<Npatas;k++) {
+////                    datosTrayectoriaPata.correccion_ID[k]=-1;
+////                    datosTrayectoriaPata.correccion_x[k]=0;
+////                    datosTrayectoriaPata.correccion_y[k]=0;
+////                }
+////                ///////////////////////////////////////////////////////////////
+////                datosTrayectoriaPata.correccion_ID[2]=1;
+////                datosTrayectoriaPata.correccion_x[2]=0.01;
+////                datosTrayectoriaPata.correccion_y[2]=0.01;
+//
+//
+//                    T_apoyo[k] = modificacion_T_apoyo;
+//                    T[k] = T_apoyo[k]/beta;
+//                    divisionTrayectoriaPata[k] = T[k]/divisionTiempo;
+//                    datosTrayectoriaPata.lambda[k]=modificacion_lambda;
+//                }// Fin cambio de estado
+
+//                if (fabs(contadores[k]-beta*T[k])<(T[k]/divisionTrayectoriaPata[k])) {
+//                    ROS_INFO("Inicia Transferencia pata[%d]",k);
+////                    contadores[k] = beta*T[k];
+//                    datosTrayectoriaPata.cambio_estado[k]=1;
+//                    datosTrayectoriaPata.vector_estados[k]=1;
+//                }
