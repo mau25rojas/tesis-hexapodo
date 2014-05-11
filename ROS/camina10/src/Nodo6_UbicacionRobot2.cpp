@@ -116,14 +116,14 @@ int main(int argc,char* argv[])
 	std::string dummys,cuerpo, vel, fuerza;
     boost::circular_buffer<float> ventana_vel(tamano_ventana);
 
-	Narg=4;
+	Narg=3;
 
 	if (argc>=Narg)
 	{
 	    dummys = argv[1];
 	    cuerpo = argv[2];
 	    vel = argv[3];
-	    fuerza = argv[4];
+//	    fuerza = argv[4];
 //	    printf("%s\n",dummys_topicName.c_str());
 	} else {
 		ROS_ERROR("Nodo6:Indique argumentos completos!\n");
@@ -133,11 +133,11 @@ int main(int argc,char* argv[])
 	std::string topicDummy("/vrep/");
 	std::string topicCuerpo("/vrep/");
 	std::string topicVelCuerpo("/vrep/");
-	std::string topicFuerza("/vrep/");
+//	std::string topicFuerza("/vrep/");
 	topicDummy+=dummys;
 	topicCuerpo+=cuerpo;
 	topicVelCuerpo+=vel;
-	topicFuerza+=fuerza;
+//	topicFuerza+=fuerza;
 //-- Inicializacion de variables del mensaje
     for (int k=0;k<Npatas;k++) {
         ubicacionRobot.coordenadaPata_x.push_back(0);
@@ -163,7 +163,7 @@ int main(int argc,char* argv[])
     ros::Subscriber subInfo1=node.subscribe(topicDummy,100,ubicacionCallback);
     ros::Subscriber subInfo2=node.subscribe(topicCuerpo,100,ubicacionCuerpoCallback);
     ros::Subscriber subInfo3=node.subscribe(topicVelCuerpo,100,velocidadCuerpoCallback);
-    ros::Subscriber subInfo4=node.subscribe(topicFuerza,100,fuerzaCallback);
+//    ros::Subscriber subInfo4=node.subscribe(topicFuerza,100,fuerzaCallback);
     ros::Publisher chatter_pub = node.advertise<camina10::UbicacionRobot>("UbicacionRobot", 100);
     client_Trans_MundoPata = node.serviceClient<camina10::TransTrayectoriaParametros>("TrayectoriaMundoPata");
 
