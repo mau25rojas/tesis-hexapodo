@@ -1,0 +1,14 @@
+<package>
+  <description brief="camina11">
+
+     camina11
+
+  </description>
+  <author>Maureen Rojas</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/camina11</url>
+
+</package>
+
+
