@@ -42,7 +42,7 @@ void motoresCallback(const camina10::AngulosMotor qMotor)
     srv_SetJointStates.request.values[qMotor.Npata*3-3+2] = q[2];
     //ROS_INFO("4-Angulos q1q2q3:[Npata=%d, ite=%d, q1= %.3f, q2= %.3f, q3= %.3f]", qMotor.Npata, qMotor.iteracion, q[0]*180.0/pi,q[1]*180.0/pi,q[2]*180.0/pi);
 
-    if(qMotor.Npata==6)
+    if(qMotor.Npata==1)
     //Al recibir pata # manda todos los mensajes
     {
         if (client_SetJointStates.call(srv_SetJointStates)&&(srv_SetJointStates.response.result!=-1))

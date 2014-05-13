@@ -30,7 +30,7 @@ float divisionTrayectoriaPata[Npatas], divisionTiempo=0.0, desfasaje_t[Npatas], 
 float T[Npatas], T_contador[Npatas], T_apoyo[Npatas],T_transf[Npatas], contadores[Npatas],delta_t[Npatas], modificacion_T_apoyo = 0.0, modificacion_lambda =0.0;
 float xCuerpo_1=0.0, xCuerpo_2=0.0, yCuerpo_1=0.0, yCuerpo_2=0.0, mod_velocidadCuerpo=0.0;
 int pataApoyo[Npatas],divisionTrayectoriaPata_ini;
-int cuenta=0, PasosIni=0, PataPrint=2;
+int cuenta=0, PasosIni=0, PataPrint=0;
 FILE *fp1;
 punto3d coordenadaCuerpo, velocidadCuerpo, posicionActualPataSistemaPata[Npatas],posCuerpo_1, posCuerpo_2;
 punto3d Offset;
@@ -243,6 +243,7 @@ void Inizializacion(){
             fprintf(fp1,"%.3f\t",delta_t[k]);
 
             contadores[k] = contadores[k] + T[k]/divisionTrayectoriaPata[k];
+            if(k==0) ROS_INFO("cuenta=%.3f",contadores[k]);
 
             if (contadores[k]>=beta*T[k]) {
                 delta_t[k] = contadores[k]-T_apoyo[k];
@@ -425,7 +426,7 @@ bool LlegadaFinEDT(int nPata){
     //-----Transformacion de trayectoria a Sistema de Pata
     Fin_EDT = TransformacionHomogenea(P0,Offset,phi[nPata]+alfa);
 
-//    if(nPata==n) ROS_WARN("pata.y=%.4f,finEDT.y=%.4f",posicionActualPataSistemaPata[nPata].y,Fin_EDT.y);
+    if(nPata==PataPrint) ROS_WARN("pata.y=%.4f,finEDT.y=%.4f",posicionActualPataSistemaPata[nPata].y,Fin_EDT.y);
     if (fabs(posicionActualPataSistemaPata[nPata].y-Fin_EDT.y)<=0.005 and FinTransf[nPata]) {
         InicioTransf[nPata]=true;
         FinTransf[nPata]=false;
@@ -433,11 +434,13 @@ bool LlegadaFinEDT(int nPata){
 //    if(nPata==n) ROS_WARN("Pata.z=%.4f",posicionActualPataSistemaPata[nPata].z);
     if (fabs(contadores[nPata]-T_apoyo[nPata])<(T[nPata]/divisionTrayectoriaPata[nPata])) {
         FinTransf[nPata]=true;
-        if(nPata==PataPrint) ROS_WARN("------Pata[%d] preTransferencia",nPata+1);
+//        if(nPata==PataPrint) ROS_WARN("------Pata[%d] preTransferencia",nPata+1);
     }
     if (InicioTransf[nPata]){
         InicioTransf[nPata] = false;
         cambio = true;
+        if(nPata==PataPrint) ROS_WARN("------Pata[%d] Transferencia",nPata+1);
+
     }
     return cambio;
 }

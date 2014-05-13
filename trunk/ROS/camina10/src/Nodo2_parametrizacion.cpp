@@ -11,7 +11,6 @@
 #include "camina10/DatosTrayectoriaPata.h"
 #include "camina10/AngulosMotor.h"
 #include "camina10/CinversaParametros.h"
-#include "camina10/TransHomogeneaParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 //Definiciones
@@ -19,8 +18,6 @@
 //Clientes y Servicios
 ros::ServiceClient client_Cinversa;
 camina10::CinversaParametros srv_Cinversa;
-ros::ServiceClient client_TransHomogenea;
-camina10::TransHomogeneaParametros srv_TransHomogenea;
 
 //-- Global variables (modified by topic subscribers):
 bool simulationRunning=true;
@@ -160,7 +157,6 @@ int main(int argc, char **argv){
     ros::Subscriber sub = node.subscribe("datosTrayectoria", 100, datosCallback);
 //-- Clientes y Servicios
     client_Cinversa = node.serviceClient<camina10::CinversaParametros>("Cinversa");
-    client_TransHomogenea = node.serviceClient<camina10::TransHomogeneaParametros>("TransHomogenea");
 
     std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/QXEnviada_Pata");
     std::string texto(".txt");
