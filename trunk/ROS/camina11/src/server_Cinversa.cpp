@@ -1,9 +1,9 @@
 #include "ros/ros.h"
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina10/v_repConst.h"
+#include "camina11/v_repConst.h"
 // Used data structures:
-#include "camina10/CinversaParametros.h"
+#include "camina11/CinversaParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Global variables (modified by topic subscribers):
@@ -24,8 +24,8 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
   ..Se calcula la cinematica inversa a estas coordenadas transformadas
 */
 
-bool CinematicaInversa(camina10::CinversaParametros::Request  &req,
-                        camina10::CinversaParametros::Response &res)
+bool CinematicaInversa(camina11::CinversaParametros::Request  &req,
+                        camina11::CinversaParametros::Response &res)
 {   float x=0.0, y=0.0, z=0.0;
     float L23=0.0, L23_aux=0.0, beta=0.0, teta=0.0, gamma1=0.0, arg=0;
     res.result = 0;

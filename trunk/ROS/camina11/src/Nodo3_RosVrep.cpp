@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <ros/ros.h>
 //Librerias propias usadas
-#include "constantes.hpp"
-#include "camina10/v_repConst.h"
+#include "camina11/constantes.hpp"
+#include "camina11/v_repConst.h"
 // Used data structures:
 #include <std_msgs/Float64.h>
 #include <sensor_msgs/JointState.h>
-#include "camina10/AngulosMotor.h"
+#include "camina11/AngulosMotor.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/JointSetStateData.h"
@@ -19,7 +19,7 @@ bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
 sensor_msgs::JointState patasMotores;
-float q[3] = {0.0,0.0,0.0};	//Angulos de motores q1, q2, q3
+float q[Neslabones] = {0.0,0.0,0.0};	//Angulos de motores q1, q2, q3
 
 ros::ServiceClient client_SetJointStates;
 vrep_common::simRosSetJointState srv_SetJointStates; //Servicio para setear los joints de vrep
@@ -31,26 +31,19 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void motoresCallback(const camina10::AngulosMotor qMotor)
+void motoresCallback(const camina11::AngulosMotor qMotor)
 {
-    q[0]=qMotor.q1;
-    q[1]=qMotor.q2;
-    q[2]=qMotor.q3;
-
-    srv_SetJointStates.request.values[qMotor.Npata*3-3+0] = q[0];
-    srv_SetJointStates.request.values[qMotor.Npata*3-3+1] = q[1];
-    srv_SetJointStates.request.values[qMotor.Npata*3-3+2] = q[2];
-    //ROS_INFO("4-Angulos q1q2q3:[Npata=%d, ite=%d, q1= %.3f, q2= %.3f, q3= %.3f]", qMotor.Npata, qMotor.iteracion, q[0]*180.0/pi,q[1]*180.0/pi,q[2]*180.0/pi);
-
-    if(qMotor.Npata==1)
-    //Al recibir pata # manda todos los mensajes
+    for(int k=0;k<Npatas;k++){
+        srv_SetJointStates.request.values[k*3-3+0] = qMotor.q1[k];
+        srv_SetJointStates.request.values[k*3-3+1] = qMotor.q2[k];
+        srv_SetJointStates.request.values[k*3-3+2] = qMotor.q3[k];
+        //ROS_INFO("4-Angulos q1q2q3:[Npata=%d, ite=%d, q1= %.3f, q2= %.3f, q3= %.3f]", qMotor.Npata, qMotor.iteracion, q[0]*180.0/pi,q[1]*180.0/pi,q[2]*180.0/pi);
+    }
+    if (client_SetJointStates.call(srv_SetJointStates)&&(srv_SetJointStates.response.result!=-1))
     {
-        if (client_SetJointStates.call(srv_SetJointStates)&&(srv_SetJointStates.response.result!=-1))
-        {
-               //printf("motoresCallback funciona\n");
-        } else{
-               ROS_ERROR("Nodo 3: servicio setjoints no funciona\n");
-        }
+           //printf("motoresCallback funciona\n");
+    } else{
+           ROS_ERROR("Nodo 3: servicio setjoints no funciona\n");
     }
 }
 // Main code:

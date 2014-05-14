@@ -24,6 +24,10 @@
 //#include "vector3d.cpp"
 //#include "convexhull.hpp"
 #include "analisis.hpp"
+#include <math.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 punto3d rot_punto_ea(vector3d eje, float angulo, punto3d p)
 {

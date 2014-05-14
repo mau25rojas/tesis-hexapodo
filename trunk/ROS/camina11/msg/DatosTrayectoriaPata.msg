@@ -37,7 +37,7 @@ float32   z_Offset
 float32[] phi
 
 #Angulo de giro de trayectoria
-float32[]   alfa
+float32   alfa
 
 #Bandera de cambio en trayectoria
 bool      cambioTrayectoria
