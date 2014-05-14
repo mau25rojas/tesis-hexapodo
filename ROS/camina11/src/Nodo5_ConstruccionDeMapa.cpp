@@ -8,15 +8,13 @@
 #include <allegro.h>
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina10/v_repConst.h"
-#include "../../Convexhull/vector3d.hpp"
-#include "../../Convexhull/convexhull.cpp"
-#include "../../Convexhull/analisis.cpp"
+#include "camina11/v_repConst.h"
+#include "camina11/vector3d.hpp"
 // Used data structures:
 #include "std_msgs/String.h"
-#include "camina10/InfoMapa.h"
-#include "camina10/UbicacionRobot.h"
-#include "camina10/EspacioTrabajoParametros.h"
+#include "camina11/InfoMapa.h"
+#include "camina11/UbicacionRobot.h"
+#include "camina11/EspacioTrabajoParametros.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/simRosEnableSubscriber.h"
@@ -25,14 +23,14 @@
 #define VentanaX 640
 //Clientes y Servicios
 ros::ServiceClient client_EspacioTrabajo;
-camina10::EspacioTrabajoParametros srv_EspacioTrabajo;
+camina11::EspacioTrabajoParametros srv_EspacioTrabajo;
 
 // Global variables (modified by topic subscribers):
 bool simulationRunning=true;
 bool sensorTrigger=false;
 float simulationTime=0.0f;
 //-- Mapa
-camina10::InfoMapa infoMapa;
+camina11::InfoMapa infoMapa;
 bool bool_matrizMapa[100][20];
 int cuentaPasos=0, matrizMapa[100][20];
 int cantidadObstaculos=0, nCeldas_i=0, nCeldas_j=0;
@@ -74,7 +72,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 	simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void ubicacionRobCallback(camina10::UbicacionRobot msgUbicacionRobot)
+void ubicacionRobCallback(camina11::UbicacionRobot msgUbicacionRobot)
 {
 //    srv_EspacioTrabajo.request.PosicionCuerpo_y = msgUbicacionRobot.coordenadaCuerpo_y;
 //    srv_EspacioTrabajo.request.PosicionCuerpo_x = msgUbicacionRobot.coordenadaCuerpo_x;
@@ -101,7 +99,7 @@ void ubicacionRobCallback(camina10::UbicacionRobot msgUbicacionRobot)
 //    }
 }
 
-void ajusteCallback(camina10::InfoMapa msgInfoMapa)
+void ajusteCallback(camina11::InfoMapa msgInfoMapa)
 {
     cuentaPasos++;
 	for(int k=0; k<Npatas; k++){
@@ -191,9 +189,9 @@ int main(int argc, char **argv)
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber subInfo2=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
     ros::Subscriber subInfo3=node.subscribe("Plan",100,ajusteCallback);
-    chatter_pub = node.advertise<camina10::InfoMapa>("GraficaMapa", 100);
+    chatter_pub = node.advertise<camina11::InfoMapa>("GraficaMapa", 100);
     //Clientes y Servicios
-//    client_EspacioTrabajo=node.serviceClient<camina10::EspacioTrabajoParametros>("EspacioTrabajo");
+//    client_EspacioTrabajo=node.serviceClient<camina11::EspacioTrabajoParametros>("EspacioTrabajo");
 
 //--- Inicializacion de variables
     LongitudCeldaY = infoMapa.tamanoCelda_i = Ly/(float) nCeldas_i;
@@ -241,8 +239,8 @@ int main(int argc, char **argv)
 //--- Inicializacion de grafica
 //    IniciaGrafica();
 //--- Inicializacion de archivo de salida
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Errores.txt","a+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/SalidaMapa_ajuste.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Errores.txt","a+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaMapa_ajuste.txt","w+");
 //--- Ciclo de ROS
 //	periodo=1.5;
 //    f=1/periodo;
@@ -423,11 +421,11 @@ void FilePrint_matrizMapa(FILE *fp, int nFilas, int nColumnas)
     }
 }
 
-/*En matriz de mapa las coordenadas van de i=[0,99], j=[0,19] */
-void transformacion_yxTOij(int *ptr_ij, float y, float x){
-    ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
-    ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
-}
+///*En matriz de mapa las coordenadas van de i=[0,99], j=[0,19] */
+//void transformacion_yxTOij(int *ptr_ij, float y, float x){
+//    ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
+//    ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
+//}
 
 
 void IniciaGrafica(){

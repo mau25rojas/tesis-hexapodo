@@ -29,6 +29,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "vector3d.hpp"
 #include "analisis.hpp"

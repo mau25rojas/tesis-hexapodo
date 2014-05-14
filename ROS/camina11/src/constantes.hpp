@@ -8,8 +8,12 @@ Lynxmotion:
 -Masa de eslabones del robot. Dimensiones - Kilogramos (Kg)
  ..recordar que no existe un L1 como tal, es la unión de los motores 1 y 2
 *******************************************************************/
+#ifndef __CONSTANTES_HPP__
+#define __CONSTANTES_HPP__
+
 //includes
-#include "../../Convexhull/vector3d.hpp"
+#include <stdio.h>
+#include "camina11/vector3d.hpp"
 
 //ID patas
 #define Pata1 1
@@ -18,13 +22,6 @@ Lynxmotion:
 #define Pata4 4
 #define Pata5 5
 #define Pata6 6
-//Rotacion patas
-#define rotacion_Pata1 30*pi/180
-#define rotacion_Pata2 -30*pi/180
-#define rotacion_Pata3 90*pi/180
-#define rotacion_Pata4 -90*pi/180
-#define rotacion_Pata5 150*pi/180
-#define rotacion_Pata6 -150*pi/180
 //Longitud de eslabones
 #define L1 0.0280
 #define L2 0.0595
@@ -32,6 +29,10 @@ Lynxmotion:
 //Propiedades de cuerpo
 #define anguloPatas 60*pi/180
 #define radioCuerpo 0.14
+#define posicionPata1_x radioCuerpo*cos(anguloPatas)
+#define posicionPata1_y radioCuerpo*sin(anguloPatas)
+#define posicionPata2_x radioCuerpo
+#define posicionPata2_y 0
 //Masa de eslabones
 #define masa_Base 0.66
 #define masa_Motor 0.048
@@ -86,6 +87,8 @@ Lynxmotion:
 #define Correccion_menosX 0
 #define Correccion_masX	1
 
+//float rotacionPata[Npatas];
+//punto3d origenPatas[Npatas];
 typedef struct {
 		int i;		//Coordenadas matriz
 		int j;
@@ -95,3 +98,14 @@ typedef struct {
 		punto3d P3;	//Punto abajo-izquierda
 		punto3d P4;	//Punto abajo-derecha
 		}Obstaculo;
+//--Definiciones de funciones
+void transformacion_yxTOij(int *ptr_ij, float y, float x, int nCeldas_i, int nCeldas_j, float LongitudCeldaY,float LongitudCeldaX);
+punto3d TransportaPunto(punto3d Punto_in,float L_traslacion, float ang_rotacion);
+punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
+punto3d TransformacionHomogenea_Inversa(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
+punto3d Transformada_Mundo_Pata(int nPata, int modo, punto3d P_in, punto3d P_ubicacionRobot, float theta_Rob);
+
+//#else
+//extern float rotacionPata[Npatas];
+//extern punto3d rotacionPata[Npatas];
+#endif // __CONSTANTES_HPP__

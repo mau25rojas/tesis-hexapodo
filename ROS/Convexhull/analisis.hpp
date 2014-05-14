@@ -25,7 +25,7 @@
 #ifndef _ANALISIS_H_
 #define _ANALISIS_H_
 
-//#include "vector3d.hpp"
+#include "vector3d.hpp"
 //#include <mem.h>
 punto3d rot_punto_ea(vector3d, float, punto3d); 	//rotación de un punto alrededor de un vector
 plano3d rot_plano_vector(vector3d, float, plano3d);		//rotación de un plano alrededor de un vector

@@ -7,23 +7,20 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/circular_buffer_fwd.hpp>
 //Librerias propias usadas
-#include "constantes.hpp"
-#include "camina10/v_repConst.h"
+#include "camina11/constantes.hpp"
+#include "camina11/vector3d.hpp"
+#include "camina11/v_repConst.h"
 // Used data structures:
 #include <std_msgs/Float64.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/TwistStamped.h>
 #include <tf/transform_datatypes.h>
-#include "camina10/UbicacionRobot.h"
-#include "camina10/TransTrayectoriaParametros.h"
+#include "camina11/UbicacionRobot.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 #include "vrep_common/ObjectGroupData.h"
 // Definiciones
 #define tamano_ventana 11
-//-- Clientes y servicios
-ros::ServiceClient client_Trans_MundoPata;
-camina10::TransTrayectoriaParametros srv_Trans_MundoPata;
 //-- Global variables:
 bool simulationRunning=true;
 bool sensorTrigger=false;
@@ -33,7 +30,7 @@ float Veloy_twist=0.0, ventana_prom[tamano_ventana];
 double tiempo_ahora2=0.0;
 ros::Time time_stamp;
 FILE *fp,*fp1,*fp2,*fp3,*fp4,*fp5,*fp6;
-camina10::UbicacionRobot ubicacionRobot;
+camina11::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
 
@@ -46,32 +43,22 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 
 void ubicacionCallback(const vrep_common::ObjectGroupData msgUbicacionPatas)
 {
+	punto3d coordenadaPata[Npatas],coordenadaPataSistemaPata[Npatas],Robot;
+	Robot.x = ubicacionRobot.coordenadaCuerpo_x;
+    Robot.y = ubicacionRobot.coordenadaCuerpo_y;
+	float theta_Rob=ubicacionRobot.orientacionCuerpo_yaw;
+
 	for(int k=1; k<Npatas+1; k++){
-        ubicacionRobot.coordenadaPata_x[k-1]=msgUbicacionPatas.floatData.data[0+k*Npatas/2];
-        ubicacionRobot.coordenadaPata_y[k-1]=msgUbicacionPatas.floatData.data[1+k*Npatas/2];
-        ubicacionRobot.coordenadaPata_z[k-1]=msgUbicacionPatas.floatData.data[2+k*Npatas/2];
-
-    //-- Transformacion de trayectoria a Sistema de Pata
-    //-- NOTA: la trasnsformacion sobre Z no se realiza
-        srv_Trans_MundoPata.request.modo=Mundo_Pata;
-        srv_Trans_MundoPata.request.Npata=k-1;
-        srv_Trans_MundoPata.request.x_S0=ubicacionRobot.coordenadaPata_x[k-1];
-        srv_Trans_MundoPata.request.y_S0=ubicacionRobot.coordenadaPata_y[k-1];
-        srv_Trans_MundoPata.request.z_S0=ubicacionRobot.coordenadaPata_z[k-1];
-        srv_Trans_MundoPata.request.x_UbicacionRob=ubicacionRobot.coordenadaCuerpo_x;
-        srv_Trans_MundoPata.request.y_UbicacionRob=ubicacionRobot.coordenadaCuerpo_y;
-        srv_Trans_MundoPata.request.theta_Rob=ubicacionRobot.orientacionCuerpo_yaw;
-        if (client_Trans_MundoPata.call(srv_Trans_MundoPata))
-        {   ubicacionRobot.coordenadaPataSistemaPata_x[k-1] = srv_Trans_MundoPata.response.x_Pata;
-            ubicacionRobot.coordenadaPataSistemaPata_y[k-1] = srv_Trans_MundoPata.response.y_Pata;
-            ubicacionRobot.coordenadaPataSistemaPata_z[k-1] = srv_Trans_MundoPata.response.z_Pata;
-    //                ROS_INFO("Servicio motores: q1=%.3f; q2=%.3f; q3=%.3f\n", _q1, _q2, _q3);
-        } else {
-            ROS_ERROR("Nodo6:[%d] servicio de Trans_MundoPata no funciona\n",k-1);
-    //        return;
-        }
-
-//    ROS_INFO("Nodo6: pata[%d], x=%.3f, y=%.3f",k-1,ubicacionRobot.coordenadaPata_x[k-1],ubicacionRobot.coordenadaPata_y[k-1]);
+        coordenadaPata[k-1].x=ubicacionRobot.coordenadaPata_x[k-1]=msgUbicacionPatas.floatData.data[0+k*Npatas/2];
+        coordenadaPata[k-1].y=ubicacionRobot.coordenadaPata_y[k-1]=msgUbicacionPatas.floatData.data[1+k*Npatas/2];
+        coordenadaPata[k-1].z=ubicacionRobot.coordenadaPata_z[k-1]=msgUbicacionPatas.floatData.data[2+k*Npatas/2];
+        //-- Transformacion de trayectoria a Sistema de Pata
+        //-- NOTA: la trasnsformacion sobre Z no se realiza
+        coordenadaPataSistemaPata[k-1] = Transformada_Mundo_Pata(k-1,Mundo_Pata,coordenadaPata[k-1],Robot,theta_Rob);
+//        ROS_INFO("Nodo6: pata[%d], x=%.3f, y=%.3f",k-1,ubicacionRobot.coordenadaPata_x[k-1],ubicacionRobot.coordenadaPata_y[k-1]);
+        ubicacionRobot.coordenadaPataSistemaPata_x[k-1]=coordenadaPataSistemaPata[k-1].x;
+        ubicacionRobot.coordenadaPataSistemaPata_y[k-1]=coordenadaPataSistemaPata[k-1].y;
+        ubicacionRobot.coordenadaPataSistemaPata_z[k-1]=coordenadaPataSistemaPata[k-1].z;
     }
     infoPatas = true;
 }
@@ -123,8 +110,6 @@ int main(int argc,char* argv[])
 	    dummys = argv[1];
 	    cuerpo = argv[2];
 	    vel = argv[3];
-//	    fuerza = argv[4];
-//	    printf("%s\n",dummys_topicName.c_str());
 	} else {
 		ROS_ERROR("Nodo6:Indique argumentos completos!\n");
 		return (0);
@@ -133,11 +118,9 @@ int main(int argc,char* argv[])
 	std::string topicDummy("/vrep/");
 	std::string topicCuerpo("/vrep/");
 	std::string topicVelCuerpo("/vrep/");
-//	std::string topicFuerza("/vrep/");
 	topicDummy+=dummys;
 	topicCuerpo+=cuerpo;
 	topicVelCuerpo+=vel;
-//	topicFuerza+=fuerza;
 //-- Inicializacion de variables del mensaje
     for (int k=0;k<Npatas;k++) {
         ubicacionRobot.coordenadaPata_x.push_back(0);
@@ -163,25 +146,21 @@ int main(int argc,char* argv[])
     ros::Subscriber subInfo1=node.subscribe(topicDummy,100,ubicacionCallback);
     ros::Subscriber subInfo2=node.subscribe(topicCuerpo,100,ubicacionCuerpoCallback);
     ros::Subscriber subInfo3=node.subscribe(topicVelCuerpo,100,velocidadCuerpoCallback);
-//    ros::Subscriber subInfo4=node.subscribe(topicFuerza,100,fuerzaCallback);
-    ros::Publisher chatter_pub = node.advertise<camina10::UbicacionRobot>("UbicacionRobot", 100);
-    client_Trans_MundoPata = node.serviceClient<camina10::TransTrayectoriaParametros>("TrayectoriaMundoPata");
+    ros::Publisher chatter_pub = node.advertise<camina11::UbicacionRobot>("UbicacionRobot", 100);
 
-    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Nodo6_vel.txt","w+");
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Nodo6_P1.txt","w+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Nodo6_P2.txt","w+");
-    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Nodo6_P3.txt","w+");
-    fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Nodo6_P4.txt","w+");
-    fp5 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Nodo6_P5.txt","w+");
-    fp6 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/Nodo6_P6.txt","w+");
+    fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_vel.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P1.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P2.txt","w+");
+    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P3.txt","w+");
+    fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P4.txt","w+");
+    fp5 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P5.txt","w+");
+    fp6 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P6.txt","w+");
 
-        double tiempo_ahora=0.0, tiempo_anterior=0.0;
-        float delta_t=0.0;
-        float delta_y=0.0, y_anterior=0.0, y_actual=0.0;
-        float vel1=0.0;
+    float delta_y=0.0, y_anterior=0.0, y_actual=0.0;
+    float vel1=0.0;
 
     /* Velocidad de transmision */
-    Periodo = 0.1;
+    Periodo = 0.05;
     f=1/Periodo;
     ros::Rate loop_rate(f);  //Frecuencia [Hz]
 	while (ros::ok() && simulationRunning)
@@ -204,18 +183,9 @@ int main(int argc,char* argv[])
     //-- Calculo de velocidad de robot
         y_anterior = y_actual;
         y_actual = ubicacionRobot.coordenadaCuerpo_y;
-//        tiempo_ahora = ros::Time::now().toSec();
-//        delta_t = (float) (tiempo_ahora - tiempo_anterior);
         delta_y = fabs(y_actual-y_anterior);
 //        ROS_INFO("\nNodo6: delta_t=%.3f, delta_y=%.3f",delta_t,delta_y);
-        //----------------------------
-        //--Confiando en que el tiempo que pasa es Periodo=0.1
-//        if (delta_t==0) {
-//            vel1 = 0.0;
-//        } else {
-//            vel1 = delta_y/delta_t;
-//        }
-            vel1 = delta_y/Periodo;
+        vel1 = delta_y/Periodo;
     //-- Filtrado de medida de velocidad
     //.. los primeros instantes de tiempo no son importantes porque el robot no sera controlado en ese momento
 //        ventana.push_back(vel1);
@@ -229,9 +199,6 @@ int main(int argc,char* argv[])
         ubicacionRobot.velocidadCuerpo_y = ventana_prom[datoSalida];
 
         fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",y_actual,delta_y,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
-
-        tiempo_anterior = tiempo_ahora;
-
         if (infoCuerpo and infoPatas){
             infoCuerpo=false;
             infoPatas=false;
@@ -248,7 +215,8 @@ int main(int argc,char* argv[])
             fprintf(fp4,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[3],ubicacionRobot.coordenadaPataSistemaPata_x[3],ubicacionRobot.coordenadaPataSistemaPata_y[3],ubicacionRobot.coordenadaPataSistemaPata_z[3]);
             fprintf(fp5,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[4],ubicacionRobot.coordenadaPataSistemaPata_x[4],ubicacionRobot.coordenadaPataSistemaPata_y[4],ubicacionRobot.coordenadaPataSistemaPata_z[4]);
             fprintf(fp6,"%d\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.pataApoyo[5],ubicacionRobot.coordenadaPataSistemaPata_x[5],ubicacionRobot.coordenadaPataSistemaPata_y[5],ubicacionRobot.coordenadaPataSistemaPata_z[5]);
-            chatter_pub.publish(ubicacionRobot);
+
+             chatter_pub.publish(ubicacionRobot);
         }
 	}
 	fclose(fp);

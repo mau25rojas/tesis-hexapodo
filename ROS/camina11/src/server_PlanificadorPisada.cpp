@@ -1,29 +1,29 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include "math.h"
+#include <math.h>
 #include <algorithm>    // std::sort
 //Librerias propias usadas
 #include "constantes.hpp"
-#include "camina10/v_repConst.h"
+#include "camina11/v_repConst.h"
 #include "../../Convexhull/vector3d.hpp"
 #include "../../Convexhull/convexhull.cpp"
 #include "../../Convexhull/analisis.cpp"
 // Used data structures:
-#include "camina10/InfoMapa.h"
-#include "camina10/CinversaParametros.h"
-#include "camina10/EspacioTrabajoParametros.h"
-#include "camina10/UbicacionRobot.h"
-#include "camina10/PlanificadorParametros.h"
-#include "camina10/SenalesCambios.h"
+#include "camina11/InfoMapa.h"
+#include "camina11/CinversaParametros.h"
+#include "camina11/EspacioTrabajoParametros.h"
+#include "camina11/UbicacionRobot.h"
+#include "camina11/PlanificadorParametros.h"
+#include "camina11/SenalesCambios.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
 #define delta_correccion 0.005
 //Clientes y Servicios
 ros::ServiceClient client_Cinversa1;
-camina10::CinversaParametros srv_Cinversa1;
+camina11::CinversaParametros srv_Cinversa1;
 ros::ServiceClient client_EspacioTrabajo;
-camina10::EspacioTrabajoParametros srv_EspacioTrabajo;
+camina11::EspacioTrabajoParametros srv_EspacioTrabajo;
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -35,7 +35,7 @@ FILE *fp1,*fp2,*fp3;
 int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
-camina10::InfoMapa infoMapa;
+camina11::InfoMapa infoMapa;
 bool matrizMapa[100][20];
 int nCeldas_i=0, nCeldas_j=0;
 int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
@@ -49,7 +49,7 @@ float mod_velocidadCuerpo=0.0;
 punto3d posicionActualCuerpo, posicionActualPata[Npatas], posicionActualPataSistemaPata[Npatas];
 float teta_CuerpoRobot=0.0;
 //-- Envio de señal de stop
-camina10::SenalesCambios senales;
+camina11::SenalesCambios senales;
 //-- Correccion
 int correccion_ID[Npatas]; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der
 float correccion_x[Npatas], correccion_y[Npatas];
@@ -79,7 +79,7 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
         simulationRunning=(info->simulatorState.data&1)!=0;
 }
 
-void ubicacionRobCallback(camina10::UbicacionRobot msgUbicacionRobot)
+void ubicacionRobCallback(camina11::UbicacionRobot msgUbicacionRobot)
 {
     posicionActualCuerpo.x = msgUbicacionRobot.coordenadaCuerpo_x;
     posicionActualCuerpo.y = msgUbicacionRobot.coordenadaCuerpo_y;
@@ -94,8 +94,8 @@ void ubicacionRobCallback(camina10::UbicacionRobot msgUbicacionRobot)
     }
 }
 
-bool PlanificadorPisada(camina10::PlanificadorParametros::Request  &req,
-                        camina10::PlanificadorParametros::Response &res)
+bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
+                        camina11::PlanificadorParametros::Response &res)
 {
 //    ROS_INFO("Llamado a servicio planificador");
 //    fprintf(fp2,"\ntiempo de simulacion: %.3f\t",simulationTime);
@@ -269,18 +269,18 @@ int main(int argc, char **argv)
     ROS_INFO("server_PlanificadorPisada just started\n");
 
 //-- Topicos susbcritos y publicados
-    chatter_pub1=node.advertise<camina10::SenalesCambios>("Senal", 100);
-    chatter_pub2=node.advertise<camina10::InfoMapa>("Plan", 100);
+    chatter_pub1=node.advertise<camina11::SenalesCambios>("Senal", 100);
+    chatter_pub2=node.advertise<camina11::InfoMapa>("Plan", 100);
     ros::Subscriber sub1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber sub2=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
 //-- Clientes y Servicios
     ros::ServiceServer service = node.advertiseService("PlanificadorPisada", PlanificadorPisada);
-    client_Cinversa1=node.serviceClient<camina10::CinversaParametros>("Cinversa");
-    client_EspacioTrabajo=node.serviceClient<camina10::EspacioTrabajoParametros>("EspacioTrabajo");
+    client_Cinversa1=node.serviceClient<camina11::CinversaParametros>("Cinversa");
+    client_EspacioTrabajo=node.serviceClient<camina11::EspacioTrabajoParametros>("EspacioTrabajo");
     /* Log de planificador */
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/RegistroCorridas.txt","a+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/LogPlanificador.txt","w+");
-    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina10/datos/LogCorreccion.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/RegistroCorridas.txt","a+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/LogPlanificador.txt","w+");
+    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/LogCorreccion.txt","w+");
 
     for(int k=0;k<Npatas;k++) {
         infoMapa.coordenadaPata_x.push_back(0);
@@ -464,26 +464,26 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
 }
 
 
-punto3d TransportaPunto(punto3d Punto_in,float L_traslacion, float ang_rotacion){
-
-    punto3d Punto_out;
-
-    Punto_out.x=Punto_in.x - L_traslacion*sin(ang_rotacion);
-    Punto_out.y=Punto_in.y + L_traslacion*cos(ang_rotacion);
-
-    return(Punto_out);
-}
-
-punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion){
-
-    punto3d Punto_out;
-
-    Punto_out.x = L_traslacion.x + Punto_in.x*cos(ang_rotacion) - Punto_in.y*sin(ang_rotacion);
-    Punto_out.y = L_traslacion.y + Punto_in.x*sin(ang_rotacion) + Punto_in.y*cos(ang_rotacion);
-    Punto_out.z = L_traslacion.z + Punto_in.z;
-
-    return(Punto_out);
-}
+//punto3d TransportaPunto(punto3d Punto_in,float L_traslacion, float ang_rotacion){
+//
+//    punto3d Punto_out;
+//
+//    Punto_out.x=Punto_in.x - L_traslacion*sin(ang_rotacion);
+//    Punto_out.y=Punto_in.y + L_traslacion*cos(ang_rotacion);
+//
+//    return(Punto_out);
+//}
+//
+//punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion){
+//
+//    punto3d Punto_out;
+//
+//    Punto_out.x = L_traslacion.x + Punto_in.x*cos(ang_rotacion) - Punto_in.y*sin(ang_rotacion);
+//    Punto_out.y = L_traslacion.y + Punto_in.x*sin(ang_rotacion) + Punto_in.y*cos(ang_rotacion);
+//    Punto_out.z = L_traslacion.z + Punto_in.z;
+//
+//    return(Punto_out);
+//}
 
 bool VerificacionCinematica(int Pata, float lambda){
         punto3d O, PisadaProxima, delta_S0, delta_S1;
