@@ -34,9 +34,9 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 void motoresCallback(const camina11::AngulosMotor qMotor)
 {
     for(int k=0;k<Npatas;k++){
-        srv_SetJointStates.request.values[k*3-3+0] = qMotor.q1[k];
-        srv_SetJointStates.request.values[k*3-3+1] = qMotor.q2[k];
-        srv_SetJointStates.request.values[k*3-3+2] = qMotor.q3[k];
+        srv_SetJointStates.request.values[k*3+0] = qMotor.q1[k];
+        srv_SetJointStates.request.values[k*3+1] = qMotor.q2[k];
+        srv_SetJointStates.request.values[k*3+2] = qMotor.q3[k];
         //ROS_INFO("4-Angulos q1q2q3:[Npata=%d, ite=%d, q1= %.3f, q2= %.3f, q3= %.3f]", qMotor.Npata, qMotor.iteracion, q[0]*180.0/pi,q[1]*180.0/pi,q[2]*180.0/pi);
     }
     if (client_SetJointStates.call(srv_SetJointStates)&&(srv_SetJointStates.response.result!=-1))

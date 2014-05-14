@@ -72,12 +72,12 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
         }
 
         if(Inicio){
-            Inicio=false;
+            if(k==Npatas-1) Inicio=false;
             InicioApoyo.x=(Offset.y-FinEspacioTrabajo_y)-lambda_maximo;
             InicioApoyo.y=0.0;
             FinApoyo[k].x=Offset.y-FinEspacioTrabajo_y;
             FinApoyo[k].y=0.0;
-            PFin = InicioApoyo;
+            FinTranfer[k] = InicioApoyo;
         }
         //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
         // Periodo A-B
@@ -102,7 +102,26 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
         qMotor.q2[k] = q[1];
         qMotor.q3[k] = q[2];
 
-//        fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1,qMotor.q2,qMotor.q3,t_Trayectoria,P1.x,P1.y,P1.z);
+        switch (k){
+            case 0:
+                fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+            break;
+            case 1:
+                fprintf(fp2,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+            break;
+            case 2:
+                fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+            break;
+            case 3:
+                fprintf(fp4,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+            break;
+            case 4:
+                fprintf(fp5,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+            break;
+            case 5:
+                fprintf(fp6,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+            break;
+        }
     }
     //---Publica angulos motores----
 	chatter_pub.publish(qMotor);
