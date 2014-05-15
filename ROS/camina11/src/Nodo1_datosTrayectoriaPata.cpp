@@ -173,7 +173,7 @@ int main(int argc, char **argv)
                 //-- Seleccion de estado proximo de la pata
                 //-- si hay cambio de estado se activa la bandera correspondiente
                 datosTrayectoriaPata.vector_estados[k]=VerificacionEstadoPata(k,datosTrayectoriaPata.vector_estados[k]);
-                if(k==PataPrint) ROS_INFO("pata[%d] estado=%d",k+1,datosTrayectoriaPata.vector_estados[k]);
+//                if(k==PataPrint) ROS_INFO("pata[%d] estado=%d",k+1,datosTrayectoriaPata.vector_estados[k]);
 
                 if(datosTrayectoriaPata.vector_estados[k]==Apoyo and datosTrayectoriaPata.cambio_estado[k]==1) contadores[k]=0.0;
 
@@ -231,7 +231,7 @@ void Inizializacion(){
             fprintf(fp1,"%.3f\t",delta_t[k]);
 
             contadores[k] = contadores[k] + T[k]/divisionTrayectoriaPata[k];
-            if(k==0) ROS_INFO("cuenta=%.3f",contadores[k]);
+//            if(k==0) ROS_INFO("cuenta=%.3f",contadores[k]);
 
             if (contadores[k]>=beta*T[k]) {
                 delta_t[k] = contadores[k]-T_apoyo[k];
@@ -294,7 +294,7 @@ int VerificacionEstadoPata(int nPata, int estadoActual){
         cambio_a_Apoyo = false;
         estadoSiguiente = Apoyo;
         datosTrayectoriaPata.cambio_estado[nPata]=1;
-//        if(nPata==0) ROS_WARN("****Inicia Apoyo pata[%d]",nPata+1);
+        if(nPata==PataPrint) ROS_WARN("***Inicia Apoyo pata[%d]",nPata+1);
     }
     llegada_FEDT = LlegadaFinEDT(nPata);
     if(llegada_FEDT){
@@ -313,15 +313,15 @@ bool CambioDeEstado_Apoyo(int nPata){
     if (pataApoyo[nPata]==Apoyo and FinApoyo[nPata]) {
         InicioApoyo[nPata]=true;
         FinApoyo[nPata]=false;
-        if(nPata==PataPrint) ROS_WARN("****Inicia Apoyo pata[%d]",nPata+1);
     }
-    if (fabs(contadores[nPata]-T[nPata])<(T[nPata]/divisionTrayectoriaPata[nPata])) {
+//    if (fabs(contadores[nPata]-T_transf[nPata]/2)<(T[nPata]/divisionTrayectoriaPata[nPata])) {
+    if (pataApoyo[nPata]==Transferencia) {
         FinApoyo[nPata]=true;
-        if(nPata==PataPrint) ROS_WARN("****Pata[%d] preApoyo",nPata+1);
+//        if(nPata==PataPrint) ROS_WARN("****Pata[%d] preApoyo",nPata+1);
     }
     if (InicioApoyo[nPata]){
-        InicioApoyo[nPata] = false;
-        cambio = true;
+        InicioApoyo[nPata]=false;
+        cambio=true;
     }
     return cambio;
 }
@@ -337,21 +337,20 @@ bool LlegadaFinEDT(int nPata){
     //-----Transformacion de trayectoria a Sistema de Pata
     Fin_EDT = TransformacionHomogenea(P0,Offset,phi[nPata]+alfa);
 
-    if(nPata==PataPrint) ROS_WARN("pata.y=%.4f,finEDT.y=%.4f",posicionActualPataSistemaPata[nPata].y,Fin_EDT.y);
+//    if(nPata==PataPrint) ROS_WARN("pata.y=%.4f,finEDT.y=%.4f",posicionActualPataSistemaPata[nPata].y,Fin_EDT.y);
     if (fabs(posicionActualPataSistemaPata[nPata].y-Fin_EDT.y)<=0.005 and FinTransf[nPata]) {
         InicioTransf[nPata]=true;
         FinTransf[nPata]=false;
     }
 //    if(nPata==n) ROS_WARN("Pata.z=%.4f",posicionActualPataSistemaPata[nPata].z);
-    if (fabs(contadores[nPata]-T_apoyo[nPata])<(T[nPata]/divisionTrayectoriaPata[nPata])) {
+//    if (fabs(contadores[nPata]-T_apoyo[nPata]/2)<(T[nPata]/divisionTrayectoriaPata[nPata])) {
+    if (pataApoyo[nPata]==Apoyo) {
         FinTransf[nPata]=true;
 //        if(nPata==PataPrint) ROS_WARN("------Pata[%d] preTransferencia",nPata+1);
     }
     if (InicioTransf[nPata]){
-        InicioTransf[nPata] = false;
-        cambio = true;
-        if(nPata==PataPrint) ROS_WARN("------Pata[%d] Transferencia",nPata+1);
-
+        InicioTransf[nPata]=false;
+        cambio=true;
     }
     return cambio;
 }
