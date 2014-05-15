@@ -168,7 +168,7 @@ int main(int argc,char* argv[])
 		loop_rate.sleep();
 		ros::spinOnce();
         for (int k=0;k<Npatas;k++) {
-            if (ubicacionRobot.coordenadaPata_z[k]<=umbral_Z_Apoyo)
+            if (ubicacionRobot.coordenadaPata_z[k]<umbral_Z_Apoyo)
             {
 //                 and (ubicacionRobot.pataTipFuerza_z[k]>=umbralFuerzaApoyo)){
             //    if (ubicacionRobot.pataTipFuerza_z[k]>=umbralFuerzaApoyo) {
