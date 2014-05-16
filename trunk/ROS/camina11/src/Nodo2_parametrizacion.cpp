@@ -66,10 +66,10 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
             InicioApoyo.y = correccion_x[k];
         }
 
-        if(cambioEstado[k]==1){
-            FinApoyo[k] = P0;
-            FinTranfer[k] = InicioApoyo;
-        }
+//        if(cambioEstado[k]==1){
+//            FinApoyo[k] = P0;
+//            FinTranfer[k] = InicioApoyo;
+//        }
 
         if(Inicio){
             if(k==Npatas-1) Inicio=false;
