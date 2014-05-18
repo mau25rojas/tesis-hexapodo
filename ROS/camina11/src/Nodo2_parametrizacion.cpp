@@ -26,7 +26,7 @@ ros::Publisher chatter_pub;
 FILE *fp1,*fp2,*fp3,*fp4,*fp5,*fp6;
 //-- Funciones
 punto3d Trayectoria_FaseApoyo(float t_Trayectoria,punto3d PInicio);
-punto3d Trayectoria_FaseTrans_Eliptica(float T_in,float t_Trayectoria,punto3d PInicio, punto3d PFin);
+punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punto3d PFin);
 void CinematicaInversa(float *Qs,punto3d P_in);
 
 // Topic subscriber callbacks:
@@ -42,12 +42,11 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
 {
     int correccion_ID[Npatas], cambioEstado[Npatas], Estado[Npatas];
-    float T[Npatas],t_Trayectoria[Npatas],alfa=0.0,lambda[Npatas];
+    float t_Trayectoria[Npatas],alfa=0.0,lambda[Npatas];
     float correccion_x[Npatas],correccion_y[Npatas];
     punto3d P1, PInicio, PFin, InicioApoyo;
 
     for(int k=0;k<Npatas;k++){
-        T[k] = msg_datoTrayectoria.T[k];
         t_Trayectoria[k] = msg_datoTrayectoria.t_Trayectoria[k];
         lambda[k] = msg_datoTrayectoria.lambda[k];
         alfa = msg_datoTrayectoria.alfa;
@@ -80,18 +79,35 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
             FinTranfer[k] = InicioApoyo;
         }
         //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
-        // Periodo A-B
-        if (Estado[k]==Apoyo)
-        {
-        //---Apoyo------
-            PInicio=InicioApoyo;
-            P0 = Trayectoria_FaseApoyo(t_Trayectoria[k],PInicio);
-        } else {
-        //---Transferencia------
-        // Elipsis
-            PInicio=FinApoyo[k];
-            PFin=FinTranfer[k];
-            P0 = Trayectoria_FaseTrans_Eliptica(T[k],t_Trayectoria[k],PInicio,PFin);
+
+        switch (Estado[k]){
+            case Apoyo:
+                PInicio=InicioApoyo;
+                P0 = Trayectoria_FaseApoyo(t_Trayectoria[k],PInicio);
+            break;
+
+            case Transferencia:
+                // Elipsis
+                PInicio=FinApoyo[k];
+                PFin=FinTranfer[k];
+                P0 = Trayectoria_FaseTrans_Eliptica(t_Trayectoria[k],PInicio,PFin);
+            break;
+
+            case EsperaApoyo:
+                PInicio=FinApoyo[k];
+                PFin=FinTranfer[k];
+                P0 = Trayectoria_FaseTrans_Eliptica(0.952,PInicio,PFin);
+            break;
+
+            case EsperaTransferencia:
+                PInicio=FinApoyo[k];
+                PFin=FinTranfer[k];
+                P0 = Trayectoria_FaseTrans_Eliptica(0.048,PInicio,PFin);
+            break;
+
+            default:
+                ROS_ERROR("Nodo2: Error en estados");
+            break;
         }
         //-----Transformacion de trayectoria a Sistema de Pata
         P1 = TransformacionHomogenea(P0,Offset,phi[k]+alfa);
@@ -200,7 +216,7 @@ punto3d Trayectoria_FaseApoyo(float t_Trayectoria,punto3d PInicio){
 
 //---Caso parte 2 trayectoria----
 //-- Elipsis
-punto3d Trayectoria_FaseTrans_Eliptica(float T_in,float t_Trayectoria,punto3d PInicio, punto3d PFin){
+punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punto3d PFin){
 
     punto3d salida, Po;
     float teta, t_aux, dL;
@@ -214,8 +230,8 @@ punto3d Trayectoria_FaseTrans_Eliptica(float T_in,float t_Trayectoria,punto3d PI
     Po.y = PInicio.y + Ly/2;
     Po.z = 0.0;
 
-    t_aux = t_Trayectoria/T_in;
-    teta = pi*t_aux;
+//    t_aux = t_Trayectoria/T_in;
+    teta = pi*t_Trayectoria;
     dL = (L/2)*cos(teta);
 //    if(Npata_arg==1) ROS_INFO("Pi.x=%.4f\t Pi.y=%.4f\t Pf.x=%.4f\t Pf.y=%.4f\t",PInicio.x,PInicio.y,PFin.x,PFin.y);
 
