@@ -14,6 +14,7 @@ float origenPatas_y[Npatas]={ posicionPata1_y,posicionPata1_y, posicionPata2_y,p
 //origenPatas[1].y= posicionPata1_y; 	origenPatas[4].y=-posicionPata1_y;
 //origenPatas[2].x=-posicionPata2_x; 	origenPatas[5].x= posicionPata1_x;
 //origenPatas[2].y= posicionPata2_y; 	origenPatas[5].y=-posicionPata1_y;
+float ang_offset=90*pi/180;
 
 
 //-- Funcion para transformar del espacio R2 XY a el espacio de celdas IJ
@@ -85,4 +86,40 @@ punto3d Transformada_Mundo_Pata(int nPata, int modo, punto3d P_in, punto3d P_ubi
         break;
     }
     return(P_out);
+}
+
+void EspacioDeTrabajo_Robot(int nPata, punto3d *ptr_EDT, float phi, punto3d Offset){
+    punto3d P1,P2,P3,P4,P_aux,origenPata;
+
+//-- Esquinas ((..[1]izq-arrib,[2]der-arrib,[3]der-aba,[4]izq-aba..))
+//-- Transformacion 1: trayectoria
+    //--Punto1 - izq/arr
+    P_aux.x = EspacioTrabajo_X1;
+    P_aux.y = EspacioTrabajo_Y1;
+    P1 = TransformacionHomogenea(P_aux,Offset,phi+ang_offset);//+ang_offset+req.alfa);
+    //--Punto2 - der/arr
+    P_aux.x = EspacioTrabajo_X2;
+    P_aux.y = EspacioTrabajo_Y1;
+    P2 = TransformacionHomogenea(P_aux,Offset,phi+ang_offset);//+ang_offset+req.alfa);
+    //--Punto3 - der/aba
+    P_aux.x = EspacioTrabajo_X2;
+    P_aux.y = EspacioTrabajo_Y2;
+    P3 = TransformacionHomogenea(P_aux,Offset,phi+ang_offset);//+ang_offset+req.alfa);
+    //--Punto4 - izq/aba
+    P_aux.x = EspacioTrabajo_X1;
+    P_aux.y = EspacioTrabajo_Y2;
+    P4 = TransformacionHomogenea(P_aux,Offset,phi+ang_offset);//+ang_offset+req.alfa);
+
+//-- Transformacion 2: a origen de cada pata
+    origenPata.x = origenPatas_x[nPata];
+    origenPata.y = origenPatas_y[nPata];
+    origenPata.z = 0.0;
+    //--Punto1
+    ptr_EDT[0] = TransformacionHomogenea(P1,origenPata,rotacionPata[nPata]);
+    //--Punto2
+    ptr_EDT[1] = TransformacionHomogenea(P2,origenPata,rotacionPata[nPata]);
+    //--Punto3
+    ptr_EDT[2] = TransformacionHomogenea(P3,origenPata,rotacionPata[nPata]);
+    //--Punto4
+    ptr_EDT[3] = TransformacionHomogenea(P4,origenPata,rotacionPata[nPata]);
 }

@@ -4,8 +4,8 @@
 #include <time.h>
 #include "boost/date_time/posix_time/posix_time.hpp"
 //Librerias propias usadas
-#include "constantes.hpp"
 #include "camina11/v_repConst.h"
+#include "camina11/constantes.hpp"
 #include "camina11/vector3d.hpp"
 // Used data structures:
 #include "camina11/DatosTrayectoriaPata.h"
@@ -171,7 +171,7 @@ int main(int argc, char **argv)
                 delta_t[k]=T[k]/divisionTrayectoriaPata[k];
 //                if(k==PataPrint) ROS_INFO("cuenta=%.3f",contadores[k]);
 
-                //-- Verificacion por posicion actual de pata recibida
+                ///-- Verificacion por posicion actual de pata
                 //-- ..Seleccion de estado proximo de la pata
                 //-- ..si hay cambio de estado se activa la bandera correspondiente
                 datosTrayectoriaPata.vector_estados[k]=VerificacionEstadoPata(k,datosTrayectoriaPata.vector_estados[k]);
