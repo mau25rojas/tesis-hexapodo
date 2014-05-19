@@ -42,9 +42,7 @@ rosbuild_add_executable(Nodo6_UbicacionRobot src/Nodo6_UbicacionRobot2.cpp src/c
 #target_link_libraries(CentroMasa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2.2)
 
 #CLientes y servicios
-rosbuild_add_executable(server_Cinversa src/server_Cinversa.cpp)
-#rosbuild_add_library(server_PlanificadorPisada ~/fuerte_workspace/sandbox/TesisMaureen/ROS/Convexhull/vector3d.cpp)
-#rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp)
+rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp src/constantes.cpp ../../Convexhull/vector3d.cpp ../../Convexhull/analisis.cpp ../../Convexhull/convexhull.cpp)
 
 
 

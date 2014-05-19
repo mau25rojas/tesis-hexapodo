@@ -106,6 +106,7 @@ punto3d TransportaPunto(punto3d Punto_in,float L_traslacion, float ang_rotacion)
 punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 punto3d TransformacionHomogenea_Inversa(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 punto3d Transformada_Mundo_Pata(int nPata, int modo, punto3d P_in, punto3d P_ubicacionRobot, float theta_Rob);
+void EspacioDeTrabajo_Robot(int nPata, punto3d *ptr_EDT, float phi, punto3d Offset);
 
 //#else
 //extern float rotacionPata[Npatas];
