@@ -19,7 +19,7 @@ float simulationTime=0.0f;
 bool Inicio=true;
 //-- Calculo de trayectoria
 float velocidadApoyo=0.0, dh=0.0,phi[Npatas];
-punto3d Offset, P0, FinApoyo[Npatas], FinTranfer[Npatas];
+punto3d Offset, P0[Npatas], FinApoyo[Npatas], FinTranfer[Npatas];
 
 camina11::AngulosMotor qMotor;
 ros::Publisher chatter_pub;
@@ -65,10 +65,10 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
             InicioApoyo.y = correccion_x[k];
         }
 
-//        if(cambioEstado[k]==1){
-//            FinApoyo[k] = P0;
-//            FinTranfer[k] = InicioApoyo;
-//        }
+        if(cambioEstado[k]==1 and Estado[k]==Transferencia){
+            FinApoyo[k] = P0[k];
+            FinTranfer[k] = InicioApoyo;
+        }
 
         if(Inicio){
             if(k==Npatas-1) Inicio=false;
@@ -83,26 +83,14 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
         switch (Estado[k]){
             case Apoyo:
                 PInicio=InicioApoyo;
-                P0 = Trayectoria_FaseApoyo(t_Trayectoria[k],PInicio);
+                P0[k] = Trayectoria_FaseApoyo(t_Trayectoria[k],PInicio);
             break;
 
             case Transferencia:
                 // Elipsis
                 PInicio=FinApoyo[k];
                 PFin=FinTranfer[k];
-                P0 = Trayectoria_FaseTrans_Eliptica(t_Trayectoria[k],PInicio,PFin);
-            break;
-
-            case EsperaApoyo:
-                PInicio=FinApoyo[k];
-                PFin=FinTranfer[k];
-                P0 = Trayectoria_FaseTrans_Eliptica(0.952,PInicio,PFin);
-            break;
-
-            case EsperaTransferencia:
-                PInicio=FinApoyo[k];
-                PFin=FinTranfer[k];
-                P0 = Trayectoria_FaseTrans_Eliptica(0.048,PInicio,PFin);
+                P0[k] = Trayectoria_FaseTrans_Eliptica(t_Trayectoria[k],PInicio,PFin);
             break;
 
             default:
@@ -110,7 +98,7 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
             break;
         }
         //-----Transformacion de trayectoria a Sistema de Pata
-        P1 = TransformacionHomogenea(P0,Offset,phi[k]+alfa);
+        P1 = TransformacionHomogenea(P0[k],Offset,phi[k]+alfa);
         //-----Cinematica Inversa
         float q[Neslabones];
         CinematicaInversa(q,P1);
@@ -138,7 +126,7 @@ void datosCallback(const camina11::DatosTrayectoriaPata msg_datoTrayectoria)
                 fprintf(fp6,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
             break;
         }
-    }
+    } //fin for Npatas
     //---Publica angulos motores----
 	chatter_pub.publish(qMotor);
 }
@@ -219,7 +207,7 @@ punto3d Trayectoria_FaseApoyo(float t_Trayectoria,punto3d PInicio){
 punto3d Trayectoria_FaseTrans_Eliptica(float t_Trayectoria,punto3d PInicio, punto3d PFin){
 
     punto3d salida, Po;
-    float teta, t_aux, dL;
+    float teta, dL;
     float L, Lx, Ly, gamma;
 
     Lx = PFin.x - PInicio.x;
