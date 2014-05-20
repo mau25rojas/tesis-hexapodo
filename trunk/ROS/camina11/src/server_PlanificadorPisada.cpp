@@ -24,7 +24,7 @@ float simulationTime=0.0f;
 //-- Log de planificador
 FILE *fp1,*fp2,*fp3;
 //-- Entrada
-int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
+int cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina11::InfoMapa infoMapa;
@@ -41,8 +41,8 @@ float mod_velocidadCuerpo=0.0;
 punto3d posicionActualCuerpo, posicionActualPata[Npatas], posicionActualPataSistemaPata[Npatas];
 float teta_CuerpoRobot=0.0;
 //-- Correccion
-int correccion_ID[Npatas]; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der
-float correccion_x[Npatas], correccion_y[Npatas];
+int correccion_ID; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der
+float correccion_x, correccion_y;
 //-- Publishers
 ros::Publisher chatter_pub1;
 ros::Publisher chatter_pub2;
@@ -54,7 +54,7 @@ void Limpiar_matrizMapa();
 int Construye_matrizMapa(std::string fileName);
 void print_matrizMapa();
 void Info_Obstaculos(std::string fileName, int N_Obstaculos);
-bool VerificacionCinematica(int Pata, float lambda);
+//bool VerificacionCinematica(int Pata, float lambda);
 punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferenciaActual);
 bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d seg_prueba, float *correccion);
 bool Revision_PisadaObstaculos_Y (int nPata, punto3d PisadaProxima, float *correccion, float EDT_LongY);
@@ -85,6 +85,7 @@ void ubicacionRobCallback(camina11::UbicacionRobot msgUbicacionRobot)
 bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
                         camina11::PlanificadorParametros::Response &res)
 {
+    int nPata=req.nPata;
 //-- Datos para envio de mensajes
     res.modificacion_T = 0.0;
     res.modificacion_lambda = 0.0;
@@ -94,8 +95,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
     res.correccion_y=0;
 //-- Variables locales
     int PisadaProxima_i=0, PisadaProxima_j=0;
-    bool cinversaOK;
-    float modificacion_lambda, lambda_posible; //lambda_posible: lo que se va a trasladar la pata en transferencia
+    float lambda_posible; //lambda_posible: lo que se va a trasladar la pata en transferencia
     float T_actual=0.0,lambda_Apoyo_actual=0.0;
     punto3d PisadaProxima, correccion;
     p_ij = ij;    // Inicialización de apuntador
@@ -103,26 +103,26 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
     mod_velocidadCuerpo = req.mod_velApoyo;
 
     cuentaPasos++;
-    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] ((((mod_v=%.3f))))",Tripode,cuentaPasos,mod_velocidadCuerpo);
-    fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
-    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f ((((mod_v=%.3f))))\n",Tripode,simulationTime,mod_velocidadCuerpo);
+//    ROS_INFO("INICIO server_PlanificadorPisada::P[%d] ((((mod_v=%.3f))))",nPata+1,cuentaPasos,mod_velocidadCuerpo);
+//    fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
+//    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f ((((mod_v=%.3f))))\n",Tripode,simulationTime,mod_velocidadCuerpo);
 
     ros::spinOnce();
     //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
     res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidadApoyo;
     //-- Calculamos proximo movimiento en el sistema mundo
     lambda_posible = lambda_maximo;
-    PisadaProxima = TransportaPunto(posicionActualPata[Tripode_Transferencia[k]],lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
+    PisadaProxima = TransportaPunto(posicionActualPata[nPata],lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
     transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
     PisadaProxima_i=ij[0];
     PisadaProxima_j=ij[1];
     if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
     //-- La pisada COINCIDE con obstaculo
         infoMapa.correccion=false;
-        ROS_WARN("server_PlanificadorPisada::pata[%d] coincidira con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
-        fprintf(fp2,"pata[%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
+        ROS_WARN("server_PlanificadorPisada::pata[%d] coincidira con obstaculo [%d][%d]",nPata+1,PisadaProxima_i,PisadaProxima_j);
+        fprintf(fp2,"pata[%d] coincidira con obstaculo[%d][%d]\n",nPata+1,PisadaProxima_i,PisadaProxima_j);
     //-- Revision de pisada para correccion
-        correccion = CorreccionObstaculos(Tripode_Transferencia[k],PisadaProxima,mod_velocidadCuerpo*T_actual);
+        correccion = CorreccionObstaculos(nPata,PisadaProxima,mod_velocidadCuerpo*T_actual);
 
     //-- Prueba con pata 1
 //            if(Tripode_Transferencia[k]==0){
@@ -142,12 +142,12 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
         correccion_y=0.0;
         lambda_posible = lambda_maximo;
     }
-        modificacion_lambda[k] = lambda_posible;
+        res.modificacion_lambda = lambda_posible;
     //-- Pisada maxima
-        infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
-        infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
+        infoMapa.coordenadaAjuste_i[nPata] = PisadaProxima_i;
+        infoMapa.coordenadaAjuste_j[nPata] = PisadaProxima_j;
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
-    fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f\n",req.Tripode,res.modificacion_lambda,res.modificacion_T);
+    fprintf(fp2,"server_PlanificadorPisada:pata[%d], lambda_correccion=%.3f, T_correccion=%.3f\n",nPata,res.modificacion_lambda,res.modificacion_T);
 
 ////-- Envio y guardo datos
 //    for(int k=0;k<Npatas;k++){
@@ -228,18 +228,6 @@ int main(int argc, char **argv)
         infoMapa.coordenadaAjuste_i.push_back(0);
         infoMapa.coordenadaAjuste_j.push_back(0);
     }
-//-- Patas de [0-5]
-    int cuenta_T1=0, cuenta_T2=0;
-    for(int k=0;k<Npatas;k++) {
-        if(tripode[k]==1){
-            Tripode1[cuenta_T1]=k;
-            cuenta_T1++;
-        } else {
-            Tripode2[cuenta_T2]=k;
-            cuenta_T2++;
-        }
-    }
-    ROS_INFO("server_PlanificadorPisada: Tripode1[%d,%d,%d] - Tripode2[%d,%d,%d]",Tripode1[0]+1,Tripode1[1]+1,Tripode1[2]+1,Tripode2[0]+1,Tripode2[1]+1,Tripode2[2]+1);
     for(int i=0;i<Npatas;i++){
         for(int j=0;j<2;j++){
             errorPata[i][j]=0;
@@ -392,29 +380,29 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
     fclose(fp);
 }
 
-bool VerificacionCinematica(int Pata, float lambda){
-        punto3d O, PisadaProxima, delta_S0, delta_S1;
-        O.x=0.0; O.y=0.0, O.z=0.0;
-//-- Calculamos proximo movimiento en el sistema de pata
-        delta_S0.x = -lambda*cos(alfa);
-        delta_S0.y = lambda*sin(alfa);
-        delta_S1 = TransformacionHomogenea(delta_S0,O,phi[Pata]+alfa);
-        PisadaProxima.x = posicionActualPataSistemaPata[Pata].x + delta_S1.x;
-        PisadaProxima.y = posicionActualPataSistemaPata[Pata].y + delta_S1.y;
-        PisadaProxima.z = posicionActualPataSistemaPata[Pata].z;
-    //-- Verificamos que pisada sea factible
-//        ROS_INFO("server_Plan: revisando cinversa");
-//        srv_Cinversa1.request.x = PisadaProxima.x;
-//        srv_Cinversa1.request.y = PisadaProxima.y;
-//        srv_Cinversa1.request.z = PisadaProxima.z;
-//        if (client_Cinversa1.call(srv_Cinversa1)){
-//        //-- Funciona servicio
-//            return (true);
-//        } else {
-//            ROS_ERROR("server_PlanificadorPisada::servicio de Cinversa no funciona\n");
-//            return (false);
-//        }
-}
+//bool VerificacionCinematica(int Pata, float lambda){
+//        punto3d O, PisadaProxima, delta_S0, delta_S1;
+//        O.x=0.0; O.y=0.0, O.z=0.0;
+////-- Calculamos proximo movimiento en el sistema de pata
+//        delta_S0.x = -lambda*cos(alfa);
+//        delta_S0.y = lambda*sin(alfa);
+//        delta_S1 = TransformacionHomogenea(delta_S0,O,phi[Pata]+alfa);
+//        PisadaProxima.x = posicionActualPataSistemaPata[Pata].x + delta_S1.x;
+//        PisadaProxima.y = posicionActualPataSistemaPata[Pata].y + delta_S1.y;
+//        PisadaProxima.z = posicionActualPataSistemaPata[Pata].z;
+//    //-- Verificamos que pisada sea factible
+////        ROS_INFO("server_Plan: revisando cinversa");
+////        srv_Cinversa1.request.x = PisadaProxima.x;
+////        srv_Cinversa1.request.y = PisadaProxima.y;
+////        srv_Cinversa1.request.z = PisadaProxima.z;
+////        if (client_Cinversa1.call(srv_Cinversa1)){
+////        //-- Funciona servicio
+////            return (true);
+////        } else {
+////            ROS_ERROR("server_PlanificadorPisada::servicio de Cinversa no funciona\n");
+////            return (false);
+////        }
+//}
 
 punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferenciaActual){
 
@@ -446,11 +434,11 @@ punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferencia
     if((nPata+1)==Pata1 or (nPata+1)==Pata3 or (nPata+1)==Pata5){
     //-- Pata del lado izquierdo -- reviso hacia la izquierda
         recta_borde = recta3d(EDT[0],EDT[3]);
-        correccion_ID[nPata]=Correccion_menosX;
+        correccion_ID=Correccion_menosX;
     } else{
     //-- Pata del lado derecho -- reviso hacia la derecha
         recta_borde = recta3d(EDT[1],EDT[2]);
-        correccion_ID[nPata]=Correccion_masX;
+        correccion_ID=Correccion_masX;
     }
     P_aux = recta_borde.proyeccion(PisadaProxima);
     seg_prueba = segmento3d(PisadaProxima,P_aux);
@@ -471,11 +459,11 @@ punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferencia
         if((nPata+1)==Pata1 or (nPata+1)==Pata3 or (nPata+1)==Pata5){
         //-- Pata del lado izquierdo -- reviso hacia la derecha
             recta_borde = recta3d(EDT[1],EDT[2]);
-            correccion_ID[nPata]=Correccion_masX;
+            correccion_ID=Correccion_masX;
         } else{
         //-- Pata del lado derecho -- reviso hacia la izquierda
             recta_borde = recta3d(EDT[0],EDT[3]);
-            correccion_ID[nPata]=Correccion_menosX;
+            correccion_ID=Correccion_menosX;
         }
         P_aux = recta_borde.proyeccion(PisadaProxima);
         seg_prueba = segmento3d(PisadaProxima,P_aux);
@@ -494,7 +482,7 @@ punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferencia
         correccionX = 0.0;
     //-- AHORA REVISO HACIA ABAJO
         ROS_WARN("server_PlanificadorPisada::Pata[%d] correccion ABAJO",nPata+1);
-        correccion_ID[nPata]=-1;
+        correccion_ID=-1;
         float EDT_LongY; segmento3d aux_seg;
         aux_seg = segmento3d(EDT[1],EDT[2]);
         EDT_LongY = aux_seg.longitud();
@@ -508,7 +496,7 @@ punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferencia
         correccion.y = correccionY;
     } else {
         ROS_ERROR("server_PlanificadorPisada::NO SE PUDO CONSEGUIR CORRECCION PARA PISADA, PATA[%d]", nPata);
-        correccion_ID[nPata]=-1;
+        correccion_ID=-1;
         correccion.x = 0.0;
         correccion.y = 0.0;
         return correccion;
@@ -575,20 +563,20 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
             if(*correccion > seg_prueba.longitud()){
             //-- la correccion hallada sale del espacio de trabajo
             //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
-                ROS_WARN("server_PlanificadorPisada::correccion %d sale del EDT", correccion_ID[nPata]);
+                ROS_WARN("server_PlanificadorPisada::correccion %d sale del EDT", correccion_ID);
                 PisadaOk = false;
                 return (PisadaOk);
             }
             ROS_WARN("server_PlanificadorPisada::correccionX:%.4f",*correccion);
         //-- Se calcula la posible correccion
             aux_PisadaProxima.y = PisadaProxima.y;
-            if(correccion_ID[nPata]==Correccion_menosX){
+            if(correccion_ID==Correccion_menosX){
                 aux_PisadaProxima.x = PisadaProxima.x-(*correccion+delta_correccion);
             } else {
                 aux_PisadaProxima.x = PisadaProxima.x+(*correccion+delta_correccion);
             }
             fprintf(fp3,"%d\t",5);
-            fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+            fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0);
             transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
             PisadaProxima_i=ij[0];
             PisadaProxima_j=ij[1];
@@ -644,7 +632,7 @@ bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correcc
         aux_PisadaProxima.x = PisadaProxima.x;
         aux_PisadaProxima.y = PisadaProxima.y-(*correccion+delta_correccion);
         fprintf(fp3,"%d\t",5);
-        fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+        fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0);
         transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
         PisadaProxima_i=ij[0];
         PisadaProxima_j=ij[1];

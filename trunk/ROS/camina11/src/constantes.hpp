@@ -101,7 +101,7 @@ typedef struct {
 		punto3d P4;	//Punto abajo-derecha
 		}Obstaculo;
 //--Definiciones de funciones
-void transformacion_yxTOij(int *ptr_ij, float y, float x, int nCeldas_i, int nCeldas_j, float LongitudCeldaY,float LongitudCeldaX);
+//void transformacion_yxTOij(int *ptr_ij, float y, float x, int nCeldas_i, int nCeldas_j, float LongitudCeldaY,float LongitudCeldaX);
 punto3d TransportaPunto(punto3d Punto_in,float L_traslacion, float ang_rotacion);
 punto3d TransformacionHomogenea(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
 punto3d TransformacionHomogenea_Inversa(punto3d Punto_in, punto3d L_traslacion, float ang_rotacion);
