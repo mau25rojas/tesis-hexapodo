@@ -19,10 +19,10 @@ float ang_offset=90*pi/180;
 
 //-- Funcion para transformar del espacio R2 XY a el espacio de celdas IJ
 /*En matriz de mapa las coordenadas van de i=[0,99], j=[0,19] */
-void transformacion_yxTOij(int *ptr_ij, float y, float x, int nCeldas_i, int nCeldas_j, float LongitudCeldaY,float LongitudCeldaX){
-    ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
-    ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
-}
+//void transformacion_yxTOij(int *ptr_ij, float y, float x, int nCeldas_i, int nCeldas_j, float LongitudCeldaY,float LongitudCeldaX){
+//    ptr_ij[0] = (int) (nCeldas_i/2 - floor(y/LongitudCeldaY)-1);
+//    ptr_ij[1] = (int) (nCeldas_j/2 + floor(x/LongitudCeldaX));
+//}
 //-- Funcion traslación simple de punto
 punto3d TransportaPunto(punto3d Punto_in,float L_traslacion, float ang_rotacion){
 

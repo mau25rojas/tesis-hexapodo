@@ -3,6 +3,7 @@
 # <<--Salen posiciones de motores
 
 # Request
+uint8 nPata
 float32 T
 float32 lambda
 float32 mod_velApoyo
