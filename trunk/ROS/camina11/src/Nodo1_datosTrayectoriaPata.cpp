@@ -177,10 +177,31 @@ int main(int argc, char **argv)
                 datosTrayectoriaPata.vector_estados[k]=VerificacionEstadoPata(k,datosTrayectoriaPata.vector_estados[k]);
 //                if(k==PataPrint) ROS_INFO("pata[%d] estado=%d",k+1,datosTrayectoriaPata.vector_estados[k]);
 
-                if(datosTrayectoriaPata.vector_estados[k]==Apoyo and datosTrayectoriaPata.cambio_estado[k]==1) contadores[k]=0.0;
-                if(datosTrayectoriaPata.vector_estados[k]==Transferencia and datosTrayectoriaPata.cambio_estado[k]==1){
+                if(datosTrayectoriaPata.cambio_estado[k]==1 and datosTrayectoriaPata.vector_estados[k]==Apoyo) contadores[k]=0.0;
+                if(datosTrayectoriaPata.cambio_estado[k]==1 and datosTrayectoriaPata.vector_estados[k]==Transferencia){
+
                     T_apoyo[k]=contadores[k];
                     T_transf[k]=T[k]-T_apoyo[k];
+                    ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k]);
+
+                    mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
+                    srv_Planificador.request.nPata = k;
+                    srv_Planificador.request.T = T_transf[k];
+                    srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
+                    if (client_Planificador.call(srv_Planificador)){
+                        modificacion_lambda = srv_Planificador.response.modificacion_lambda;
+                        datosTrayectoriaPata.correccion_ID[k] = srv_Planificador.response.correccion_ID;
+                        datosTrayectoriaPata.correccion_x[k] = srv_Planificador.response.correccion_x;
+                        datosTrayectoriaPata.correccion_y[k] = srv_Planificador.response.correccion_y;
+                        ROS_INFO("Nodo1::t_sim=%.3f, lambda_c=%.3f",simulationTime,modificacion_lambda);
+                    } else {
+                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
+                        ROS_ERROR("result=%d", srv_Planificador.response.result);
+                    }
+//                    T_apoyo[k] = modificacion_T_apoyo;
+//                    T[k] = T_apoyo[k]/beta;
+//                    divisionTrayectoriaPata[k] = T[k]/divisionTiempo;
+//                    datosTrayectoriaPata.lambda[k]=modificacion_lambda;
                 }
 
                 if(fabs(contadores[k]-T[k])<delta_t[k]){
@@ -281,7 +302,7 @@ bool CambioDeEstado_Apoyo(int nPata){
     if (InicioApoyo[nPata]){
         InicioApoyo[nPata]=false;
         cambio=true;
-        if(nPata==PataPrint) ROS_WARN("***Inicia Apoyo pata[%d]",nPata+1);
+//        if(nPata==PataPrint) ROS_WARN("***Inicia Apoyo pata[%d]",nPata+1);
     }
     return cambio;
 }

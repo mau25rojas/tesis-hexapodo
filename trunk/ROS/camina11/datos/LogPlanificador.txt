@@ -1,0 +1,40 @@
+server_PlanificadorPisada:pata[3], lambda_correccion=0.090
+pata[4] coincidira con obstaculo[73][14]
+server_PlanificadorPisada:pata[4], lambda_correccion=0.090
+server_PlanificadorPisada:pata[2], lambda_correccion=0.090
+server_PlanificadorPisada:pata[5], lambda_correccion=0.090
+server_PlanificadorPisada:pata[1], lambda_correccion=0.090
+server_PlanificadorPisada:pata[6], lambda_correccion=0.090
+server_PlanificadorPisada:pata[3], lambda_correccion=0.090
+server_PlanificadorPisada:pata[4], lambda_correccion=0.090
+server_PlanificadorPisada:pata[2], lambda_correccion=0.090
+server_PlanificadorPisada:pata[5], lambda_correccion=0.090
+server_PlanificadorPisada:pata[1], lambda_correccion=0.090
+server_PlanificadorPisada:pata[6], lambda_correccion=0.090
+server_PlanificadorPisada:pata[3], lambda_correccion=0.090
+server_PlanificadorPisada:pata[4], lambda_correccion=0.090
+pata[2] coincidira con obstaculo[57][13]
+server_PlanificadorPisada:pata[2], lambda_correccion=0.090
+server_PlanificadorPisada:pata[5], lambda_correccion=0.090
+server_PlanificadorPisada:pata[1], lambda_correccion=0.090
+server_PlanificadorPisada:pata[6], lambda_correccion=0.090
+server_PlanificadorPisada:pata[3], lambda_correccion=0.090
+server_PlanificadorPisada:pata[4], lambda_correccion=0.090
+server_PlanificadorPisada:pata[5], lambda_correccion=0.090
+server_PlanificadorPisada:pata[1], lambda_correccion=0.090
+server_PlanificadorPisada:pata[6], lambda_correccion=0.090
+server_PlanificadorPisada:pata[3], lambda_correccion=0.090
+server_PlanificadorPisada:pata[4], lambda_correccion=0.090
+server_PlanificadorPisada:pata[5], lambda_correccion=0.090
+server_PlanificadorPisada:pata[1], lambda_correccion=0.090
+pata[6] coincidira con obstaculo[61][8]
+server_PlanificadorPisada:pata[6], lambda_correccion=0.090
+server_PlanificadorPisada:pata[3], lambda_correccion=0.090
+server_PlanificadorPisada:pata[4], lambda_correccion=0.090
+pata[5] coincidira con obstaculo[55][4]
+server_PlanificadorPisada:pata[5], lambda_correccion=0.090
+server_PlanificadorPisada:pata[1], lambda_correccion=0.090
+server_PlanificadorPisada:pata[6], lambda_correccion=0.090
+server_PlanificadorPisada:pata[3], lambda_correccion=0.090
+server_PlanificadorPisada:pata[5], lambda_correccion=0.090
+server_PlanificadorPisada:pata[4], lambda_correccion=0.090
