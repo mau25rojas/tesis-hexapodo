@@ -23,6 +23,7 @@ bool simulationRunning=true;
 bool sensorTrigger=false, Inicio=true;
 bool InicioApoyo[Npatas]={false,false,false,false,false,false}, FinApoyo[Npatas]={false,false,false,false,false,false};
 bool InicioTransf[Npatas]={false,false,false,false,false,false}, FinTransf[Npatas]={false,false,false,false,false,false},mediaTransf[Npatas]={true,true,true,true,true,true};
+bool velPata1_1=false,velPata1_2=false;
 float simulationTime=0.0f;
 float divisionTrayectoriaPata[Npatas],t_Trayectoria[Npatas], divisionTiempo=0.0, desfasaje_t[Npatas], beta=0.0, phi[Npatas],alfa=0.0, dh=0.0, velApoyo=0.0;
 float T[Npatas], T_contador[Npatas], T_apoyo[Npatas],T_transf[Npatas], contadores[Npatas],delta_t[Npatas], modificacion_T_apoyo = 0.0, modificacion_lambda =0.0;
@@ -30,7 +31,7 @@ float xCuerpo_1=0.0, xCuerpo_2=0.0, yCuerpo_1=0.0, yCuerpo_2=0.0, mod_velocidadC
 int pataApoyo[Npatas],divisionTrayectoriaPata_ini;
 int cuenta=0, PasosIni=0;
 FILE *fp1;
-punto3d coordenadaCuerpo, velocidadCuerpo, posicionActualPataSistemaPata[Npatas],posCuerpo_1, posCuerpo_2;
+punto3d coordenadaCuerpo,velocidadCuerpo,posicionActualPataSistemaPata[Npatas],posCuerpo_1,posCuerpo_2;
 punto3d Offset;
 boost::posix_time::ptime timer_1,timer_2;
 camina11::DatosTrayectoriaPata datosTrayectoriaPata;
@@ -153,12 +154,11 @@ int main(int argc, char **argv)
 
     modificacion_T_apoyo = T_ini;
     modificacion_lambda = lambda;
+    float correccion_x = 0.0;
 
     while (ros::ok() && simulationRunning){
         ros::spinOnce();
         loop_rate.sleep();
-
-        ParametrosVelocidad();
 
         if (Inicio){
             Inicializacion();
@@ -170,11 +170,11 @@ int main(int argc, char **argv)
                 datosTrayectoriaPata.cambio_estado[k]=0;
                 delta_t[k]=T[k]/divisionTrayectoriaPata[k];
 //                if(k==PataPrint) ROS_INFO("cuenta=%.3f",contadores[k]);
-
                 ///-- Verificacion por posicion actual de pata
                 //-- ..Seleccion de estado proximo de la pata
                 //-- ..si hay cambio de estado se activa la bandera correspondiente
                 datosTrayectoriaPata.vector_estados[k]=VerificacionEstadoPata(k,datosTrayectoriaPata.vector_estados[k]);
+                ParametrosVelocidad();
 //                if(k==PataPrint) ROS_INFO("pata[%d] estado=%d",k+1,datosTrayectoriaPata.vector_estados[k]);
 
                 if(datosTrayectoriaPata.cambio_estado[k]==1 and datosTrayectoriaPata.vector_estados[k]==Apoyo) contadores[k]=0.0;
@@ -184,20 +184,29 @@ int main(int argc, char **argv)
                     T_transf[k]=T[k]-T_apoyo[k];
                     ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k]);
 
-                    mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
-                    srv_Planificador.request.nPata = k;
-                    srv_Planificador.request.T = T_transf[k];
-                    srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
-                    if (client_Planificador.call(srv_Planificador)){
-                        modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-                        datosTrayectoriaPata.correccion_ID[k] = srv_Planificador.response.correccion_ID;
-                        datosTrayectoriaPata.correccion_x[k] = srv_Planificador.response.correccion_x;
-                        datosTrayectoriaPata.correccion_y[k] = srv_Planificador.response.correccion_y;
-                        ROS_INFO("Nodo1::t_sim=%.3f, lambda_c=%.3f",simulationTime,modificacion_lambda);
-                    } else {
-                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
-                        ROS_ERROR("result=%d", srv_Planificador.response.result);
-                    }
+//                    mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
+////                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
+//                    if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
+//                        correccion_x = -datosTrayectoriaPata.correccion_x[k];
+//                    } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
+//                        correccion_x = datosTrayectoriaPata.correccion_x[k];
+//                    } else {
+//                        correccion_x=0.0;
+//                    }
+//                    srv_Planificador.request.nPata = k;
+//                    srv_Planificador.request.T = T_transf[k];
+//                    srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
+//                    srv_Planificador.request.correccion_x = correccion_x;
+//                    if (client_Planificador.call(srv_Planificador)){
+//                        modificacion_lambda = srv_Planificador.response.modificacion_lambda;
+//                        datosTrayectoriaPata.correccion_ID[k] = srv_Planificador.response.correccion_ID;
+//                        datosTrayectoriaPata.correccion_x[k] = srv_Planificador.response.correccion_x;
+//                        datosTrayectoriaPata.correccion_y[k] = srv_Planificador.response.correccion_y;
+////                        ROS_INFO("Nodo1::t_sim=%.3f, lambda_c=%.3f",simulationTime,modificacion_lambda);
+//                    } else {
+//                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
+//                        ROS_ERROR("result=%d", srv_Planificador.response.result);
+//                    }
 //                    T_apoyo[k] = modificacion_T_apoyo;
 //                    T[k] = T_apoyo[k]/beta;
 //                    divisionTrayectoriaPata[k] = T[k]/divisionTiempo;
@@ -219,7 +228,6 @@ int main(int argc, char **argv)
             }// fin del for
             fprintf(fp1,"\n");
         }//-- Checkea por inicio
-
     }
         ROS_INFO("Adios1!");
         fclose(fp1);
@@ -254,6 +262,7 @@ void Inicializacion(){
 
             CambioDeEstado_Apoyo(k);
             LlegadaFinEDT(k);
+            ParametrosVelocidad();
         }
 
         for(int k=0;k<Npatas;k++) {
@@ -302,6 +311,8 @@ bool CambioDeEstado_Apoyo(int nPata){
     if (InicioApoyo[nPata]){
         InicioApoyo[nPata]=false;
         cambio=true;
+    //-- Para velocidad, pata1
+        if(nPata==0) velPata1_1=true;
 //        if(nPata==PataPrint) ROS_WARN("***Inicia Apoyo pata[%d]",nPata+1);
     }
     return cambio;
@@ -312,8 +323,15 @@ bool LlegadaFinEDT(int nPata){
 
     float paso_y = 0.0;
     bool cambio = false; punto3d P0, Fin_EDT;
-    paso_y = velApoyo*divisionTiempo;
+//    paso_y = velApoyo*divisionTiempo;
 //    ROS_WARN("%.3f,%.3f",velApoyo,divisionTiempo);
+    if(datosTrayectoriaPata.correccion_ID[nPata]==Correccion_menosX){
+        P0.y = -datosTrayectoriaPata.correccion_x[nPata];
+    } else if (datosTrayectoriaPata.correccion_ID[nPata]==Correccion_masX){
+        P0.y = datosTrayectoriaPata.correccion_x[nPata];
+    } else {
+        P0.y = 0.0;
+    }
     P0.x = Offset.y-FinEspacioTrabajo_y-paso_y;
     //-----Transformacion de trayectoria a Sistema de Pata
     Fin_EDT = TransformacionHomogenea(P0,Offset,phi[nPata]+alfa);
@@ -330,6 +348,8 @@ bool LlegadaFinEDT(int nPata){
     if (InicioTransf[nPata]){
         InicioTransf[nPata]=false;
         cambio=true;
+    //-- Para velocidad, pata1
+        if(nPata==0) velPata1_2=true;
 //        if(nPata==PataPrint) ROS_WARN("------Inicia Transferencia pata[%d]",nPata+1);
     }
     return cambio;
@@ -340,13 +360,15 @@ bool LlegadaFinEDT(int nPata){
 
 void ParametrosVelocidad(){
 //--- Apoyo de Pata 1
-    if (InicioApoyo[0]){
+    if (velPata1_1){
+        velPata1_1=false;
         posCuerpo_1.x = coordenadaCuerpo.x;
         posCuerpo_1.y = coordenadaCuerpo.y;
         timer_1 = boost::posix_time::microsec_clock::local_time();
     }
 //--- Transferencia de Pata 1
-    if (InicioTransf[0]){
+    if (velPata1_2){
+        velPata1_2=false;
         posCuerpo_2.x = coordenadaCuerpo.x;
         posCuerpo_2.y = coordenadaCuerpo.y;
         timer_2 = boost::posix_time::microsec_clock::local_time();

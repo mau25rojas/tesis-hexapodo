@@ -6,6 +6,7 @@
 uint8 nPata
 float32 T
 float32 mod_velApoyo
+float32 correccion_x
 ---
 # Response
 int32 result
