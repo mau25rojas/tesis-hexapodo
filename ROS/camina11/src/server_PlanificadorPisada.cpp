@@ -16,7 +16,7 @@
 #include "vrep_common/VrepInfo.h"
 // Definiciones
 #define delta_correccion_x 0.008
-#define delta_correccion_y 0.005
+#define delta_correccion_y 0.008
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -542,7 +542,7 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
             interseccion = seg_prueba.interseccion(segObstaculos[k],&P_interseccion);
             if (interseccion){
                 if(P_interseccion==prev_P_interseccion){
-                    ROS_WARN("server_PlanificadorPisada::Se repite punto de interseccion");
+//                    ROS_WARN("server_PlanificadorPisada::Se repite punto de interseccion");
                 //-- Existe interseccion, pero es igual a la anterior
                     interseccion = false;
                 } else {
@@ -553,7 +553,7 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
             }
         }
         if (!interseccion){
-            ROS_WARN("server_PlanificadorPisada::No hubo interseccion entre obstaculo[%d][%d] con seg de pata[%d]",PisadaProxima_i, PisadaProxima_j,nPata+1);
+//            ROS_WARN("server_PlanificadorPisada::No hubo interseccion entre obstaculo[%d][%d] con seg de pata[%d]",PisadaProxima_i, PisadaProxima_j,nPata+1);
             PisadaOk = false;
             return (PisadaOk);
         } else {
