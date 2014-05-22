@@ -184,33 +184,33 @@ int main(int argc, char **argv)
                     T_transf[k]=T[k]-T_apoyo[k];
                     ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k]);
 
-//                    mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
-////                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
-//                    if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
-//                        correccion_x = -datosTrayectoriaPata.correccion_x[k];
-//                    } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
-//                        correccion_x = datosTrayectoriaPata.correccion_x[k];
-//                    } else {
-//                        correccion_x=0.0;
-//                    }
-//                    srv_Planificador.request.nPata = k;
-//                    srv_Planificador.request.T = T_transf[k];
-//                    srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
-//                    srv_Planificador.request.correccion_x = correccion_x;
-//                    if (client_Planificador.call(srv_Planificador)){
-//                        modificacion_lambda = srv_Planificador.response.modificacion_lambda;
-//                        datosTrayectoriaPata.correccion_ID[k] = srv_Planificador.response.correccion_ID;
-//                        datosTrayectoriaPata.correccion_x[k] = srv_Planificador.response.correccion_x;
-//                        datosTrayectoriaPata.correccion_y[k] = srv_Planificador.response.correccion_y;
-////                        ROS_INFO("Nodo1::t_sim=%.3f, lambda_c=%.3f",simulationTime,modificacion_lambda);
-//                    } else {
-//                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
-//                        ROS_ERROR("result=%d", srv_Planificador.response.result);
-//                    }
-//                    T_apoyo[k] = modificacion_T_apoyo;
-//                    T[k] = T_apoyo[k]/beta;
-//                    divisionTrayectoriaPata[k] = T[k]/divisionTiempo;
-//                    datosTrayectoriaPata.lambda[k]=modificacion_lambda;
+                    mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
+//                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
+                    if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
+                        correccion_x = -datosTrayectoriaPata.correccion_x[k];
+                    } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
+                        correccion_x = datosTrayectoriaPata.correccion_x[k];
+                    } else {
+                        correccion_x=0.0;
+                    }
+                    srv_Planificador.request.nPata = k;
+                    srv_Planificador.request.T = T_transf[k];
+                    srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
+                    srv_Planificador.request.correccion_x = correccion_x;
+                    if (client_Planificador.call(srv_Planificador)){
+                        modificacion_lambda = srv_Planificador.response.modificacion_lambda;
+                        datosTrayectoriaPata.correccion_ID[k] = srv_Planificador.response.correccion_ID;
+                        datosTrayectoriaPata.correccion_x[k] = srv_Planificador.response.correccion_x;
+                        datosTrayectoriaPata.correccion_y[k] = srv_Planificador.response.correccion_y;
+//                        ROS_INFO("Nodo1::t_sim=%.3f, lambda_c=%.3f",simulationTime,modificacion_lambda);
+                    } else {
+                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
+                        ROS_ERROR("result=%d", srv_Planificador.response.result);
+                    }
+////                    T_apoyo[k] = modificacion_T_apoyo;
+////                    T[k] = T_apoyo[k]/beta;
+////                    divisionTrayectoriaPata[k] = T[k]/divisionTiempo;
+////                    datosTrayectoriaPata.lambda[k]=modificacion_lambda;
                 }
 
                 if(fabs(contadores[k]-T[k])<delta_t[k]){
