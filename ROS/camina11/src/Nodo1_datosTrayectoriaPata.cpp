@@ -344,7 +344,7 @@ bool LlegadaFinEDT(int nPata){
         InicioTransf[nPata]=false;
         cambio=true;
     //-- Para velocidad, pata1
-        if(nPata==3) velPata1_2=true;
+        if(nPata==1) velPata1_2=true;
 //        if(nPata==PataPrint) ROS_WARN("------Inicia Transferencia pata[%d]",nPata+1);
     }
     return cambio;
@@ -380,6 +380,10 @@ float VelocidadCuerpo(boost::posix_time::ptime t1, boost::posix_time::ptime t2, 
     delta_y = fabs(Pos1.y-Pos2.y);
     dif_t = t1 - t2;
     tiempo_ahora = (float) fabs(dif_t.total_milliseconds())/1000;
+    if(tiempo_ahora<0.00001){
+    //-- caso que no se mida bien el tiempo
+        return(0.0);
+    }
     velocidadCuerpo.x = delta_x/tiempo_ahora;
     velocidadCuerpo.y = delta_y/tiempo_ahora;
     return (sqrt(velocidadCuerpo.x*velocidadCuerpo.x + velocidadCuerpo.y*velocidadCuerpo.y));
