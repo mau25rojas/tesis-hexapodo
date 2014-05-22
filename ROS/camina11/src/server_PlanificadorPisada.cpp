@@ -15,8 +15,8 @@
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
-#define delta_correccion_x 0.01
-#define delta_correccion_y 0.01
+#define delta_correccion_x 0.015
+#define delta_correccion_y 0.015
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -54,9 +54,9 @@ int Construye_matrizMapa(std::string fileName);
 void print_matrizMapa();
 void Info_Obstaculos(std::string fileName, int N_Obstaculos);
 //bool VerificacionCinematica(int Pata, float lambda);
-punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferenciaActual);
-bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d seg_prueba, float *correccion);
-bool Revision_PisadaObstaculos_Y (int nPata, punto3d PisadaProxima, float *correccion, float EDT_LongY);
+punto3d CorreccionObstaculos(int nPata,punto3d PisadaActual,punto3d PisadaProxima,float transferenciaActual);
+bool Revision_PisadaObstaculos_X (int nPata,punto3d PisadaProxima,segmento3d seg_prueba,float *correccion);
+bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaActual,punto3d PisadaProxima,float *correccion_x,float *correccion_y,float EDT_LongY);
 
 //-- Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
@@ -150,7 +150,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
         ROS_WARN("server_PlanificadorPisada::pata[%d] coincidira con obstaculo [%d][%d]",nPata+1,PisadaProxima_i,PisadaProxima_j);
         fprintf(fp2,"pata[%d] coincidira con obstaculo[%d][%d]\n",nPata+1,PisadaProxima_i,PisadaProxima_j);
     //-- Revision de pisada para correccion
-        correccion = CorreccionObstaculos(nPata,PisadaProxima,mod_velocidadCuerpo*T_transfer);
+        correccion = CorreccionObstaculos(nPata,posicionPata,PisadaProxima,mod_velocidadCuerpo*T_transfer);
     //-- Prueba con pata 1
 //            if(Tripode_Transferencia[k]==0){
             correccion_x=correccion.x;
@@ -403,7 +403,7 @@ void Info_Obstaculos(std::string fileName, int N_Obstaculos){
 ////        }
 //}
 
-punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferenciaActual){
+punto3d CorreccionObstaculos(int nPata,punto3d PisadaActual,punto3d PisadaProxima,float transferenciaActual){
 
     bool PisadaOk=false;
     float correccionX=0.0, correccionY=0.0;
@@ -479,13 +479,13 @@ punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferencia
     if(!PisadaOk){
     //-- La correccion en X no funcionó
         correccionX = 0.0;
-    //-- AHORA REVISO HACIA ABAJO
+    //-- AHORA REVISO HACIA ABAJO/DIAGONAL
         ROS_WARN("server_PlanificadorPisada::Pata[%d] correccion ABAJO",nPata+1);
         correccion_ID=-1;
         float EDT_LongY; segmento3d aux_seg;
         aux_seg = segmento3d(EDT[1],EDT[2]);
         EDT_LongY = aux_seg.longitud();
-        PisadaOk = Revision_PisadaObstaculos_Y(nPata,PisadaProxima,&correccionY,EDT_LongY);
+        PisadaOk = Revision_PisadaObstaculos_Y(nPata,PisadaActual,PisadaProxima,&correccionX,&correccionY,EDT_LongY);
 //        ROS_WARN("PisadaOk:%s", PisadaOk ? "true" : "false");
     }
 
@@ -591,10 +591,11 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
         return (PisadaOk);
 }
 
-bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correccion, float EDT_LongY){
-    bool PisadaOk=false;
+bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaActual,punto3d PisadaProxima, float *correccion_x,float *correccion_y, float EDT_LongY){
+    bool PisadaOk=false,interseccion=false;
     int PisadaProxima_i=0, PisadaProxima_j=0;
-    punto3d aux_PisadaProxima, puntosObstaculo[4];
+    punto3d aux_PisadaProxima, puntosObstaculo[4],P_interseccion;
+    segmento3d segObstaculo, segtrasladoActual;
     recta3d recta_obstaculo;
 
     transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
@@ -617,20 +618,42 @@ bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correcc
         fprintf(fp3,"%.3f\t%.3f\t",puntosObstaculo[3].x,puntosObstaculo[3].y);
         fprintf(fp3,"\n");
     //    ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
-        recta_obstaculo = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
-        *correccion = recta_obstaculo.distancia(PisadaProxima);
+//        recta_obstaculo = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
+//        *correccion = recta_obstaculo.distancia(PisadaProxima);
 //        ROS_WARN("server_PlanificadorPisada::correccionY:%.4f",*correccion);
 
-        if(*correccion > EDT_LongY){
-        //-- la correccion hallada sale del espacio de trabajo
-        //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
-            ROS_WARN("server_PlanificadorPisada::correccion Y sale del EDT");
+        segObstaculo = segmento3d(puntosObstaculo[3],puntosObstaculo[2]);
+        segtrasladoActual = segmento3d(PisadaActual,PisadaProxima);
+        interseccion = segtrasladoActual.interseccion(segObstaculo,&P_interseccion);
+        if (!interseccion){
+//            ROS_WARN("server_PlanificadorPisada::No hubo interseccion entre obstaculo[%d][%d] con seg de pata[%d]",PisadaProxima_i, PisadaProxima_j,nPata+1);
             PisadaOk = false;
             return (PisadaOk);
+        } else {
+            *correccion_y = fabs(PisadaProxima.y-P_interseccion.y);
+            if(*correccion_y > EDT_LongY){
+            //-- la correccion hallada sale del espacio de trabajo
+            //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
+                ROS_WARN("server_PlanificadorPisada::correccion Y sale del EDT");
+                PisadaOk = false;
+                return (PisadaOk);
+            }
+            *correccion_x = fabs(P_interseccion.x-PisadaActual.x);
+            if(P_interseccion.x>PisadaActual.x){
+                correccion_ID=Correccion_masX;
+            } else {
+                correccion_ID=Correccion_menosX;
+            }
         }
 
-        aux_PisadaProxima.x = PisadaProxima.x;
-        aux_PisadaProxima.y = PisadaProxima.y-(*correccion+delta_correccion_y);
+        if(correccion_ID==Correccion_menosX){
+            aux_PisadaProxima.x = PisadaProxima.x-(*correccion_x+delta_correccion_x);
+        } else if (correccion_ID==Correccion_masX){
+            aux_PisadaProxima.x = PisadaProxima.x+(*correccion_x+delta_correccion_x);
+        } else {
+            aux_PisadaProxima.x = PisadaProxima.x;
+        }
+        aux_PisadaProxima.y = PisadaProxima.y-(*correccion_y+delta_correccion_y);
         fprintf(fp3,"%d\t",5);
         fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0);
         transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
