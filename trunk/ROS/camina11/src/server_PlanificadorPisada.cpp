@@ -15,8 +15,8 @@
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
-#define delta_correccion_x 0.015
-#define delta_correccion_y 0.015
+#define delta_correccion_x 0.01
+#define delta_correccion_y 0.01
 
 //-- Variables Globales
 bool simulationRunning=true;
