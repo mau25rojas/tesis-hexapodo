@@ -149,12 +149,11 @@ int main(int argc, char **argv)
     /* La velocidad de envío de los datos se encarga de darme el tiempo total de trayectoria deseado */
     /* Velocidad de transmision */
     ros::Rate loop_rate(f);  //Frecuencia [Hz]
-//-- Delay inicial para esperar inicio de todos los nodos
-//    for(i=0;i<10;i++) loop_rate.sleep();
 
     modificacion_T_apoyo = T_ini;
     modificacion_lambda = lambda;
     float correccion_x = 0.0;
+
 
     while (ros::ok() && simulationRunning){
         ros::spinOnce();
@@ -185,7 +184,7 @@ int main(int argc, char **argv)
                     ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k]);
 
                     mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
-//                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
+                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
                     if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
                         correccion_x = -datosTrayectoriaPata.correccion_x[k];
                     } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
@@ -207,11 +206,7 @@ int main(int argc, char **argv)
                         ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
                         ROS_ERROR("result=%d", srv_Planificador.response.result);
                     }
-////                    T_apoyo[k] = modificacion_T_apoyo;
-////                    T[k] = T_apoyo[k]/beta;
-////                    divisionTrayectoriaPata[k] = T[k]/divisionTiempo;
-////                    datosTrayectoriaPata.lambda[k]=modificacion_lambda;
-                }
+                }// fin de InicioTransfe
 
                 if(fabs(contadores[k]-T[k])<delta_t[k]){
                     contadores[k] = T[k];
@@ -323,7 +318,7 @@ bool LlegadaFinEDT(int nPata){
 
     float paso_y = 0.0;
     bool cambio = false; punto3d P0, Fin_EDT;
-//    paso_y = velApoyo*divisionTiempo;
+    paso_y = velApoyo*divisionTiempo;
 //    ROS_WARN("%.3f,%.3f",velApoyo,divisionTiempo);
     if(datosTrayectoriaPata.correccion_ID[nPata]==Correccion_menosX){
         P0.y = -datosTrayectoriaPata.correccion_x[nPata];
@@ -349,7 +344,7 @@ bool LlegadaFinEDT(int nPata){
         InicioTransf[nPata]=false;
         cambio=true;
     //-- Para velocidad, pata1
-        if(nPata==0) velPata1_2=true;
+        if(nPata==3) velPata1_2=true;
 //        if(nPata==PataPrint) ROS_WARN("------Inicia Transferencia pata[%d]",nPata+1);
     }
     return cambio;
@@ -379,12 +374,12 @@ void ParametrosVelocidad(){
 .. en apoyo y transferencia*/
 float VelocidadCuerpo(boost::posix_time::ptime t1, boost::posix_time::ptime t2, punto3d Pos1, punto3d Pos2){
     float delta_x=0.0, delta_y=0.0, tiempo_ahora=0.0;
-    boost::posix_time::time_duration diff_t;
+    boost::posix_time::time_duration dif_t;
 
     delta_x = fabs(Pos1.x-Pos2.x);
     delta_y = fabs(Pos1.y-Pos2.y);
-    diff_t = t1 - t2;
-    tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+    dif_t = t1 - t2;
+    tiempo_ahora = (float) fabs(dif_t.total_milliseconds())/1000;
     velocidadCuerpo.x = delta_x/tiempo_ahora;
     velocidadCuerpo.y = delta_y/tiempo_ahora;
     return (sqrt(velocidadCuerpo.x*velocidadCuerpo.x + velocidadCuerpo.y*velocidadCuerpo.y));
