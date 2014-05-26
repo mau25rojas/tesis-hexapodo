@@ -38,8 +38,8 @@ rosbuild_add_executable(Nodo3_RosVrep src/Nodo3_RosVrep.cpp src/constantes.cpp .
 rosbuild_add_executable(Nodo5_ConstruccionDeMapa src/Nodo5_ConstruccionDeMapa.cpp src/constantes.cpp ../../Convexhull/vector3d.cpp)
 target_link_libraries(Nodo5_ConstruccionDeMapa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2.2)
 rosbuild_add_executable(Nodo6_UbicacionRobot src/Nodo6_UbicacionRobot2.cpp src/constantes.cpp ../../Convexhull/vector3d.cpp)
-#rosbuild_add_executable(CentroMasa src/CentrodeMasa.cpp src/constantes.cpp ../../Convexhull/vector3d.cpp ../../Convexhull/analisis.cpp ../../Convexhull/convexhull.cpp)
-#target_link_libraries(CentroMasa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2.2)
+rosbuild_add_executable(CentroMasa src/CentrodeMasa.cpp src/constantes.cpp ../../Convexhull/vector3d.cpp ../../Convexhull/analisis.cpp ../../Convexhull/convexhull.cpp)
+target_link_libraries(CentroMasa -L/usr/lib -Wl,-Bsymbolic-functions -lalleg-4.2.2)
 
 #CLientes y servicios
 rosbuild_add_executable(server_PlanificadorPisada src/server_PlanificadorPisada.cpp src/constantes.cpp ../../Convexhull/vector3d.cpp ../../Convexhull/analisis.cpp ../../Convexhull/convexhull.cpp)

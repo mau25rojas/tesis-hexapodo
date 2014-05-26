@@ -94,7 +94,7 @@ void ubicacionCuerpoCallback(camina11::UbicacionRobot msgUbicacionCuerpo)
     }
     cm_Robot.centroMasaCuerpo_x = cos(teta_CuerpoRobot)*CM_Hexapodo.x-sin(teta_CuerpoRobot)*CM_Hexapodo.y+PosicionCuerpo_x;
     cm_Robot.centroMasaCuerpo_y = sin(teta_CuerpoRobot)*CM_Hexapodo.x+cos(teta_CuerpoRobot)*CM_Hexapodo.y+PosicionCuerpo_y;
-    fprintf(fp,"%.3f\t%.3f\t",cm_Robot.centroMasaCuerpo_x,cm_Robot.centroMasaCuerpo_y);
+    fprintf(fp,"%.3f\t%.3f\t%.3f\t",simulationTime,cm_Robot.centroMasaCuerpo_x,cm_Robot.centroMasaCuerpo_y);
     chatter_pub.publish(cm_Robot);
 
     punto3d *P, *Q;
@@ -113,7 +113,6 @@ void ubicacionCuerpoCallback(camina11::UbicacionRobot msgUbicacionCuerpo)
         P = posicionesPatas;
         Q = Salida_hull;
         NPuntos_hull = convexhull_graham(P,Q,cuentaPataApoyo);
-        fprintf(fp1,"%.3f\t",simulationTime);
         fprintf(fp1,"%d\t",NPuntos_hull);
         for(int k=0;k<NPuntos_hull;k++) fprintf(fp1,"%.3f\t%.3f\t",Salida_hull[k].x,Salida_hull[k].y);
         fprintf(fp1,"\n");
