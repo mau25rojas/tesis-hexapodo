@@ -9,7 +9,7 @@ float32 mod_velApoyo
 float32 correccion_x
 ---
 # Response
-int32 result
+int32 resultado
 float32 modificacion_T_apoyo
 float32 modificacion_lambda
 float32 correccion_y	#La correccion en y siempre es hacia -y
