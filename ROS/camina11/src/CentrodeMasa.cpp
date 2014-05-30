@@ -124,7 +124,7 @@ void ubicacionCuerpoCallback(camina11::UbicacionRobot msgUbicacionCuerpo)
         fprintf(fp,"%.3f\n",ME);
 
     //-- Funcion para grafica de cuerpo
-//        FuncionGrafica_CM();
+        FuncionGrafica_CM();
     } else {
         ROS_ERROR("Hay SOLO 2 o menos patas en apoyo: no se forma poligono de apoyo");
     }
@@ -169,7 +169,7 @@ int main(int argc,char* argv[])
     PosicionPata_x2 = radioCuerpo;
     PosicionPata_y2 = 0.0;
 //--- Inicializacion de grafica
-//    IniciaGrafica();
+    IniciaGrafica();
 
     fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/CM_ME.txt","w+");
     fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/convexhull.txt","w+");

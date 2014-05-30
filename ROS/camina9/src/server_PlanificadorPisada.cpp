@@ -664,7 +664,7 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
         } else {
             interseccion = false;
 
-            *correccion = P_interseccion.distancia(PisadaProxima);
+            *correccion = P_interseccion.distancia(PisadaProxima)+delta_correccion;
             if(*correccion > seg_prueba.longitud()){
             //-- la correccion hallada sale del espacio de trabajo
             //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
@@ -676,9 +676,9 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
         //-- Se calcula la posible correccion
             aux_PisadaProxima.y = PisadaProxima.y;
             if(correccion_ID[nPata]==Correccion_menosX){
-                aux_PisadaProxima.x = PisadaProxima.x-(*correccion+delta_correccion);
+                aux_PisadaProxima.x = PisadaProxima.x-(*correccion);
             } else {
-                aux_PisadaProxima.x = PisadaProxima.x+(*correccion+delta_correccion);
+                aux_PisadaProxima.x = PisadaProxima.x+(*correccion);
             }
             fprintf(fp3,"%d\t",5);
             fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
@@ -723,7 +723,7 @@ bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correcc
         fprintf(fp3,"\n");
     //    ROS_WARN("Puntos: Pata:%.3f,%.3f; Recta:%.3f,%.3f;%.3f,%.3f",Pata.x,Pata.y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
         recta_obstaculo = recta3d(puntosObstaculo[3],puntosObstaculo[2]);
-        *correccion = recta_obstaculo.distancia(PisadaProxima);
+        *correccion = recta_obstaculo.distancia(PisadaProxima)+delta_correccion;
         ROS_WARN("server_PlanificadorPisada::correccionY:%.4f",*correccion);
 
         if(*correccion > EDT_LongY){
@@ -735,7 +735,7 @@ bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correcc
         }
 
         aux_PisadaProxima.x = PisadaProxima.x;
-        aux_PisadaProxima.y = PisadaProxima.y-(*correccion+delta_correccion);
+        aux_PisadaProxima.y = PisadaProxima.y-(*correccion);
         fprintf(fp3,"%d\t",5);
         fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0);
         transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
