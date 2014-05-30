@@ -1,0 +1,20 @@
+# Servicio para calculo de cinematica inversa
+# -->>Entra coordenadas cartesianas
+# <<--Salen posiciones de motores
+
+# Request
+uint8 nPata
+float32 T
+float32 mod_velApoyo
+float32 correccion_x
+---
+# Response
+int32 resultado
+float32 modificacion_T_apoyo
+float32 modificacion_lambda
+float32 correccion_y	#La correccion en y siempre es hacia -y
+float32 correccion_x
+int32 correccion_ID	#ID de la correccion_x: (-1)no hay corr;(0)corr_izq-> -x;(1)corr_der-> +x;
+
+
+
