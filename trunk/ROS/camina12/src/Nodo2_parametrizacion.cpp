@@ -18,6 +18,7 @@ bool sensorTrigger=false;
 float simulationTime=0.0f;
 bool Inicio=true;
 //-- Calculo de trayectoria
+int tripode[Npatas];
 float velocidadApoyo=0.0, dh=0.0,phi[Npatas];
 punto3d Offset, P0[Npatas], FinApoyo[Npatas], FinTranfer[Npatas];
 
@@ -41,31 +42,30 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 */
 void datosCallback(const camina12::DatosTrayectoriaPata msg_datoTrayectoria)
 {
-    int correccion_ID[Npatas], cambioEstado[Npatas], Estado[Npatas];
-    float t_Trayectoria[Npatas],alfa=0.0,lambda[Npatas];
-    float correccion_x[Npatas],correccion_y[Npatas];
+    int correccion_ID, cambioEstado, Estado;
+    float t_Trayectoria,alfa=0.0, T=0.0;
+    float correccion_x,correccion_y;
     punto3d P1, PInicio, PFin, InicioApoyo;
 
     for(int k=0;k<Npatas;k++){
-        t_Trayectoria[k] = msg_datoTrayectoria.t_Trayectoria[k];
-        lambda[k] = msg_datoTrayectoria.lambda[k];
+        T = msg_datoTrayectoria.T[tripode[k]-1];
+        t_Trayectoria = msg_datoTrayectoria.t_Trayectoria[tripode[k]-1];
         alfa = msg_datoTrayectoria.alfa;
-    //    desfasaje_t = msg_datoTrayectoria.desfasaje_t[k];
-        Estado[k] = msg_datoTrayectoria.vector_estados[k];
-        cambioEstado[k] = msg_datoTrayectoria.cambio_estado[k];
-        correccion_x[k] = msg_datoTrayectoria.correccion_x[k];
-        correccion_y[k] = msg_datoTrayectoria.correccion_y[k];
-        correccion_ID[k] = msg_datoTrayectoria.correccion_ID[k];
+        Estado = msg_datoTrayectoria.vector_estados[tripode[k]-1];
+        cambioEstado = msg_datoTrayectoria.cambio_estado[tripode[k]-1];
+        correccion_x = msg_datoTrayectoria.correccion_x[k];
+        correccion_y = msg_datoTrayectoria.correccion_y[k];
+        correccion_ID = msg_datoTrayectoria.correccion_ID[k];
 
-        InicioApoyo.x = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+correccion_y[k];
+        InicioApoyo.x = (Offset.y-FinEspacioTrabajo_y)-lambda_maximo+correccion_y;
         InicioApoyo.y = 0.0;
-        if(correccion_ID[k]==Correccion_menosX){
-            InicioApoyo.y = -correccion_x[k];
-        } else if (correccion_ID[k]==Correccion_masX){
-            InicioApoyo.y = correccion_x[k];
+        if(correccion_ID==Correccion_menosX){
+            InicioApoyo.y = -correccion_x;
+        } else if (correccion_ID==Correccion_masX){
+            InicioApoyo.y = correccion_x;
         }
 
-        if(cambioEstado[k]==1 and Estado[k]==Transferencia){
+        if(cambioEstado==1 and Estado==Transferencia){
             FinApoyo[k] = P0[k];
             FinTranfer[k] = InicioApoyo;
         }
@@ -80,17 +80,17 @@ void datosCallback(const camina12::DatosTrayectoriaPata msg_datoTrayectoria)
         }
         //-----Parametrizacion de trayectoria eliptica en Sistema de Robot
 
-        switch (Estado[k]){
+        switch (Estado){
             case Apoyo:
                 PInicio=InicioApoyo;
-                P0[k] = Trayectoria_FaseApoyo(t_Trayectoria[k],PInicio);
+                P0[k] = Trayectoria_FaseApoyo(t_Trayectoria,PInicio);
             break;
 
             case Transferencia:
                 // Elipsis
                 PInicio=FinApoyo[k];
                 PFin=FinTranfer[k];
-                P0[k] = Trayectoria_FaseTrans_Eliptica(t_Trayectoria[k],PInicio,PFin);
+                P0[k] = Trayectoria_FaseTrans_Eliptica(t_Trayectoria/T,PInicio,PFin);
             break;
 
             default:
@@ -108,22 +108,22 @@ void datosCallback(const camina12::DatosTrayectoriaPata msg_datoTrayectoria)
 
         switch (k){
             case 0:
-                fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+                fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria,P1.x,P1.y,P1.z);
             break;
             case 1:
-                fprintf(fp2,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+                fprintf(fp2,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria,P1.x,P1.y,P1.z);
             break;
             case 2:
-                fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+                fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria,P1.x,P1.y,P1.z);
             break;
             case 3:
-                fprintf(fp4,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+                fprintf(fp4,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria,P1.x,P1.y,P1.z);
             break;
             case 4:
-                fprintf(fp5,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+                fprintf(fp5,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria,P1.x,P1.y,P1.z);
             break;
             case 5:
-                fprintf(fp6,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria[k],P1.x,P1.y,P1.z);
+                fprintf(fp6,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",qMotor.q1[k],qMotor.q2[k],qMotor.q3[k],t_Trayectoria,P1.x,P1.y,P1.z);
             break;
         }
     } //fin for Npatas
@@ -140,6 +140,7 @@ int main(int argc, char **argv){
         Offset.z=atof(argv[4]);
         velocidadApoyo=atof(argv[5]);
         for(int k=0;k<Npatas;k++) phi[k]=atof(argv[6+k])*pi/180;
+        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[10+k]);
 	}
 	else
 	{

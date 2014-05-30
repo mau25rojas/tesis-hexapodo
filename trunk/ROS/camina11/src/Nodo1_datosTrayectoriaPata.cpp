@@ -294,11 +294,11 @@ bool CambioDeEstado_Apoyo(int nPata){
         FinApoyo[nPata]=false;
     }
 //    if(nPata==PataPrint) ROS_WARN("------Pata[%d]=%d",nPata+1,pataApoyo[nPata]);
-    if (pataApoyo[nPata]==Transferencia and (fabs(contadores[nPata]-(T[nPata]-T_transf[nPata]/2))<=delta_t[nPata])) {
-//    if (pataApoyo[nPata]==Transferencia) {
+//    if (pataApoyo[nPata]==Transferencia and (fabs(contadores[nPata]-(T[nPata]-T_transf[nPata]/2))<=delta_t[nPata])) {
+    if (pataApoyo[nPata]==Transferencia and (fabs(contadores[nPata]-(T_apoyo[nPata]+5*delta_t[nPata]))<=delta_t[nPata])) {
         FinApoyo[nPata]=true;
-//        if(nPata==PataPrint) ROS_WARN("****Pata[%d] preApoyo",nPata+1);
-//        ROS_WARN("****Pata[%d] preApoyo",nPata+1);
+//        if(nPata==PataPrint) ROS_WARN("****Pata[%d] finApoyo",nPata+1);
+//        ROS_WARN("****Pata[%d] finApoyo",nPata+1);
     }
     if (InicioApoyo[nPata]){
         InicioApoyo[nPata]=false;
