@@ -58,15 +58,15 @@ int main(int argc, char **argv)
   float lambda_Apoyo[2], lambda_Transferencia[2], alfa=0.0, f=0.0;
   int Narg=0;
 
-  Narg=14;
+  Narg=6;
 	if (argc>=Narg)
 	{
         PasosIni=atoi(argv[1]);
         T=atof(argv[2]); // Periodo de trayectoria [seg]
 		divisionTrayectoriaPata=atof(argv[3]);  //N puntos
 		beta=atof(argv[4]);
-		alfa=atof(argv[7])*pi/180;
-        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[10+k]);
+		alfa=atof(argv[5])*pi/180;
+        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[6+k]);
     } else {
 		ROS_ERROR("Nodo1: Indique argumentos!\n");
 		return 0;
@@ -159,7 +159,7 @@ int main(int argc, char **argv)
                 chatter_pub1.publish(datosTrayectoriaPata);
 
                 delta_t = delta_t + T/divisionTrayectoriaPata;
-                if (fabs(delta_t-T)<=(T/divisionTrayectoriaPata)) {
+                if (fabs(delta_t-T)<(T/divisionTrayectoriaPata)) {
                     delta_t = 0.0;
                     if (datosTrayectoriaPata.vector_estados[T1-1]==0){ datosTrayectoriaPata.vector_estados[T1-1]=1;
                     } else { datosTrayectoriaPata.vector_estados[T1-1]=0;}
@@ -198,13 +198,14 @@ int main(int argc, char **argv)
                 srv_Planificador.request.T = T;
                 srv_Planificador.request.lambda = lambda_Apoyo_actual;
                 srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
+                srv_Planificador.request.correccion_x = datosTrayectoriaPata.correccion_x;
                 if (client_Planificador.call(srv_Planificador)){
                     modificacion_T = srv_Planificador.response.modificacion_T;
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     datosTrayectoriaPata.correccion_ID = srv_Planificador.response.correccion_ID;
                     datosTrayectoriaPata.correccion_x = srv_Planificador.response.correccion_x;
                     datosTrayectoriaPata.correccion_y = srv_Planificador.response.correccion_y;
-                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
+//                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
                 } else {
                     ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
                     ROS_ERROR("result=%d", srv_Planificador.response.result);
@@ -215,8 +216,8 @@ int main(int argc, char **argv)
                 //-- datos a enviar
                 if (Tripode==T1){
                 //-- Correccion en T1 significa inicio de apoyo en T1 y transferencia en T2
-                    datosTrayectoriaPata.vector_estados[T1-1]=0;
-                    datosTrayectoriaPata.vector_estados[T2-1]=1;
+                    datosTrayectoriaPata.vector_estados[T1-1]=Apoyo;
+                    datosTrayectoriaPata.vector_estados[T2-1]=Transferencia;
                     datosTrayectoriaPata.cambio_estado[T1-1]=1;
                     datosTrayectoriaPata.cambio_estado[T2-1]=1;
                 //-- El tiempo de apoyo de T1 es tiempo de trans de T2
@@ -225,8 +226,8 @@ int main(int argc, char **argv)
                     lambda_Transferencia[T2-1]=modificacion_lambda;
                 } else {
                 //-- Correccion en T2 significa inicio de apoyo en T2 y transferencia en T1
-                    datosTrayectoriaPata.vector_estados[T1-1]=1;
-                    datosTrayectoriaPata.vector_estados[T2-1]=0;
+                    datosTrayectoriaPata.vector_estados[T1-1]=Transferencia;
+                    datosTrayectoriaPata.vector_estados[T2-1]=Apoyo;
                     datosTrayectoriaPata.cambio_estado[T1-1]=1;
                     datosTrayectoriaPata.cambio_estado[T2-1]=1;
                 //-- El tiempo de apoyo de T2 es tiempo de trans de T1
@@ -259,12 +260,12 @@ int main(int argc, char **argv)
 bool CambioDeEstado(){
     bool cambio = false;
 //--- Apoyo de Tripode 1
-    if ((pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) and FinApoyo_T1) {
+    if ((pataApoyo[Tripode1[0]]==Apoyo and pataApoyo[Tripode1[1]]==Apoyo and pataApoyo[Tripode1[2]]==Apoyo) and FinApoyo_T1) {
 //            ROS_INFO("Nodo1: apoyo Tripode1[%d,%d,%d]",pataApoyo[Tripode1[0]],pataApoyo[Tripode1[1]],pataApoyo[Tripode1[2]]);
         InicioApoyo_T1=true;
         FinApoyo_T1=false;
     }
-    if (pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) {
+    if (pataApoyo[Tripode1[0]]==Transferencia and pataApoyo[Tripode1[1]]==Transferencia and pataApoyo[Tripode1[2]]==Transferencia) {
         FinApoyo_T1=true;
     }
 
@@ -277,11 +278,11 @@ bool CambioDeEstado(){
         cambio = true;
     }
 //--- Transferencia de Tripode 1
-    if ((pataApoyo[Tripode1[0]]==0 and pataApoyo[Tripode1[1]]==0 and pataApoyo[Tripode1[2]]==0) and FinTransf_T1) {
+    if ((pataApoyo[Tripode1[0]]==Transferencia and pataApoyo[Tripode1[1]]==Transferencia and pataApoyo[Tripode1[2]]==Transferencia) and FinTransf_T1) {
         InicioTransf_T1=true;
         FinTransf_T1=false;
     }
-    if (pataApoyo[Tripode1[0]]==1 and pataApoyo[Tripode1[1]]==1 and pataApoyo[Tripode1[2]]==1) {
+    if (pataApoyo[Tripode1[0]]==Apoyo and pataApoyo[Tripode1[1]]==Apoyo and pataApoyo[Tripode1[2]]==Apoyo) {
         FinTransf_T1=true;
     }
 
@@ -292,12 +293,12 @@ bool CambioDeEstado(){
         timerT1_2 = boost::posix_time::microsec_clock::local_time();
     }
 //--- Apoyo de Tripode 2
-    if ((pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) and FinApoyo_T2) {
+    if ((pataApoyo[Tripode2[0]]==Apoyo and pataApoyo[Tripode2[1]]==Apoyo and pataApoyo[Tripode2[2]]==Apoyo) and FinApoyo_T2) {
 //            ROS_INFO("Nodo1: apoyo Tripode2[%d,%d,%d]",pataApoyo[Tripode2[0]],pataApoyo[Tripode2[1]],pataApoyo[Tripode2[2]]);
         InicioApoyo_T2=true;
         FinApoyo_T2=false;
     }
-    if (pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) {
+    if (pataApoyo[Tripode2[0]]==Transferencia and pataApoyo[Tripode2[1]]==Transferencia and pataApoyo[Tripode2[2]]==Transferencia) {
         FinApoyo_T2=true;
     }
 
@@ -310,11 +311,11 @@ bool CambioDeEstado(){
         cambio = true;
     }
 //--- Transferencia de Tripode 2
-    if ((pataApoyo[Tripode2[0]]==0 and pataApoyo[Tripode2[1]]==0 and pataApoyo[Tripode2[2]]==0) and FinTransf_T2) {
+    if ((pataApoyo[Tripode2[0]]==Transferencia and pataApoyo[Tripode2[1]]==Transferencia and pataApoyo[Tripode2[2]]==Transferencia) and FinTransf_T2) {
         InicioTransf_T2=true;
         FinTransf_T2=false;
     }
-    if (pataApoyo[Tripode2[0]]==1 and pataApoyo[Tripode2[1]]==1 and pataApoyo[Tripode2[2]]==1) {
+    if (pataApoyo[Tripode2[0]]==Apoyo and pataApoyo[Tripode2[1]]==Apoyo and pataApoyo[Tripode2[2]]==Apoyo) {
         FinTransf_T2=true;
     }
 
