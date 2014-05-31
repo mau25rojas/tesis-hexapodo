@@ -111,7 +111,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
     recta3d recta_di[2], *S;
     float di=0.0;
     transformacion_yxTOij(p_ij, posicionActualPata[nPata].y, posicionActualPata[nPata].x);
-//    ROS_INFO("server_PlanificadorPisada::pata[%d] CAYO en [x=%.3f;y=%.3f]",nPata+1,posicionActualPata[nPata].x,posicionActualPata[nPata].y);
+    ROS_INFO("server_PlanificadorPisada::pata[%d] CAYO en [x=%.3f;y=%.3f]",nPata+1,posicionActualPata[nPata].x,posicionActualPata[nPata].y);
     PisadaProxima_i=ij[0];
     PisadaProxima_j=ij[1];
     if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
@@ -147,7 +147,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
     transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
     PisadaProxima_i=ij[0];
     PisadaProxima_j=ij[1];
-//    ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",nPata+1,PisadaProxima.x,PisadaProxima.y);
+    ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",nPata+1,PisadaProxima.x,PisadaProxima.y);
     if(0<PisadaProxima_i<nCeldas_i and 0<PisadaProxima_j<nCeldas_j){
 
         if(matrizMapa[PisadaProxima_i][PisadaProxima_j]){
