@@ -14,7 +14,7 @@
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
-#define delta_correccion 0.008
+#define delta_correccion 0.01
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -40,7 +40,8 @@ punto3d posicionActualCuerpo, posicionActualPata[Npatas], posicionActualPataSist
 float teta_CuerpoRobot=0.0;
 //-- Correccion
 int correccion_ID[Npatas]; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der
-float correccion_x[Npatas], correccion_y[Npatas];
+float correccion_x[Npatas],correccion_y[Npatas];
+bool ExisteCorreccion=true;
 
 //-- Funciones
 void transformacion_yxTOij(int *ptr_ij, float y, float x);
@@ -171,7 +172,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
         lambda_posible = lambda_maximo;
             //-- Hay que eliminar la correccion de la estimacion, porque se supone la pata vuelve a su estado default
         punto3d posicionPata = posicionActualPata[Tripode_Transferencia[k]];
-        posicionPata.x = posicionActualPata[Tripode_Transferencia[k]].x; //- req.correccion_x[Tripode_Transferencia[k]];
+        posicionPata.x = posicionActualPata[Tripode_Transferencia[k]].x - req.correccion_x[Tripode_Transferencia[k]];
         PisadaProxima = TransportaPunto(posicionPata,lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
         ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",Tripode_Transferencia[k]+1,PisadaProxima.x,PisadaProxima.y);
         transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
@@ -183,7 +184,10 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
             fprintf(fp2,"pata[%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
         //-- Revision de pisada para correccion
             correccion = CorreccionObstaculos(Tripode_Transferencia[k],PisadaProxima,mod_velocidadCuerpo*T_actual);
-
+            if(!ExisteCorreccion){
+                res.result=-1;
+                return -1;
+            }
         //-- Prueba con pata 1
 //            if(Tripode_Transferencia[k]==0){
                 correccion_x[Tripode_Transferencia[k]]=correccion.x;
@@ -264,10 +268,10 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     ros::ServiceServer service = node.advertiseService("PlanificadorPisada", PlanificadorPisada);
     /* Log de planificador */
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/RegistroCorridas.txt","a+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/LogPlanificador.txt","w+");
-    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/LogCorreccion.txt","w+");
-    fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Errores.txt","a+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/RegistroCorridas.txt","a+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/LogPlanificador.txt","w+");
+    fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/LogCorreccion.txt","w+");
+    fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/Errores.txt","a+");
 
 //-- Patas de [0-5]
     int cuenta_T1=0, cuenta_T2=0;
@@ -551,6 +555,7 @@ punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferencia
         correccion_ID[nPata]=-1;
         correccion.x = 0.0;
         correccion.y = 0.0;
+        ExisteCorreccion = false;
         return correccion;
     }
     fprintf(fp3,"\n");

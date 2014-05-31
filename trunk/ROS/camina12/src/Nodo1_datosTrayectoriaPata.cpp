@@ -76,6 +76,7 @@ int main(int argc, char **argv)
     std::string nodeName("Nodo1_datosTrayectoriaPata");
 	ros::init(argc,argv,nodeName.c_str());
     ros::NodeHandle node;
+    ROS_INFO("Nodo1_datosTrayectoriaPata just started\n");
 
 //-- Topicos susbcritos y publicados
     ros::Subscriber subInfo1=node.subscribe("/vrep/info",100,infoCallback);
@@ -116,6 +117,7 @@ int main(int argc, char **argv)
         datosTrayectoriaPata.correccion_x.push_back(0);
         datosTrayectoriaPata.correccion_y.push_back(0);
         datosTrayectoriaPata.correccion_ID.push_back(0);
+        srv_Planificador.request.correccion_x.push_back(0);
     }
 //-- Tripode 1
     datosTrayectoriaPata.T[T1-1]=T;
@@ -194,11 +196,19 @@ int main(int argc, char **argv)
 //                ROS_INFO("Nodo1::T[%d]: velocidad=%.3f",Tripode,velocidadCuerpo_y);
                 fprintf(fp1,"%.3f\n",mod_velocidadCuerpo);
 
+                for(int k=0;k<Npatas;k++){
+                    if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
+                        srv_Planificador.request.correccion_x[k] = -datosTrayectoriaPata.correccion_x[k];
+                    } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
+                        srv_Planificador.request.correccion_x[k] = datosTrayectoriaPata.correccion_x[k];
+                    } else {
+                        srv_Planificador.request.correccion_x[k]=0.0;
+                    }
+                }
                 srv_Planificador.request.Tripode = Tripode;
                 srv_Planificador.request.T = T;
                 srv_Planificador.request.lambda = lambda_Apoyo_actual;
                 srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
-                srv_Planificador.request.correccion_x = datosTrayectoriaPata.correccion_x;
                 if (client_Planificador.call(srv_Planificador)){
                     modificacion_T = srv_Planificador.response.modificacion_T;
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
@@ -207,8 +217,10 @@ int main(int argc, char **argv)
                     datosTrayectoriaPata.correccion_y = srv_Planificador.response.correccion_y;
 //                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
                 } else {
-                    ROS_ERROR("Nodo1::T[%d] servicio de Planificacion no funciona",Tripode);
-                    ROS_ERROR("result=%d", srv_Planificador.response.result);
+                        ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
+                        ROS_ERROR("Parada de emergencia: Adios1!");
+//                        fclose(fp1);
+                        ros::shutdown();
                 }
 
                 T = modificacion_T;
