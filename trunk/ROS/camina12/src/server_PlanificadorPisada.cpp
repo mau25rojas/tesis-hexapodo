@@ -14,7 +14,7 @@
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
-#define delta_correccion 0.005
+#define delta_correccion 0.008
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -87,7 +87,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     res.modificacion_T = 0.0;
     res.modificacion_lambda = 0.0;
     res.result = 0;
-    for(int k=0;k<2*Npatas;k++) {
+    for(int k=0;k<Npatas;k++) {
         res.correccion_ID.push_back(-1);
         res.correccion_x.push_back(0);
         res.correccion_y.push_back(0);
@@ -107,9 +107,9 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     mod_velocidadCuerpo = req.mod_velApoyo;
 
     cuentaPasos++;
-    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] ((((mod_v=%.3f))))",Tripode,cuentaPasos,mod_velocidadCuerpo);
+    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] mod_v=%.3f",Tripode,cuentaPasos,mod_velocidadCuerpo);
     fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
-    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f ((((mod_v=%.3f))))\n",Tripode,simulationTime,mod_velocidadCuerpo);
+    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f, mod_v=%.3f\n",Tripode,simulationTime,mod_velocidadCuerpo);
 
     ros::spinOnce();
     if (req.Tripode == T1){
@@ -128,6 +128,40 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
             res.correccion_y[Tripode_Transferencia[k]] = 0.0;
         }
     }
+    punto3d Pata, puntosObstaculo[4], *Q;
+    recta3d recta_di[2], *S;
+    float di=0.0;
+    for(int k=0;k<Npatas;k++){
+        transformacion_yxTOij(p_ij, posicionActualPata[k].y, posicionActualPata[k].x);
+        ROS_INFO("server_PlanificadorPisada::pata[%d] CAYO en [x=%.3f;y=%.3f]",k+1,posicionActualPata[k].x,posicionActualPata[k].y);
+        PisadaProxima_i = ij[0];
+        PisadaProxima_j = ij[1];
+        if(errorPata[k][0]!=ij[0] && errorPata[k][1]!=ij[1]){
+            if(matrizMapa[ij[0]][ij[1]]){
+                puntosObstaculo[0].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.x;
+                puntosObstaculo[0].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.y;
+                puntosObstaculo[1].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.x;
+                puntosObstaculo[1].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.y;
+                puntosObstaculo[2].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.x;
+                puntosObstaculo[2].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.y;
+                puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.x;
+                puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.y;
+                Q = puntosObstaculo;
+
+                S = recta_di;
+                Pata.x=posicionActualPata[k].x; Pata.y=posicionActualPata[k].y;
+                di = margen_est (Pata,Q,4,S);
+        //            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[PisadaProxima_i[k]][PisadaProxima_j[k]].O_x,obstaculo[PisadaProxima_i[k]][PisadaProxima_j[k]].O_y);
+        //            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
+                fprintf(fp2,"**ERROR** Pata[%d]:%.3f,%.3f->Coincide Obstaculo [%d][%d]; distancia_min:%.3f\n",k+1,Pata.x,Pata.y,PisadaProxima_i,PisadaProxima_j,di);
+                ROS_ERROR("Mapa::paso[%d]:Pata[%d]:%.3f,%.3f->coincide con obstaculo [%d][%d]; di=%.4f",cuentaPasos,k+1,Pata.x,Pata.y,PisadaProxima_i,PisadaProxima_j,di);
+                fprintf(fp4,"%d\t%.5f\n",k+1,di);
+                errorPata[k][0]=ij[0];
+                errorPata[k][1]=ij[1];
+                cuentaErrores[k]++;
+            }
+        }
+    }//-- fin for
     //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
     res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidadApoyo;
 
@@ -135,7 +169,11 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
         ros::spinOnce();
         //-- Calculamos proximo movimiento en el sistema mundo
         lambda_posible = lambda_maximo;
-        PisadaProxima = TransportaPunto(posicionActualPata[Tripode_Transferencia[k]],lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
+            //-- Hay que eliminar la correccion de la estimacion, porque se supone la pata vuelve a su estado default
+        punto3d posicionPata = posicionActualPata[Tripode_Transferencia[k]];
+        posicionPata.x = posicionActualPata[Tripode_Transferencia[k]].x; //- req.correccion_x[Tripode_Transferencia[k]];
+        PisadaProxima = TransportaPunto(posicionPata,lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
+        ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",Tripode_Transferencia[k]+1,PisadaProxima.x,PisadaProxima.y);
         transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
         PisadaProxima_i=ij[0];
         PisadaProxima_j=ij[1];
@@ -179,47 +217,12 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
 //-- Envio trayectoria planificada D: chanchanchaaaaaan
     fprintf(fp2,"server_PlanificadorPisada: Tripode=%d, lambda_correccion=%.3f, T_correccion=%.3f\n",req.Tripode,res.modificacion_lambda,res.modificacion_T);
 
-//    int PisadaProxima_i=0, PisadaProxima_j=0;
-    punto3d Pata, puntosObstaculo[4], *Q;
-    recta3d recta_di[2], *S;
-    float di=0.0;
-
     for(int k=0;k<Npatas;k++){
     //-- Correccion
         res.correccion_ID[k] = correccion_ID[k];
         res.correccion_x[k] = correccion_x[k];
         res.correccion_y[k] = correccion_y[k];
-    //---------------------------------------------------------
-        transformacion_yxTOij(p_ij, posicionActualPata[k].y, posicionActualPata[k].x);
-        PisadaProxima_i = ij[0];
-        PisadaProxima_j = ij[1];
-        if(errorPata[k][0]!=ij[0] && errorPata[k][1]!=ij[1]){
-            if(matrizMapa[ij[0]][ij[1]]){
-                puntosObstaculo[0].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.x;
-                puntosObstaculo[0].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.y;
-                puntosObstaculo[1].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.x;
-                puntosObstaculo[1].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P2.y;
-                puntosObstaculo[2].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.x;
-                puntosObstaculo[2].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P3.y;
-                puntosObstaculo[3].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.x;
-                puntosObstaculo[3].y=obstaculo[PisadaProxima_i][PisadaProxima_j].P4.y;
-                Q = puntosObstaculo;
-
-                S = recta_di;
-                Pata.x=posicionActualPata[k].x; Pata.y=posicionActualPata[k].y;
-                di = margen_est (Pata,Q,4,S);
-        //            ROS_WARN("Pata[%d]:%.3f,%.3f; obstaculo:%.3f,%.3f",k+1,Pata.x,Pata.y,obstaculo[PisadaProxima_i[k]][PisadaProxima_j[k]].O_x,obstaculo[PisadaProxima_i[k]][PisadaProxima_j[k]].O_y);
-        //            ROS_WARN("P1:%.3f,%.3f;P2:%.3f,%.3f,P3:%.3f,%.3f,P4:%.3f,%.3f",puntosObstaculo[0].x,puntosObstaculo[0].y,puntosObstaculo[1].x,puntosObstaculo[1].y,puntosObstaculo[2].x,puntosObstaculo[2].y,puntosObstaculo[3].x,puntosObstaculo[3].y);
-                fprintf(fp2,"**ERROR** Pata[%d]:%.3f,%.3f->Coincide Obstaculo [%d][%d]; distancia_min:%.3f\n",k+1,Pata.x,Pata.y,PisadaProxima_i,PisadaProxima_j,di);
-                ROS_ERROR("Mapa::paso[%d]:Pata[%d]:%.3f,%.3f->coincide con obstaculo [%d][%d]; di=%.4f",cuentaPasos,k+1,Pata.x,Pata.y,PisadaProxima_i,PisadaProxima_j,di);
-                fprintf(fp4,"%d\t%.5f\n",k+1,di);
-                errorPata[k][0]=ij[0];
-                errorPata[k][1]=ij[1];
-                ROS_WARN("---ERROR--- pata[%d] Coincide con obstaculo[%d][%d]",k+1,ij[0],ij[1]);
-                cuentaErrores[k]++;
-            }
-        }
-    }
+    }//-- fin for
     return 1;
 }
 
@@ -229,7 +232,7 @@ int main(int argc, char **argv)
     std::string fileName,M_fileName,O_fileName;
     punto3d Offset;
 
-    Narg=20;
+    Narg=22;
     if (argc>=Narg)
         {
         beta = atof(argv[1]);
@@ -240,8 +243,11 @@ int main(int argc, char **argv)
         nCeldas_j = atoi(argv[6]);
         LongitudCeldaY = atof(argv[7]);
         LongitudCeldaX = atof(argv[8]);
-        for(int k=0;k<Npatas;k++) phi[k] = atof(argv[9+k])*pi/180.0;
-        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[9+Npatas+k]);
+        Offset.x = atof(argv[9]);
+        Offset.y = atof(argv[10]);
+        Offset.z = atof(argv[11]);
+        for(int k=0;k<Npatas;k++) phi[k] = atof(argv[12+k])*pi/180.0;
+        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[12+Npatas+k]);
         } else{
         ROS_ERROR("server_PlanificadorPisada: Indique argumentos completos!\n");
         return (0);

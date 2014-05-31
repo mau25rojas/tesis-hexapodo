@@ -35,7 +35,7 @@ Lynxmotion:
 #define posicionPata2_x radioCuerpo
 #define posicionPata2_y 0
 //Masa de eslabones
-#define masa_Base 0.66
+#define masa_Base 0.265
 #define masa_Motor 0.048
 #define masa_L1 0.10799
 #define masa_L2 0.02591

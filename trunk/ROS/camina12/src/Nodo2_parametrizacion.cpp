@@ -65,7 +65,7 @@ void datosCallback(const camina12::DatosTrayectoriaPata msg_datoTrayectoria)
             InicioApoyo.y = correccion_x;
         }
 
-        if(cambioEstado==1 and Estado==Transferencia){
+        if(cambioEstado==1){
             FinApoyo[k] = P0[k];
             FinTranfer[k] = InicioApoyo;
         }
@@ -133,14 +133,14 @@ void datosCallback(const camina12::DatosTrayectoriaPata msg_datoTrayectoria)
 
 int main(int argc, char **argv){
 
-	if (argc>=11)
+	if (argc>=17)
 	{	dh=atof(argv[1]);
         Offset.x=atof(argv[2]);
         Offset.y=atof(argv[3]);
         Offset.z=atof(argv[4]);
         velocidadApoyo=atof(argv[5]);
         for(int k=0;k<Npatas;k++) phi[k]=atof(argv[6+k])*pi/180;
-        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[10+k]);
+        for(int k=0;k<Npatas;k++) tripode[k] = atoi(argv[6+Npatas+k]);
 	}
 	else
 	{
