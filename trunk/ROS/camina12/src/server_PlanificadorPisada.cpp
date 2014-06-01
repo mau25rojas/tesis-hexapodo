@@ -14,7 +14,7 @@
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
-#define delta_correccion 0.01
+#define delta_correccion 0.008
 
 //-- Variables Globales
 bool simulationRunning=true;
@@ -165,6 +165,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     }//-- fin for
     //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
     res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidadApoyo;
+//    ROS_INFO("tiempo de estimacion: %.3f",T_actual);
 
     for(int k=0;k<Npatas/2;k++){
         ros::spinOnce();
@@ -173,7 +174,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
             //-- Hay que eliminar la correccion de la estimacion, porque se supone la pata vuelve a su estado default
         punto3d posicionPata = posicionActualPata[Tripode_Transferencia[k]];
         posicionPata.x = posicionActualPata[Tripode_Transferencia[k]].x - req.correccion_x[Tripode_Transferencia[k]];
-        PisadaProxima = TransportaPunto(posicionPata,lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
+        PisadaProxima = TransportaPunto(posicionPata,lambda_posible+velocidadApoyo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
         ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",Tripode_Transferencia[k]+1,PisadaProxima.x,PisadaProxima.y);
         transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
         PisadaProxima_i=ij[0];
@@ -183,7 +184,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
             ROS_WARN("server_PlanificadorPisada::pata[%d] coincidira con obstaculo [%d][%d]",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
             fprintf(fp2,"pata[%d] coincidira con obstaculo[%d][%d]\n",Tripode_Transferencia[k]+1,PisadaProxima_i,PisadaProxima_j);
         //-- Revision de pisada para correccion
-            correccion = CorreccionObstaculos(Tripode_Transferencia[k],PisadaProxima,mod_velocidadCuerpo*T_actual);
+            correccion = CorreccionObstaculos(Tripode_Transferencia[k],PisadaProxima,velocidadApoyo*T_actual);
             if(!ExisteCorreccion){
                 res.result=-1;
                 return -1;
@@ -678,7 +679,7 @@ bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correcc
         *correccion = recta_obstaculo.distancia(PisadaProxima)+delta_correccion;
 //        ROS_WARN("server_PlanificadorPisada::correccionY:%.4f",*correccion);
 
-        if(*correccion > EDT_LongY){
+        if(*correccion > lambda_maximo-0.01){
         //-- la correccion hallada sale del espacio de trabajo
         //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
 //            ROS_WARN("server_PlanificadorPisada::correccion Y sale del EDT");

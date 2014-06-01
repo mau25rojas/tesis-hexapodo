@@ -351,6 +351,7 @@ float VelocidadCuerpo(boost::posix_time::ptime t1, boost::posix_time::ptime t2, 
     delta_y = fabs(y1-y2);
     diff_t = t1 - t2;
     tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+//    ROS_INFO("tiempo de vel: %.3f",tiempo_ahora);
     velocidadCuerpo_x = delta_x/tiempo_ahora;
     velocidadCuerpo_y = delta_y/tiempo_ahora;
     return (sqrt(velocidadCuerpo_x*velocidadCuerpo_x + velocidadCuerpo_y*velocidadCuerpo_y));
