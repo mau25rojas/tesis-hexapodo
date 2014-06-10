@@ -25,7 +25,7 @@ float simulationTime=0.0f;
 //-- Log de planificador
 FILE *fp1,*fp2,*fp3,*fp4;
 //-- Entrada
-int cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
+int cuentaPasos=0,cuentaCorrecc, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina11::InfoMapa infoMapa;
@@ -160,6 +160,8 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
             if(!ExisteCorreccion){
                 res.resultado=-1;
                 return -1;
+            } else {
+                cuentaCorrecc++;
             }
         //-- Prueba con pata 1
     //            if(Tripode_Transferencia[k]==0){
@@ -287,7 +289,7 @@ int main(int argc, char **argv)
     while (ros::ok() && simulationRunning){
         ros::spinOnce();
     }
-    fprintf(fp1,"%d\t%d\t",cuentaObs,cuentaPasos);
+    fprintf(fp1,"%d\t%d\t%d\t",cuentaObs,cuentaPasos,cuentaCorrecc);
     for(int k=0;k<Npatas;k++) fprintf(fp1,"%d\t",cuentaErrores[k]);
     fprintf(fp1,"\n");
     fclose(fp1);fclose(fp2);fclose(fp3);fclose(fp4);

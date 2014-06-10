@@ -29,7 +29,7 @@ float simulationTime=0.0f;
 float Veloy_twist=0.0, ventana_prom[tamano_ventana];
 double tiempo_ahora2=0.0;
 ros::Time time_stamp;
-FILE *fp,*fp1,*fp2,*fp3,*fp4,*fp5,*fp6;
+FILE *fp,*fpc,*fp1,*fp2,*fp3,*fp4,*fp5,*fp6;
 camina11::UbicacionRobot ubicacionRobot;
 tf::Quaternion CuerpoOrientacion_Q;
 tfScalar roll, pitch, yaw;
@@ -149,6 +149,7 @@ int main(int argc,char* argv[])
     ros::Publisher chatter_pub = node.advertise<camina11::UbicacionRobot>("UbicacionRobot", 100);
 
     fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_vel.txt","w+");
+    fpc = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_body.txt","w+");
     fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P1.txt","w+");
     fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P2.txt","w+");
     fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/Nodo6_P3.txt","w+");
@@ -199,6 +200,7 @@ int main(int argc,char* argv[])
         ubicacionRobot.velocidadCuerpo_y = ventana_prom[datoSalida];
 
         fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",y_actual,delta_y,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
+        fprintf(fpc,"%.3f\t%.3f\t%.3f\n",ubicacionRobot.coordenadaCuerpo_x,ubicacionRobot.coordenadaCuerpo_y,ubicacionRobot.orientacionCuerpo_yaw);
         if (infoCuerpo and infoPatas){
             infoCuerpo=false;
             infoPatas=false;

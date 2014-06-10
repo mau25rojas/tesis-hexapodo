@@ -30,7 +30,7 @@ float T[Npatas], T_contador[Npatas], T_apoyo[Npatas],T_transf[Npatas], contadore
 float xCuerpo_1=0.0, xCuerpo_2=0.0, yCuerpo_1=0.0, yCuerpo_2=0.0, mod_velocidadCuerpo=0.0;
 int pataApoyo[Npatas],divisionTrayectoriaPata_ini;
 int cuenta=0, PasosIni=0;
-//FILE *fp1;
+FILE *fp1;
 punto3d coordenadaCuerpo,velocidadCuerpo,posicionActualPataSistemaPata[Npatas],posCuerpo_1,posCuerpo_2;
 punto3d Offset;
 boost::posix_time::ptime timer_1,timer_2;
@@ -105,8 +105,8 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     client_Planificador = node.serviceClient<camina11::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
-//    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaDatos.txt");
-//    fp1 = fopen(fileName.c_str(),"w+");
+    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaDatos.txt");
+    fp1 = fopen(fileName.c_str(),"w+");
 
 //-- Inicializo variables
     for(int k=0;k<Npatas;k++) {
@@ -179,6 +179,7 @@ int main(int argc, char **argv)
                     ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k]);
 
                     mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
+                    fprintf(fp1,"%.3f\t%.3f\t%.3f\n",T_apoyo[k],T_transf[k],mod_velocidadCuerpo);
 //                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
                     if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
                         correccion_x = -datosTrayectoriaPata.correccion_x[k];
@@ -201,6 +202,7 @@ int main(int argc, char **argv)
                         ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
                         ROS_ERROR("Parada de emergencia: Adios1!");
 //                        fclose(fp1);
+                        return 0;
                         ros::shutdown();
                     }
                 }// fin de InicioTransferencia
@@ -222,7 +224,7 @@ int main(int argc, char **argv)
         }//-- Checkea por inicio
     }
         ROS_INFO("Adios1!");
-//        fclose(fp1);
+        fclose(fp1);
         ros::shutdown();
         return 0;
 }
@@ -299,7 +301,7 @@ bool CambioDeEstado_Apoyo(int nPata){
 //    if (pataApoyo[nPata]==Transferencia and (fabs(contadores[nPata]-(T_apoyo[nPata]+5*delta_t[nPata]))<=delta_t[nPata])) {
         FinApoyo[nPata]=true;
 //        if(nPata==PataPrint) ROS_WARN("****Pata[%d] finApoyo",nPata+1);
-        ROS_WARN("****Pata[%d] finApoyo",nPata+1);
+//        ROS_WARN("****Pata[%d] finApoyo",nPata+1);
     }
     if (InicioApoyo[nPata]){
         InicioApoyo[nPata]=false;
@@ -334,7 +336,8 @@ bool LlegadaFinEDT(int nPata){
         FinTransf[nPata]=false;
     }
 //    if(nPata==n) ROS_WARN("Pata.z=%.4f",posicionActualPataSistemaPata[nPata].z);
-    if (pataApoyo[nPata]==Apoyo and (fabs(contadores[nPata]-T_apoyo[nPata]/2)<delta_t[nPata])) {
+//    if (pataApoyo[nPata]==Apoyo and (fabs(contadores[nPata]-T_apoyo[nPata]/2)<delta_t[nPata])) {
+    if (pataApoyo[nPata]==Apoyo and contadores[nPata]==4*delta_t[nPata]) {
         FinTransf[nPata]=true;
 //        if(nPata==PataPrint) ROS_WARN("------Pata[%d] preTransferencia",nPata+1);
     }

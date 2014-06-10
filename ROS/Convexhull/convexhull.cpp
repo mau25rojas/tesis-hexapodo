@@ -211,3 +211,30 @@ punto3d punto_est (punto3d P, punto3d *arreglo, int k)
     delete hull;
     return (limite);
 }
+
+
+float margen_est_longitudinal (punto3d P,segmento3d S, punto3d *hull, int k, punto3d *puntoSalida)
+{
+    register int i;
+    segmento3d seg_hull[k];
+    for (i=0; i<k; i++)
+    {
+        if(i==k-1) {seg_hull[i] = segmento3d(hull[i],hull[0]);
+        } else {seg_hull[i] = segmento3d(hull[i],hull[i+1]);}
+    }
+
+    float margen = 3E38; bool interseccion=false;
+    for (i=0; i<k; i++){
+        interseccion = S.interseccion(seg_hull[i],puntoSalida);
+        if (interseccion) break;
+    }
+
+    if (!interseccion){
+        return (margen);
+    } else {
+        interseccion = false;
+        margen = P.distancia(*puntoSalida);
+    }
+
+    return (margen);
+}
