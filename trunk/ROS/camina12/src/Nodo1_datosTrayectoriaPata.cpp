@@ -194,7 +194,7 @@ int main(int argc, char **argv)
                     mod_velocidadCuerpo = VelocidadCuerpo(timerT2_1,timerT2_2,xCuerpo_T2_1,xCuerpo_T2_2,yCuerpo_T2_1,yCuerpo_T2_2);
                 }
 //                ROS_INFO("Nodo1::T[%d]: velocidad=%.3f",Tripode,velocidadCuerpo_y);
-                fprintf(fp1,"%.3f\n",mod_velocidadCuerpo);
+                fprintf(fp1,"%.3f\t%.3f\t\n",delta_t,mod_velocidadCuerpo);
 
                 for(int k=0;k<Npatas;k++){
                     if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
@@ -215,11 +215,11 @@ int main(int argc, char **argv)
                     datosTrayectoriaPata.correccion_ID = srv_Planificador.response.correccion_ID;
                     datosTrayectoriaPata.correccion_x = srv_Planificador.response.correccion_x;
                     datosTrayectoriaPata.correccion_y = srv_Planificador.response.correccion_y;
-//                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
+                    ROS_INFO("Nodo1::T[%d]: t_sim=%.3f, lambda_c=%.3f,t_c=%.3f",Tripode,simulationTime,modificacion_lambda,modificacion_T);
                 } else {
                         ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
                         ROS_ERROR("Parada de emergencia: Adios1!");
-//                        fclose(fp1);
+                        fclose(fp1);
                         ros::shutdown();
                 }
 
@@ -262,7 +262,7 @@ int main(int argc, char **argv)
         }//-- fin de revision normal
     }
         ROS_INFO("Adios1!");
-//        fclose(fp1);
+        fclose(fp1);
         ros::shutdown();
         return 0;
 }

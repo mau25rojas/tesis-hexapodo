@@ -30,14 +30,14 @@ sensor_msgs::JointState RobJoints;
 int JointHandle[Nmotores];
 float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
 float teta_CuerpoRobot=0.0, PosicionCuerpo_x=0.0, PosicionCuerpo_y=0.0;
-punto3d CM1, CM2, CM3, CM_Pata[Npatas], CM_Hexapodo, COG;
+punto3d CM1, CM2, CM3, CM_Pata[Npatas], CM_Hexapodo, COG, Punto_ME;
 recta3d recta_ME[2];
+int NPuntos_hull=0;
+float ME=0.0, MEL;
+punto3d posicionesPatas[Npatas], Salida_hull[Npatas];
 camina12::UbicacionRobot cm_Robot;
 BITMAP *buffer;
 FILE *fp, *fp1;
-int NPuntos_hull=0;
-float ME=0.0;
-punto3d posicionesPatas[Npatas], Salida_hull[Npatas];
 //Clientes y Servicios
 ros::ServiceClient client_GetJointStates;
 vrep_common::simRosGetJointState srv_GetJointStates; //Servicio para obtener los joints de vrep
@@ -94,7 +94,7 @@ void ubicacionCuerpoCallback(camina12::UbicacionRobot msgUbicacionCuerpo)
     }
     cm_Robot.centroMasaCuerpo_x = cos(teta_CuerpoRobot)*CM_Hexapodo.x-sin(teta_CuerpoRobot)*CM_Hexapodo.y+PosicionCuerpo_x;
     cm_Robot.centroMasaCuerpo_y = sin(teta_CuerpoRobot)*CM_Hexapodo.x+cos(teta_CuerpoRobot)*CM_Hexapodo.y+PosicionCuerpo_y;
-    fprintf(fp,"%.3f\t%.3f\t%.3f\t",simulationTime,cm_Robot.centroMasaCuerpo_x,cm_Robot.centroMasaCuerpo_y);
+    fprintf(fp,"%.3f\t%.3f\t",cm_Robot.centroMasaCuerpo_x,cm_Robot.centroMasaCuerpo_y);
     chatter_pub.publish(cm_Robot);
 
     punto3d *P, *Q;
@@ -109,6 +109,7 @@ void ubicacionCuerpoCallback(camina12::UbicacionRobot msgUbicacionCuerpo)
         }
     }
     if (cuentaPataApoyo>2){
+    //-- Calculo de poligono convexo
 //        fprintf("%d\t",cuentaPataApoyo);
         P = posicionesPatas;
         Q = Salida_hull;
@@ -116,15 +117,22 @@ void ubicacionCuerpoCallback(camina12::UbicacionRobot msgUbicacionCuerpo)
         fprintf(fp1,"%d\t",NPuntos_hull);
         for(int k=0;k<NPuntos_hull;k++) fprintf(fp1,"%.3f\t%.3f\t",Salida_hull[k].x,Salida_hull[k].y);
         fprintf(fp1,"\n");
-
+    //-- Calculo de margen de estabilidad
         recta3d *S;
         S = recta_ME;
         COG.x=cm_Robot.centroMasaCuerpo_x; COG.y=cm_Robot.centroMasaCuerpo_y;
         ME = margen_est (COG, Q, NPuntos_hull, S);
-        fprintf(fp,"%.3f\n",ME);
+        fprintf(fp,"%.3f\t",ME);
+    //-- Calculo de margen de estabilidad longitudinal
+        //-- hago una proyeccion del COG hacia la direccion de caminado
+        punto3d proyeccion; segmento3d segmento_ME;
+        proyeccion = TransportaPunto(COG,3*radioCuerpo,(teta_CuerpoRobot-teta_Offset)+pi);
+        segmento_ME = segmento3d(COG,proyeccion);
+        MEL = margen_est_longitudinal(COG, segmento_ME, Q, NPuntos_hull, &Punto_ME);
+        fprintf(fp,"%.3f\n",MEL);
 
     //-- Funcion para grafica de cuerpo
-        FuncionGrafica_CM();
+//        FuncionGrafica_CM();
     } else {
         ROS_ERROR("Hay SOLO 2 o menos patas en apoyo: no se forma poligono de apoyo");
     }
@@ -169,7 +177,7 @@ int main(int argc,char* argv[])
     PosicionPata_x2 = radioCuerpo;
     PosicionPata_y2 = 0.0;
 //--- Inicializacion de grafica
-    IniciaGrafica();
+//    IniciaGrafica();
 
     fp = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/CM_ME.txt","w+");
     fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/convexhull.txt","w+");
@@ -280,7 +288,6 @@ void FuncionGrafica_CM(){
 
     float posicionY=0.0, posicionX=0.0;
     float P1_x=0.0,P1_y=0.0,P2_x=0.0,P2_y=0.0;
-    punto3d Punto_ME;
 
     clear_to_color(buffer, makecol(255, 255, 255));
 
@@ -306,7 +313,7 @@ void FuncionGrafica_CM(){
         line(buffer,P1_x,P1_y,P2_x,P2_y,makecol(0,0,0));
     }
 
-    Punto_ME = RectaME();
+//    Punto_ME = RectaME();
     P1_x = VentanaX/2 - COG.x*VentanaX/LongitudX;
     P1_y = VentanaY/2 - COG.y*VentanaY/LongitudY;
     P2_x = VentanaX/2 - Punto_ME.x*VentanaX/LongitudX;

@@ -23,7 +23,7 @@ float simulationTime=0.0f;
 //-- Log de planificador
 FILE *fp1,*fp2,*fp3,*fp4;
 //-- Entrada
-int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
+int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPasos=0,cuentaCorrecc=0, cuentaErrores[Npatas]={0,0,0,0,0,0},errorPata[Npatas][2];
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 bool matrizMapa[100][20];
@@ -108,7 +108,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     mod_velocidadCuerpo = req.mod_velApoyo;
 
     cuentaPasos++;
-    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] mod_v=%.3f",Tripode,cuentaPasos,mod_velocidadCuerpo);
+//    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] mod_v=%.3f",Tripode,cuentaPasos,mod_velocidadCuerpo);
     fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
     fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f, mod_v=%.3f\n",Tripode,simulationTime,mod_velocidadCuerpo);
 
@@ -134,7 +134,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     float di=0.0;
     for(int k=0;k<Npatas;k++){
         transformacion_yxTOij(p_ij, posicionActualPata[k].y, posicionActualPata[k].x);
-        ROS_INFO("server_PlanificadorPisada::pata[%d] CAYO en [x=%.3f;y=%.3f]",k+1,posicionActualPata[k].x,posicionActualPata[k].y);
+//        ROS_INFO("server_PlanificadorPisada::pata[%d] CAYO en [x=%.3f;y=%.3f]",k+1,posicionActualPata[k].x,posicionActualPata[k].y);
         PisadaProxima_i = ij[0];
         PisadaProxima_j = ij[1];
         if(errorPata[k][0]!=ij[0] && errorPata[k][1]!=ij[1]){
@@ -174,8 +174,8 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
             //-- Hay que eliminar la correccion de la estimacion, porque se supone la pata vuelve a su estado default
         punto3d posicionPata = posicionActualPata[Tripode_Transferencia[k]];
         posicionPata.x = posicionActualPata[Tripode_Transferencia[k]].x - req.correccion_x[Tripode_Transferencia[k]];
-        PisadaProxima = TransportaPunto(posicionPata,lambda_posible+velocidadApoyo*T_actual,(teta_CuerpoRobot-teta_Offset)+alfa);
-        ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",Tripode_Transferencia[k]+1,PisadaProxima.x,PisadaProxima.y);
+        PisadaProxima = TransportaPunto(posicionPata,lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset));
+//        ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",Tripode_Transferencia[k]+1,PisadaProxima.x,PisadaProxima.y);
         transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
         PisadaProxima_i=ij[0];
         PisadaProxima_j=ij[1];
@@ -188,6 +188,8 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
             if(!ExisteCorreccion){
                 res.result=-1;
                 return -1;
+            }else{
+                cuentaCorrecc++;
             }
         //-- Prueba con pata 1
 //            if(Tripode_Transferencia[k]==0){
@@ -326,7 +328,7 @@ int main(int argc, char **argv)
     while (ros::ok() && simulationRunning){
         ros::spinOnce();
     }
-    fprintf(fp1,"%d\t%d\t",cuentaObs,cuentaPasos);
+    fprintf(fp1,"%d\t%d\t%d\t",cuentaObs,cuentaPasos,cuentaCorrecc);
     for(int k=0;k<Npatas;k++) fprintf(fp1,"%d\t",cuentaErrores[k]);
     fprintf(fp1,"\n");
     fclose(fp1); fclose(fp2);
@@ -566,7 +568,7 @@ punto3d CorreccionObstaculos(int nPata,punto3d PisadaProxima,float transferencia
 
 bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d seg_prueba, float *correccion){
     bool PisadaOk=false, interseccion=false;
-    int PisadaProxima_i=0, PisadaProxima_j=0;
+    int PisadaProxima_i=0, PisadaProxima_j=0, Parada=0;
     punto3d P_interseccion, prev_P_interseccion, aux_PisadaProxima, puntosObstaculo[4];
     segmento3d segObstaculos[4];
 
@@ -574,7 +576,8 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
     PisadaProxima_i=ij[0];
     PisadaProxima_j=ij[1];
 //    for(int k=0;k<Npuntos;k++){
-    while(!PisadaOk){
+    while(!PisadaOk and Parada<100){
+        Parada++;
     //-- puntos de obstaculo
         fprintf(fp3,"%d\t",4);
         puntosObstaculo[0].x=obstaculo[PisadaProxima_i][PisadaProxima_j].P1.x;
