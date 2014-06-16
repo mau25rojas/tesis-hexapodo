@@ -89,8 +89,8 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     client_Planificador = node.serviceClient<camina12::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
-    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaDatos.txt","w+");
-    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaTiempo.txt","w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/SalidaDatos.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/SalidaTiempo.txt","w+");
 
 //-- Patas de [0-5]
     int cuenta_T1=0, cuenta_T2=0;
