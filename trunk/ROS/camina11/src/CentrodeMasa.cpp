@@ -94,7 +94,7 @@ void ubicacionCuerpoCallback(camina11::UbicacionRobot msgUbicacionCuerpo)
     }
     cm_Robot.centroMasaCuerpo_x = cos(teta_CuerpoRobot)*CM_Hexapodo.x-sin(teta_CuerpoRobot)*CM_Hexapodo.y+PosicionCuerpo_x;
     cm_Robot.centroMasaCuerpo_y = sin(teta_CuerpoRobot)*CM_Hexapodo.x+cos(teta_CuerpoRobot)*CM_Hexapodo.y+PosicionCuerpo_y;
-    fprintf(fp,"%.3f\t%.3f\t",cm_Robot.centroMasaCuerpo_x,cm_Robot.centroMasaCuerpo_y);
+    fprintf(fp,"%.3f\t%.3f\t%.3f\t",simulationTime,cm_Robot.centroMasaCuerpo_x,cm_Robot.centroMasaCuerpo_y);
     chatter_pub.publish(cm_Robot);
 
     punto3d *P, *Q;

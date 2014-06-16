@@ -30,7 +30,7 @@ float T[Npatas], T_contador[Npatas], T_apoyo[Npatas],T_transf[Npatas], contadore
 float xCuerpo_1=0.0, xCuerpo_2=0.0, yCuerpo_1=0.0, yCuerpo_2=0.0, mod_velocidadCuerpo=0.0;
 int pataApoyo[Npatas],divisionTrayectoriaPata_ini;
 int cuenta=0, PasosIni=0;
-FILE *fp1;
+FILE *fp1,*fp2;
 punto3d coordenadaCuerpo,velocidadCuerpo,posicionActualPataSistemaPata[Npatas],posCuerpo_1,posCuerpo_2;
 punto3d Offset;
 boost::posix_time::ptime timer_1,timer_2;
@@ -67,10 +67,13 @@ void ubicacionRobCallback(camina11::UbicacionRobot msgUbicacionRobot)
 
 int main(int argc, char **argv)
 {
-  float lambda=0.0, f=0.0, vector_estados[Npatas], T_ini;
-  int Narg=0;
+    float lambda=0.0, f=0.0, vector_estados[Npatas], T_ini;
+    int Narg=0;
+    boost::posix_time::ptime t_inicio, t_fin;
+    float tiempo_ahora=0.0;
+    boost::posix_time::time_duration diff_t;
 
-  Narg=23;
+    Narg=23;
 	if (argc>=Narg)
 	{
         PasosIni=atoi(argv[1]);
@@ -105,8 +108,8 @@ int main(int argc, char **argv)
 //-- Clientes y Servicios
     client_Planificador = node.serviceClient<camina11::PlanificadorParametros>("PlanificadorPisada");
 //-- Log de datos
-    std::string fileName("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaDatos.txt");
-    fp1 = fopen(fileName.c_str(),"w+");
+    fp1 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaDatos.txt","w+");
+    fp2 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina11/datos/SalidaTiempo.txt","w+");
 
 //-- Inicializo variables
     for(int k=0;k<Npatas;k++) {
@@ -149,6 +152,7 @@ int main(int argc, char **argv)
     modificacion_T_apoyo = T_ini;
     modificacion_lambda = lambda;
     float correccion_x = 0.0;
+    t_inicio = boost::posix_time::microsec_clock::local_time();
 
     while (ros::ok() && simulationRunning){
         ros::spinOnce();
@@ -179,7 +183,7 @@ int main(int argc, char **argv)
                     ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k]);
 
                     mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
-                    fprintf(fp1,"%.3f\t%.3f\t%.3f\n",T_apoyo[k],T_transf[k],mod_velocidadCuerpo);
+                    fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\n",simulationTime,T_apoyo[k],T_transf[k],mod_velocidadCuerpo);
 //                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
                     if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
                         correccion_x = -datosTrayectoriaPata.correccion_x[k];
@@ -218,13 +222,18 @@ int main(int argc, char **argv)
                     t_Trayectoria[k] = contadores[k];
                 }
 //                fprintf(fp1,"%.3f\t%d\t",contadores[k],datosTrayectoriaPata.vector_estados[k]);
+                t_fin = boost::posix_time::microsec_clock::local_time();
+                diff_t = t_inicio - t_fin;
+                tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+                fprintf(fp2,"%.3f\n",tiempo_ahora);
+
                 datosTrayectoriaPata.t_Trayectoria[k]=t_Trayectoria[k];
             }// fin del for
 //            fprintf(fp1,"\n");
         }//-- Checkea por inicio
     }
         ROS_INFO("Adios1!");
-        fclose(fp1);
+        fclose(fp1);fclose(fp2);
         ros::shutdown();
         return 0;
 }
