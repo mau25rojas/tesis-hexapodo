@@ -64,7 +64,7 @@ float margen_est (punto3d P, punto3d *hull, int k, recta3d *rectaSalida);				//D
                                                                	//es 0, si el punto esta en el borde, positivo dentro y negativo fuera del convex hull.
 punto3d punto_est (punto3d P, punto3d *hull, int k);			//Determina el punto más cercano del borde del cascarón correspondiente al margen de
 																//estabilidad del punto P
-float margen_est_longitudinal (punto3d P,segmento3d S, punto3d *hull, int k, punto3d *puntoSalida);
+float margen_est_longitudinal (punto3d P, segmento3d S, punto3d *arreglo, int k, punto3d *puntoSalida); //Determina el margen de estabilidad a lo largo del segmento S
 
 
 #endif // _CONVEXHULL_H_

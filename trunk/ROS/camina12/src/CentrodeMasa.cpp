@@ -3,11 +3,11 @@
 #include <stdlib.h>
 #include <ros/ros.h>
 //Librerias propias usadas
+#include "camina12/v_repConst.h"
 #include "camina12/constantes.hpp"
 #include "camina12/vector3d.hpp"
 #include "camina12/analisis.hpp"
 #include "camina12/convexhull.hpp"
-#include "camina12/v_repConst.h"
 #include <allegro.h>
 // Used data structures:
 #include "camina12/UbicacionRobot.h"
@@ -30,10 +30,10 @@ sensor_msgs::JointState RobJoints;
 int JointHandle[Nmotores];
 float PosicionPata_x=0.0, PosicionPata_y=0.0, PosicionPata_x2=0.0, PosicionPata_y2=0.0, anguloPatas_rad=0.0;
 float teta_CuerpoRobot=0.0, PosicionCuerpo_x=0.0, PosicionCuerpo_y=0.0;
-punto3d CM1, CM2, CM3, CM_Pata[Npatas], CM_Hexapodo, COG, Punto_ME;
-recta3d recta_ME[2];
+punto3d CM1, CM2, CM3, CM_Pata[Npatas], CM_Hexapodo, COG, Punto_ME,Punto_MEL;
+recta3d recta_ME;
 int NPuntos_hull=0;
-float ME=0.0, MEL;
+float ME=0.0, MEL=0.0;
 punto3d posicionesPatas[Npatas], Salida_hull[Npatas];
 camina12::UbicacionRobot cm_Robot;
 BITMAP *buffer;
@@ -46,8 +46,8 @@ void CentroDeMasa_Eslabon(punto3d* CentroDeMasa, float q1, float q2, float q3, i
 void CentroDeMasa_Pata(punto3d* CentroDeMasa, punto3d cm_eslabon1, punto3d cm_eslabon2, punto3d cm_eslabon3, int Npata);
 void CentroDeMasa_Hexapodo(punto3d* CentroDeMasa, punto3d cm_pata1, punto3d cm_pata2, punto3d cm_pata3, punto3d cm_pata4, punto3d cm_pata5, punto3d cm_pata6);
 void IniciaGrafica();
-void FuncionGrafica_CM();
-punto3d RectaME();
+void FuncionGrafica_CM(int op);
+//punto3d RectaME();
 
 // Topic subscriber callbacks:
 void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
@@ -115,24 +115,32 @@ void ubicacionCuerpoCallback(camina12::UbicacionRobot msgUbicacionCuerpo)
         Q = Salida_hull;
         NPuntos_hull = convexhull_graham(P,Q,cuentaPataApoyo);
         fprintf(fp1,"%d\t",NPuntos_hull);
-        for(int k=0;k<NPuntos_hull;k++) fprintf(fp1,"%.3f\t%.3f\t",Salida_hull[k].x,Salida_hull[k].y);
-        fprintf(fp1,"\n");
+        for(int k=0;k<Npatas;k++) {
+            if (k<NPuntos_hull) {
+                fprintf(fp1,"%.3f\t%.3f\t",Salida_hull[k].x,Salida_hull[k].y);
+            } else {
+                fprintf(fp1,"%.3f\t%.3f\t",0.0,0.0);
+            }
+        }
     //-- Calculo de margen de estabilidad
-        recta3d *S;
-        S = recta_ME;
+//        recta3d *S;
+//        S = recta_ME;
         COG.x=cm_Robot.centroMasaCuerpo_x; COG.y=cm_Robot.centroMasaCuerpo_y;
-        ME = margen_est (COG, Q, NPuntos_hull, S);
+        ME = margen_est (COG, Q, NPuntos_hull, &recta_ME);
+        Punto_ME = recta_ME.proyeccion(COG);
         fprintf(fp,"%.3f\t",ME);
     //-- Calculo de margen de estabilidad longitudinal
         //-- hago una proyeccion del COG hacia la direccion de caminado
-        punto3d proyeccion; segmento3d segmento_ME;
+        segmento3d segmento_MEL; punto3d proyeccion;
         proyeccion = TransportaPunto(COG,3*radioCuerpo,(teta_CuerpoRobot-teta_Offset)+pi);
-        segmento_ME = segmento3d(COG,proyeccion);
-        MEL = margen_est_longitudinal(COG, segmento_ME, Q, NPuntos_hull, &Punto_ME);
+        segmento_MEL = segmento3d(COG,proyeccion);
+        MEL = margen_est_longitudinal(COG, segmento_MEL, Q, NPuntos_hull, &Punto_MEL);
         fprintf(fp,"%.3f\n",MEL);
 
+        fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\n",Punto_ME.x,Punto_ME.y,Punto_MEL.x,Punto_MEL.y);
     //-- Funcion para grafica de cuerpo
-//        FuncionGrafica_CM();
+    //-- .. (1)Me, (2)MEL, (3)ambos
+//        FuncionGrafica_CM(3);
     } else {
         ROS_ERROR("Hay SOLO 2 o menos patas en apoyo: no se forma poligono de apoyo");
     }
@@ -284,10 +292,12 @@ void IniciaGrafica(){
     clear_keybuf();
 }
 
-void FuncionGrafica_CM(){
+void FuncionGrafica_CM(int op){
 
     float posicionY=0.0, posicionX=0.0;
     float P1_x=0.0,P1_y=0.0,P2_x=0.0,P2_y=0.0;
+    punto3d p_grafica;
+    int color;
 
     clear_to_color(buffer, makecol(255, 255, 255));
 
@@ -310,24 +320,52 @@ void FuncionGrafica_CM(){
             P2_x = VentanaX/2 - Salida_hull[k+1].x*VentanaX/LongitudX;
             P2_y = VentanaY/2 - Salida_hull[k+1].y*VentanaY/LongitudY;
         }
-        line(buffer,P1_x,P1_y,P2_x,P2_y,makecol(0,0,0));
+        line(buffer,P1_x,P1_y,P2_x,P2_y,makecol(0,0,255));
     }
 
 //    Punto_ME = RectaME();
+
+    if(op==1) {
+        p_grafica = Punto_ME;
+        textprintf_ex(buffer, font, 10, 10, makecol(0,0,0), -1, "ME=%.3f",ME);
+        color = makecol(255,0,0);
+    }
+
+    if(op==2){
+        p_grafica = Punto_MEL;
+        textprintf_ex(buffer, font, 10, 20, makecol(0,0,0), -1, "MEL=%.3f",MEL);
+        color = makecol(0,0,0);
+    }
+
+    if(op==3){
+    //-- dibujo ME
+        P1_x = VentanaX/2 - COG.x*VentanaX/LongitudX;
+        P1_y = VentanaY/2 - COG.y*VentanaY/LongitudY;
+        P2_x = VentanaX/2 - Punto_ME.x*VentanaX/LongitudX;
+        P2_y = VentanaY/2 - Punto_ME.y*VentanaY/LongitudY;
+        line(buffer,P1_x,P1_y,P2_x,P2_y,makecol(255,0,0));
+        textprintf_ex(buffer, font, 10, 10, makecol(0,0,0), -1, "ME=%.3f",ME);
+    //-- dibujare MEL
+        p_grafica = Punto_MEL;
+        color = makecol(0,0,0);
+        textprintf_ex(buffer, font, 10, 20, makecol(0,0,0), -1, "MEL=%.3f",MEL);
+    }
+
+//    p_grafica = Punto_ME;
+//    p_grafica = Punto_MEL;
     P1_x = VentanaX/2 - COG.x*VentanaX/LongitudX;
     P1_y = VentanaY/2 - COG.y*VentanaY/LongitudY;
-    P2_x = VentanaX/2 - Punto_ME.x*VentanaX/LongitudX;
-    P2_y = VentanaY/2 - Punto_ME.y*VentanaY/LongitudY;
-    line(buffer,P1_x,P1_y,P2_x,P2_y,makecol(255,0,0));
+    P2_x = VentanaX/2 - p_grafica.x*VentanaX/LongitudX;
+    P2_y = VentanaY/2 - p_grafica.y*VentanaY/LongitudY;
+    line(buffer,P1_x,P1_y,P2_x,P2_y,color);
 
-    textprintf_ex(buffer, font, 10, 10, makecol(0,0,0), -1, "ME=%.3f",ME);
     blit(buffer, screen, 0, 0, 0, 0, SCREEN_W, SCREEN_H);
 }
 
-punto3d RectaME(){
-
-    vector3d OD;
-
-    OD = recta_ME[0].proyeccion(COG);
-    return (OD);
-}
+//punto3d RectaME(){
+//
+//    vector3d OD;
+//
+//    OD = recta_ME[0].proyeccion(COG);
+//    return (OD);
+//}

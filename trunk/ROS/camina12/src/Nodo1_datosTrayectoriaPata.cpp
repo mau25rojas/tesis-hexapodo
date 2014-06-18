@@ -118,7 +118,7 @@ int main(int argc, char **argv)
         datosTrayectoriaPata.correccion_x.push_back(0);
         datosTrayectoriaPata.correccion_y.push_back(0);
         datosTrayectoriaPata.correccion_ID.push_back(0);
-        srv_Planificador.request.correccion_x.push_back(0);
+//        srv_Planificador.request.correccion_x.push_back(0);
     }
 //-- Tripode 1
     datosTrayectoriaPata.T[T1-1]=T;
@@ -198,20 +198,20 @@ int main(int argc, char **argv)
 //                ROS_INFO("Nodo1::T[%d]: velocidad=%.3f",Tripode,velocidadCuerpo_y);
                 fprintf(fp1,"%.3f\t%.3f\t%.3f\t\n",simulationTime,delta_t,mod_velocidadCuerpo);
 
-                for(int k=0;k<Npatas;k++){
-                    if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
-                        srv_Planificador.request.correccion_x[k] = -datosTrayectoriaPata.correccion_x[k];
-                    } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
-                        srv_Planificador.request.correccion_x[k] = datosTrayectoriaPata.correccion_x[k];
-                    } else {
-                        srv_Planificador.request.correccion_x[k]=0.0;
-                    }
-                }
+//                for(int k=0;k<Npatas;k++){
+//                    if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
+//                        srv_Planificador.request.correccion_x[k] = -datosTrayectoriaPata.correccion_x[k];
+//                    } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
+//                        srv_Planificador.request.correccion_x[k] = datosTrayectoriaPata.correccion_x[k];
+//                    } else {
+//                        srv_Planificador.request.correccion_x[k]=0.0;
+//                    }
+//                }
                 srv_Planificador.request.Tripode = Tripode;
                 srv_Planificador.request.T = T;
                 srv_Planificador.request.lambda = lambda_Apoyo_actual;
                 srv_Planificador.request.mod_velApoyo = mod_velocidadCuerpo;
-                if (client_Planificador.call(srv_Planificador)){
+                if (client_Planificador.call(srv_Planificador) and srv_Planificador.response.result!=-1){
                     modificacion_T = srv_Planificador.response.modificacion_T;
                     modificacion_lambda = srv_Planificador.response.modificacion_lambda;
                     datosTrayectoriaPata.correccion_ID = srv_Planificador.response.correccion_ID;
@@ -221,7 +221,7 @@ int main(int argc, char **argv)
                 } else {
                         ROS_ERROR("Nodo1::servicio de Planificacion no funciona");
                         ROS_ERROR("Parada de emergencia: Adios1!");
-                        fclose(fp1);
+//                        fclose(fp1);
                         ros::shutdown();
                 }
 
