@@ -134,6 +134,7 @@ float margen_est (punto3d P, punto3d *arreglo, int k, recta3d *rectaSalida)
         return margen;
     }
     float margen = 3E38;
+    recta3d r;
 //	register int i; 				//Calculo si el punto esta fuera del convex hull
     for (i=0; i<k; i++)
     {
@@ -141,7 +142,7 @@ float margen_est (punto3d P, punto3d *arreglo, int k, recta3d *rectaSalida)
         if ((((P.distancia(hull[i])-P.distancia(hull[i+1])) <= MACH_EPS) && ((((P-hull[i])%(hull[i+1]-hull[i]))-M_PI_2) < MACH_EPS)) ||   //GRAN "if" que verifica si la proyeccion del punto esta en el segmento
                 (((P.distancia(hull[i])-P.distancia(hull[i+1])) > MACH_EPS) && ((((hull[i]-hull[i+1])%(P-hull[i+1]))-M_PI_2) < MACH_EPS)))
         {
-            recta3d r = recta3d(hull[i], (hull[i+1]-hull[i]));
+            r = recta3d(hull[i], (hull[i+1]-hull[i]));
             d_min = r.distancia(P);  	//De ser cierto, la distancia minima es la proyeccion a la recta
         }
         /*   	register float d1 = P.distancia(hull[i]);
@@ -156,7 +157,10 @@ float margen_est (punto3d P, punto3d *arreglo, int k, recta3d *rectaSalida)
         //printf("\n P.distancia(hull[i]) es: %.3f P.distancia(hull[i+1]) es: %.3f \n", P.distancia(hull[i]), P.distancia(hull[i+1]));
         //printf("\n (P-hull[i])(hull[i+1]-hull[i]) es: %.3f y pi/2 es %.3f\n", (P-hull[i])%(hull[i+1]-hull[i]), M_PI_2);
         //printf("\n ((hull[i]-hull[i+1])(P-hull[i+1]) es: %.3f \n", ((hull[i]-hull[i+1])%(P-hull[i+1])));
-        if (d_min<margen) margen = d_min;         //Verifico si la nueva distancia minima es menor a las anteriores
+        if (d_min<margen) {
+            margen = d_min;         //Verifico si la nueva distancia minima es menor a las anteriores
+            rectaSalida[0]=r;
+        }
     }
     delete hull;
     return (-margen);
@@ -212,10 +216,19 @@ punto3d punto_est (punto3d P, punto3d *arreglo, int k)
     return (limite);
 }
 
-
-float margen_est_longitudinal (punto3d P,segmento3d S, punto3d *hull, int k, punto3d *puntoSalida)
+//-- funcion que calcula el margen de estabilidad a lo largo del segmento 'S'. El segmento 'S' suele estar formado
+//-- ..por 'P' (normalmente el COG) y una proyeccion del mismo hacia la direccion deseada (normalmente de caminado)
+//-- ..la interseccion con 'arreglo' (hull) se regresa en 'puntoSalida'
+float margen_est_longitudinal (punto3d P, segmento3d S, punto3d *arreglo, int k, punto3d *puntoSalida)
 {
     register int i;
+    punto3d *hull = new punto3d[k+1];
+    for (i=0; i<k; i++)
+    {
+        hull[i] = punto3d(arreglo[i].x,arreglo[i].y,P.z);
+    }
+    hull[k] = hull[0];
+
     segmento3d seg_hull[k];
     for (i=0; i<k; i++)
     {
@@ -223,18 +236,53 @@ float margen_est_longitudinal (punto3d P,segmento3d S, punto3d *hull, int k, pun
         } else {seg_hull[i] = segmento3d(hull[i],hull[i+1]);}
     }
 
-    float margen = 3E38; bool interseccion=false;
+    if (punto_convexhull(P, hull, k)==1)	//Punto esta dentro o en el convex_hull, hay que calcular la distancia a las rectas que lo forman
+    {
+        float margen = 3E38; bool interseccion=false;
+        for (i=0; i<k; i++){
+            interseccion = S.interseccion(seg_hull[i],puntoSalida);
+            if (interseccion){
+                margen = P.distancia(*puntoSalida);
+                delete hull;
+                return (margen);
+            }
+        }
+    }
+
+    //-- el punto no esta dentro del hull
+    float margen = 3E38; punto3d P_interseccion; float d_min=0.0;
     for (i=0; i<k; i++){
-        interseccion = S.interseccion(seg_hull[i],puntoSalida);
-        if (interseccion) break;
+        P_interseccion = seg_hull[i].proyeccion(P);
+        d_min = P_interseccion.distancia(P);
+        if (d_min<margen) {
+            margen = d_min;         //Verifico si la nueva distancia minima es menor a las anteriores
+            *puntoSalida = P_interseccion;
+        }
     }
 
-    if (!interseccion){
-        return (margen);
-    } else {
-        interseccion = false;
-        margen = P.distancia(*puntoSalida);
-    }
+    delete hull;
+    return (-margen);
 
-    return (margen);
+
+//    register int i;
+//    segmento3d seg_hull[k];
+//    for (i=0; i<k; i++)
+//    {
+//        if(i==k-1) {seg_hull[i] = segmento3d(hull[i],hull[0]);
+//        } else {seg_hull[i] = segmento3d(hull[i],hull[i+1]);}
+//    }
+//
+//    float margen = 3E38; bool interseccion=false;
+//    for (i=0; i<k; i++){
+//        interseccion = S.interseccion(seg_hull[i],puntoSalida);
+//        if (interseccion) break;
+//    }
+//
+//    if (!interseccion){
+//        return (margen);
+//    } else {
+//        interseccion = false;
+//        margen = P.distancia(*puntoSalida);
+//    }
+//    return (margen);
 }

@@ -180,11 +180,11 @@ int main(int argc, char **argv)
 
                     T_apoyo[k]=contadores[k];
                     T_transf[k]=T[k]-T_apoyo[k];
-                    ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k]);
 
                     mod_velocidadCuerpo = VelocidadCuerpo(timer_1,timer_2,posCuerpo_1,posCuerpo_2);
                     fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\n",simulationTime,T_apoyo[k],T_transf[k],mod_velocidadCuerpo);
 //                    ROS_INFO("Nodo1::mod_velocidad=%.4f",mod_velocidadCuerpo);
+                    ROS_INFO("Nodo1::pata[%d] t_sim=%.3f,T_a=%.3f,T_t=%.3f,vel=%.3f",k+1,simulationTime,T_apoyo[k],T_transf[k],mod_velocidadCuerpo);
                     if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
                         correccion_x = -datosTrayectoriaPata.correccion_x[k];
                     } else if (datosTrayectoriaPata.correccion_ID[k]==Correccion_masX){
@@ -316,7 +316,8 @@ bool CambioDeEstado_Apoyo(int nPata){
         InicioApoyo[nPata]=false;
         cambio=true;
     //-- Para velocidad, pata1
-        if(nPata==0) velPata1_1=true;
+//        if(nPata==0) velPata1_1=true;
+            velPata1_1=true;
 //        if(nPata==PataPrint) ROS_WARN("***Inicia Apoyo pata[%d]",nPata+1);
     }
     return cambio;
@@ -354,7 +355,8 @@ bool LlegadaFinEDT(int nPata){
         InicioTransf[nPata]=false;
         cambio=true;
     //-- Para velocidad, pata1
-        if(nPata==1) velPata1_2=true;
+//        if(nPata==1) velPata1_2=true;
+         velPata1_2=true;
 //        if(nPata==PataPrint) ROS_WARN("------Inicia Transferencia pata[%d]",nPata+1);
     }
     return cambio;

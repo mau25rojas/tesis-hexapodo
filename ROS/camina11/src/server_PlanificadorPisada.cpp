@@ -143,7 +143,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
     //-- Hay que eliminar la correccion de la estimacion, porque se supone la pata vuelve a su estado default
     punto3d posicionPata = posicionActualPata[nPata];
     posicionPata.x = posicionActualPata[nPata].x - req.correccion_x;
-    PisadaProxima = TransportaPunto(posicionPata,lambda_posible+mod_velocidadCuerpo*T_transfer,(teta_CuerpoRobot-teta_Offset)+alfa);
+    PisadaProxima = TransportaPunto(posicionPata,lambda_posible+mod_velocidadCuerpo*T_transfer,(teta_CuerpoRobot-teta_Offset));
     transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
     PisadaProxima_i=ij[0];
     PisadaProxima_j=ij[1];
@@ -169,6 +169,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
                 correccion_y=correccion.y;
                 lambda_posible = lambda_maximo-correccion.y;
                 ROS_WARN("server_PlanificadorPisada::Pata[%d]Correccion[%.4f][%.4f], lambda[%.4f]",nPata+1,correccion.x,correccion.y,lambda_posible);
+                fprintf(fp2,"Pata[%d] -->Correccion[%.4f][%.4f], lambda[%.4f]",nPata,correccion.x,correccion.y,lambda_posible);
     //            } else {
     //                res.correccion_ID[Tripode_Transferencia[k]]=-1;
     //                res.correccion_x[Tripode_Transferencia[k]]=0.0;

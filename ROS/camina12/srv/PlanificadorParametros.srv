@@ -8,6 +8,8 @@ float32 T
 float32 lambda
 float32 mod_velApoyo
 float32[] correccion_x
+float32[] correccion_y
+int32[] correccion_ID
 ---
 # Response
 int32 result
