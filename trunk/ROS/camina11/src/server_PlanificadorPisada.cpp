@@ -588,12 +588,19 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
             }
 //            ROS_WARN("server_PlanificadorPisada::correccionX:%.4f",*correccion);
         //-- Se calcula la posible correccion
-            aux_PisadaProxima.y = PisadaProxima.y;
+//            aux_PisadaProxima.y = PisadaProxima.y;
+//            if(correccion_ID==Correccion_menosX){
+//                aux_PisadaProxima.x = PisadaProxima.x-(*correccion);
+//            } else {
+//                aux_PisadaProxima.x = PisadaProxima.x+(*correccion);
+//            }
+
             if(correccion_ID==Correccion_menosX){
-                aux_PisadaProxima.x = PisadaProxima.x-(*correccion);
+                aux_PisadaProxima = TransportaPunto(PisadaProxima,-(*correccion),(teta_CuerpoRobot-teta_Offset)-pi/2);
             } else {
-                aux_PisadaProxima.x = PisadaProxima.x+(*correccion);
+                aux_PisadaProxima = TransportaPunto(PisadaProxima,(*correccion),(teta_CuerpoRobot-teta_Offset)-pi/2);
             }
+
             fprintf(fp3,"%d\t",5);
             fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0);
             transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
@@ -647,8 +654,10 @@ bool Revision_PisadaObstaculos_Y(int nPata,punto3d PisadaProxima, float *correcc
             PisadaOk = false;
             return (PisadaOk);
         }
-        aux_PisadaProxima.x = PisadaProxima.x;
-        aux_PisadaProxima.y = PisadaProxima.y-(*correccion);
+//        aux_PisadaProxima.x = PisadaProxima.x;
+//        aux_PisadaProxima.y = PisadaProxima.y-(*correccion);
+        aux_PisadaProxima = TransportaPunto(PisadaProxima,-(*correccion),(teta_CuerpoRobot-teta_Offset));
+
         fprintf(fp3,"%d\t",5);
         fprintf(fp3,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",aux_PisadaProxima.x,aux_PisadaProxima.y,0.0,0.0,0.0,0.0,0.0,0.0);
         transformacion_yxTOij(p_ij, aux_PisadaProxima.y, aux_PisadaProxima.x);
