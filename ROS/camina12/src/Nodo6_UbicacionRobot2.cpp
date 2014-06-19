@@ -68,6 +68,7 @@ void ubicacionCuerpoCallback(geometry_msgs::PoseStamped msgUbicacionCuerpo)
     time_stamp = msgUbicacionCuerpo.header.stamp;
     ubicacionRobot.coordenadaCuerpo_x = msgUbicacionCuerpo.pose.position.x;
     ubicacionRobot.coordenadaCuerpo_y = msgUbicacionCuerpo.pose.position.y;
+    ubicacionRobot.coordenadaCuerpo_z = msgUbicacionCuerpo.pose.position.z;
     tf::quaternionMsgToTF(msgUbicacionCuerpo.pose.orientation,CuerpoOrientacion_Q);
     tf::Matrix3x3(CuerpoOrientacion_Q).getRPY(roll, pitch, yaw);
     ubicacionRobot.orientacionCuerpo_roll = roll;
@@ -200,7 +201,7 @@ int main(int argc,char* argv[])
         ubicacionRobot.velocidadCuerpo_y = ventana_prom[datoSalida];
 
         fprintf(fp,"%.3f\t%.3f\t%.3f\t%.3f\t%.3f\n",y_actual,delta_y,Veloy_twist,vel1,ubicacionRobot.velocidadCuerpo_y);
-        fprintf(fpc,"%.3f\t%.3f\t%.3f\n",ubicacionRobot.coordenadaCuerpo_x,ubicacionRobot.coordenadaCuerpo_y,ubicacionRobot.orientacionCuerpo_yaw);
+        fprintf(fpc,"%.3f\t%.3f\t%.3f\t%.3f\n",ubicacionRobot.coordenadaCuerpo_x,ubicacionRobot.coordenadaCuerpo_y,ubicacionRobot.coordenadaCuerpo_z,ubicacionRobot.orientacionCuerpo_yaw);
         if (infoCuerpo and infoPatas){
             infoCuerpo=false;
             infoPatas=false;
