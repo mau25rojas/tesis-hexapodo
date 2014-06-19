@@ -23,7 +23,7 @@ Lynxmotion:
 #define Pata5 5
 #define Pata6 6
 //Longitud de eslabones
-#define L1 0.0280
+#define L1 0.0290
 #define L2 0.0595
 //#define L3 0.1093
 #define L3 0.1111
