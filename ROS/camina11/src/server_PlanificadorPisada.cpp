@@ -30,7 +30,7 @@ float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina11::InfoMapa infoMapa;
 bool matrizMapa[100][20];
-int nCeldas_i=0, nCeldas_j=0;
+int nCeldas_i=0, nCeldas_j=0, matrizMapa[100][20];
 int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
 float LongitudCeldaY=0, LongitudCeldaX=0;
 Obstaculo obstaculo[100][20];
@@ -579,7 +579,7 @@ bool Revision_PisadaObstaculos_X (int nPata, punto3d PisadaProxima, segmento3d s
             interseccion = false;
 
             *correccion = P_interseccion.distancia(PisadaProxima)+delta_correccion_x;
-            if(*correccion > seg_prueba.longitud()){
+            if(*correccion > EspacioTrabajo_X2){
             //-- la correccion hallada sale del espacio de trabajo
             //-- FINALIZA LA FUNCION SI NO SE HALLA PUNTO ADECUADO
                 ROS_WARN("server_PlanificadorPisada::correccion %d sale del EDT", correccion_ID);
