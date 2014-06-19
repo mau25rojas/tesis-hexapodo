@@ -316,8 +316,8 @@ bool CambioDeEstado_Apoyo(int nPata){
         InicioApoyo[nPata]=false;
         cambio=true;
     //-- Para velocidad, pata1
-//        if(nPata==0) velPata1_1=true;
-            velPata1_1=true;
+        if(nPata==0) velPata1_1=true;
+//            velPata1_1=true;
 //        if(nPata==PataPrint) ROS_WARN("***Inicia Apoyo pata[%d]",nPata+1);
     }
     return cambio;
@@ -355,8 +355,8 @@ bool LlegadaFinEDT(int nPata){
         InicioTransf[nPata]=false;
         cambio=true;
     //-- Para velocidad, pata1
-//        if(nPata==1) velPata1_2=true;
-         velPata1_2=true;
+        if(nPata==1) velPata1_2=true;
+//         velPata1_2=true;
 //        if(nPata==PataPrint) ROS_WARN("------Inicia Transferencia pata[%d]",nPata+1);
     }
     return cambio;
