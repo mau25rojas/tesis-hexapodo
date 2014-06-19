@@ -71,27 +71,27 @@ void infoCallback(const vrep_common::VrepInfo::ConstPtr& info)
 void ajusteCallback(camina12::InfoMapa msgInfoMapa)
 {
     cuentaPasos++;
-    int nPata = msgInfoMapa.nPata;
-    coordenadaPata_x[nPata]=msgInfoMapa.coordenadaPata_x;
-    coordenadaPata_y[nPata]=msgInfoMapa.coordenadaPata_y;
-    coordenadaPata_i[nPata]=msgInfoMapa.coordenadaPata_i;
-    coordenadaPata_j[nPata]=msgInfoMapa.coordenadaPata_j;
-    coordenadaAjuste_i[nPata]=msgInfoMapa.coordenadaAjuste_i;
-    coordenadaAjuste_j[nPata]=msgInfoMapa.coordenadaAjuste_j;
 
-    fprintf(fp2,"\ntiempo de simulacion: %.3f",simulationTime);
-    fprintf(fp2,"\nPaso:%d",cuentaPasos);
-    if (msgInfoMapa.correccion){
-        fprintf(fp2,"\nCorreccion:Si");
-    } else {
-        fprintf(fp2,"\nCorreccion:No");
-    }
     Limpiar_matrizMapa(nCeldas_i,nCeldas_j,cantidadObstaculos);
-    matrizMapa[coordenadaPata_i[nPata]][coordenadaPata_j[nPata]]=nPata+1;
-    matrizMapa[coordenadaAjuste_i[nPata]][coordenadaAjuste_j[nPata]]='a';
-    fprintf(fp2,"\n[%d]Preajuste:i=%d,j=%d - ajuste:i=%d,j=%d",nPata+1,coordenadaPata_i[nPata],coordenadaPata_j[nPata],coordenadaAjuste_i[nPata],coordenadaAjuste_j[nPata]);
+    for(int nPata=0; nPata<Npatas; nPata++){
+        coordenadaPata_i[nPata]=msgInfoMapa.coordenadaPata_i[nPata];
+        coordenadaPata_j[nPata]=msgInfoMapa.coordenadaPata_j[nPata];
+        coordenadaAjuste_i[nPata]=msgInfoMapa.coordenadaAjuste_i[nPata];
+        coordenadaAjuste_j[nPata]=msgInfoMapa.coordenadaAjuste_j[nPata];
+
+        fprintf(fp2,"\ntiempo de simulacion: %.3f",simulationTime);
+//        fprintf(fp2,"\nPaso:%d",cuentaPasos);
+//        if (msgInfoMapa.correccion){
+//            fprintf(fp2,"\nCorreccion:Si");
+//        } else {
+//            fprintf(fp2,"\nCorreccion:No");
+//        }
+        matrizMapa[coordenadaPata_i[nPata]][coordenadaPata_j[nPata]]=nPata+1;
+        matrizMapa[coordenadaAjuste_i[nPata]][coordenadaAjuste_j[nPata]]='a';
+        fprintf(fp2,"\n[%d]Preajuste:i=%d,j=%d - ajuste:i=%d,j=%d",nPata+1,coordenadaPata_i[nPata],coordenadaPata_j[nPata],coordenadaAjuste_i[nPata],coordenadaAjuste_j[nPata]);
 //            ROS_INFO("Nodo5: Posicion actual:[%d] i:%d\t j:%d",k+1,coordenadaPata_i[k],coordenadaPata_j[k]);
 
+    }
 //    punto3d Pata, puntosObstaculo[4], *Q;
 //    recta3d recta_di[2], *S;
 //

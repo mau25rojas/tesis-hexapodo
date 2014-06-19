@@ -80,12 +80,12 @@ void ajusteCallback(camina11::InfoMapa msgInfoMapa)
     coordenadaAjuste_j[nPata]=msgInfoMapa.coordenadaAjuste_j;
 
     fprintf(fp2,"\ntiempo de simulacion: %.3f",simulationTime);
-    fprintf(fp2,"\nPaso:%d",cuentaPasos);
-    if (msgInfoMapa.correccion){
-        fprintf(fp2,"\nCorreccion:Si");
-    } else {
-        fprintf(fp2,"\nCorreccion:No");
-    }
+//    fprintf(fp2,"\nPaso:%d",cuentaPasos);
+//    if (msgInfoMapa.correccion){
+//        fprintf(fp2,"\nCorreccion:Si");
+//    } else {
+//        fprintf(fp2,"\nCorreccion:No");
+//    }
     Limpiar_matrizMapa(nCeldas_i,nCeldas_j,cantidadObstaculos);
     matrizMapa[coordenadaPata_i[nPata]][coordenadaPata_j[nPata]]=nPata+1;
     matrizMapa[coordenadaAjuste_i[nPata]][coordenadaAjuste_j[nPata]]='a';

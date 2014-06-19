@@ -30,7 +30,7 @@ float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 camina11::InfoMapa infoMapa;
 bool matrizMapa[100][20];
-int nCeldas_i=0, nCeldas_j=0, matrizMapa[100][20];
+int nCeldas_i=0, nCeldas_j=0;
 int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
 float LongitudCeldaY=0, LongitudCeldaX=0;
 Obstaculo obstaculo[100][20];
