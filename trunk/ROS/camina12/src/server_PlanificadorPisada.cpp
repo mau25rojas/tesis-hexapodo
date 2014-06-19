@@ -11,6 +11,7 @@
 // Used data structures:
 #include "camina12/UbicacionRobot.h"
 #include "camina12/PlanificadorParametros.h"
+#include "camina12/InfoMapa.h"
 // Used API services:
 #include "vrep_common/VrepInfo.h"
 // Definiciones
@@ -27,8 +28,8 @@ int Tripode=0, tripode[Npatas], Tripode1[Npatas/2], Tripode2[Npatas/2], cuentaPa
 float velocidadApoyo=0.0, beta=0.0, phi[Npatas], alfa=0.0;
 //-- Variables de mapa
 bool matrizMapa[100][20];
-int nCeldas_i=0, nCeldas_j=0, matrizMapa[100][20];
-camina11::InfoMapa infoMapa;
+int nCeldas_i=0, nCeldas_j=0;
+camina12::InfoMapa infoMapa;
 int ij[2]={0,0}, *p_ij;     //Apuntadores a arreglos de coordenadas e indices
 float LongitudCeldaY=0, LongitudCeldaX=0;
 Obstaculo obstaculo[100][20];
@@ -43,6 +44,8 @@ float teta_CuerpoRobot=0.0;
 int correccion_ID[Npatas]; // #ID de la correccion: (-1)no hay corr;(0)corr_izq;(1)corr_der
 float correccion_x[Npatas],correccion_y[Npatas];
 bool ExisteCorreccion=true;
+//-- Publishers
+ros::Publisher chatter_pub2;
 
 //-- Funciones
 void transformacion_yxTOij(int *ptr_ij, float y, float x);
@@ -219,6 +222,14 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
         }
             modificacion_lambda[k] = lambda_posible;
 
+        infoMapa.coordenadaAjuste_i[Tripode_Transferencia[k]] = PisadaProxima_i;
+        infoMapa.coordenadaAjuste_j[Tripode_Transferencia[k]] = PisadaProxima_j;
+        transformacion_yxTOij(p_ij, posicionActualPata[Tripode_Transferencia[k]].y, posicionActualPata[Tripode_Transferencia[k]].x);
+        infoMapa.coordenadaPata_i[Tripode_Transferencia[k]] = ij[0];
+        infoMapa.coordenadaPata_j[Tripode_Transferencia[k]] = ij[1];
+
+        chatter_pub2.publish(infoMapa);
+
     } // Fin de revision de pisadas
 
 //-- Escojo el largo de pisada mas corto y lo impongo a todas las patas del tripode
@@ -277,6 +288,7 @@ int main(int argc, char **argv)
 //-- Topicos susbcritos y publicados
     ros::Subscriber sub1=node.subscribe("/vrep/info",100,infoCallback);
     ros::Subscriber sub2=node.subscribe("UbicacionRobot",100,ubicacionRobCallback);
+    chatter_pub2=node.advertise<camina12::InfoMapa>("Plan", 100);
 //-- Clientes y Servicios
     ros::ServiceServer service = node.advertiseService("PlanificadorPisada", PlanificadorPisada);
     /* Log de planificador */
@@ -285,6 +297,12 @@ int main(int argc, char **argv)
     fp3 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/LogCorreccion.txt","w+");
     fp4 = fopen("../fuerte_workspace/sandbox/TesisMaureen/ROS/camina12/datos/Errores.txt","a+");
 
+    for(int k=0;k<Npatas;k++) {
+        infoMapa.coordenadaPata_i.push_back(0);
+        infoMapa.coordenadaPata_j.push_back(0);
+        infoMapa.coordenadaAjuste_i.push_back(0);
+        infoMapa.coordenadaAjuste_j.push_back(0);
+    }
 //-- Patas de [0-5]
     int cuenta_T1=0, cuenta_T2=0;
     for(int k=0;k<Npatas;k++) {
