@@ -100,7 +100,6 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
 //-- Variables locales
     int Tripode_Transferencia[Npatas/2];
     int PisadaProxima_i=0, PisadaProxima_j=0;
-    bool cinversaOK;
     float modificacion_lambda[Npatas/2], lambda_posible; //lambda_posible: lo que se va a trasladar la pata en transferencia
     float T_actual=0.0,lambda_Apoyo_actual=0.0;
     punto3d PisadaProxima, correccion;
@@ -114,7 +113,6 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     cuentaPasos++;
 //    ROS_INFO("INICIO server_PlanificadorPisada::T[%d]::P[%d] mod_v=%.3f",Tripode,cuentaPasos,mod_velocidadCuerpo);
     fprintf(fp2,"\nINICIO T[%d],Paso[%d]\n",Tripode,cuentaPasos);
-    fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f, mod_v=%.3f\n",Tripode,simulationTime,mod_velocidadCuerpo);
 
     ros::spinOnce();
     if (req.Tripode == T1){
@@ -167,6 +165,7 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     //-- La correccion del tiempo se hace solo para mantener la velocidad al lambda que llevavas
     res.modificacion_T = T_actual = lambda_Apoyo_actual/velocidadApoyo;
 //    ROS_INFO("tiempo de estimacion: %.3f",T_actual);
+fprintf(fp2,"server_PlanificadorPisada::T[%d]: tiempo de simulacion: %.3f, lambda_apoy=%.3f, mod_v=%.3f\n",Tripode,simulationTime,lambda_Apoyo_actual,mod_velocidadCuerpo);
     float dev_correccion = 0.0;
     for(int k=0;k<Npatas/2;k++){
         ros::spinOnce();
@@ -184,7 +183,8 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
     //-- punto actual menos la correccion
         punto3d posicionPata = posicionActualPata[Tripode_Transferencia[k]];
         posicionPata.x = posicionActualPata[Tripode_Transferencia[k]].x - dev_correccion;
-        PisadaProxima = TransportaPunto(posicionPata,lambda_posible+mod_velocidadCuerpo*T_actual,(teta_CuerpoRobot-teta_Offset));
+        PisadaProxima = TransportaPunto(posicionPata,(lambda_posible+mod_velocidadCuerpo*T_actual)-0.005,(teta_CuerpoRobot-teta_Offset));
+//        ROS_INFO("server_PlanificadorPisada::pata[%d] traslacion=%.3f",Tripode_Transferencia[k],lambda_posible+mod_velocidadCuerpo*T_actual);
 //        ROS_INFO("server_PlanificadorPisada::pata[%d] va a caer en [x=%.3f;y=%.3f]",Tripode_Transferencia[k]+1,PisadaProxima.x,PisadaProxima.y);
         transformacion_yxTOij(p_ij, PisadaProxima.y, PisadaProxima.x);
         PisadaProxima_i=ij[0];
@@ -227,11 +227,10 @@ bool PlanificadorPisada(camina12::PlanificadorParametros::Request  &req,
         transformacion_yxTOij(p_ij, posicionActualPata[Tripode_Transferencia[k]].y, posicionActualPata[Tripode_Transferencia[k]].x);
         infoMapa.coordenadaPata_i[Tripode_Transferencia[k]] = ij[0];
         infoMapa.coordenadaPata_j[Tripode_Transferencia[k]] = ij[1];
-
-        chatter_pub2.publish(infoMapa);
-
     } // Fin de revision de pisadas
 
+//-- envio datos de mapa
+    chatter_pub2.publish(infoMapa);
 //-- Escojo el largo de pisada mas corto y lo impongo a todas las patas del tripode
     std::sort (modificacion_lambda, modificacion_lambda+3);
     if(modificacion_lambda[0]<lambda_minimo){

@@ -195,8 +195,8 @@ int main(int argc, char **argv)
                 //-- calculo de velocidad
                     mod_velocidadCuerpo = VelocidadCuerpo(timerT2_1,timerT2_2,xCuerpo_T2_1,xCuerpo_T2_2,yCuerpo_T2_1,yCuerpo_T2_2);
                 }
-//                ROS_INFO("Nodo1::T[%d]: velocidad=%.3f",Tripode,velocidadCuerpo_y);
-                fprintf(fp1,"%.3f\t%.3f\t%.3f\t\n",simulationTime,delta_t,mod_velocidadCuerpo);
+                ROS_INFO("Nodo1::T[%d]: lambda_a=%.3f,velocidad_a=%.3f",Tripode,lambda_Apoyo_actual,velocidadCuerpo_y);
+                fprintf(fp1,"%.3f\t%.3f\t%.3f\t%.3f\t\n",0.0,simulationTime,lambda_Apoyo_actual,mod_velocidadCuerpo);
 
 //                for(int k=0;k<Npatas;k++){
 //                    if(datosTrayectoriaPata.correccion_ID[k]==Correccion_menosX){
