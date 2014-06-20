@@ -184,6 +184,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
         }
     } else {
     //-- Out of bondary
+        ROS_ERROR("server_PlanificadorPisada::PISADA FUERA DEL MAPA");
         res.resultado=-1;
         return -1;
     }
