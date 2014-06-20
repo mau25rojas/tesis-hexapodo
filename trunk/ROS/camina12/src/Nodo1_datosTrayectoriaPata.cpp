@@ -174,6 +174,10 @@ int main(int argc, char **argv)
         } else {
             //-------------------------------
             if(llamadaPlan){
+                t_fin = boost::posix_time::microsec_clock::local_time();
+                diff_t = t_inicio - t_fin;
+                tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+                fprintf(fp2,"%.3f\n",tiempo_ahora);
 //                ROS_INFO("Llama a plan tripode[%d]",Tripode);
                 llamadaPlan = false;
             //-- reinicio cuenta para iniciar apoyo
@@ -253,10 +257,10 @@ int main(int argc, char **argv)
 
             datosTrayectoriaPata.t_Trayectoria[T1-1]=datosTrayectoriaPata.t_Trayectoria[T2-1]=delta_t;
 //            fprintf(fp1,"%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\n",modificacion_T,datosTrayectoriaPata.t_Trayectoria[T1-1],datosTrayectoriaPata.lambda_Apoyo[T1-1],datosTrayectoriaPata.lambda_Transferencia[T1-1],datosTrayectoriaPata.lambda_Apoyo[T2-1], datosTrayectoriaPata.lambda_Transferencia[T2-1]);
-            t_fin = boost::posix_time::microsec_clock::local_time();
-            diff_t = t_inicio - t_fin;
-            tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
-            fprintf(fp2,"%.3f\n",tiempo_ahora);
+//            t_fin = boost::posix_time::microsec_clock::local_time();
+//            diff_t = t_inicio - t_fin;
+//            tiempo_ahora = (float) fabs(diff_t.total_milliseconds())/1000;
+//            fprintf(fp2,"%.3f\n",tiempo_ahora);
 
             chatter_pub1.publish(datosTrayectoriaPata);
     //        delta_t = delta_t + T/divisionTrayectoriaPata;
