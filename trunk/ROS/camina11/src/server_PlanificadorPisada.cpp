@@ -189,14 +189,14 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
         return -1;
     }
 //-- datos enviados - correccion
-    infoMapa.nPata = nPata;
-    infoMapa.coordenadaAjuste_i = PisadaProxima_i;
-    infoMapa.coordenadaAjuste_j = PisadaProxima_j;
-    infoMapa.coordenadaPata_x = posicionActualPata[nPata].x;
-    infoMapa.coordenadaPata_y = posicionActualPata[nPata].y;
-    transformacion_yxTOij(p_ij, posicionActualPata[nPata].y, posicionActualPata[nPata].x);
-    infoMapa.coordenadaPata_i = ij[0];
-    infoMapa.coordenadaPata_j = ij[1];
+//    infoMapa.nPata = nPata;
+//    infoMapa.coordenadaAjuste_i = PisadaProxima_i;
+//    infoMapa.coordenadaAjuste_j = PisadaProxima_j;
+//    infoMapa.coordenadaPata_x = posicionActualPata[nPata].x;
+//    infoMapa.coordenadaPata_y = posicionActualPata[nPata].y;
+//    transformacion_yxTOij(p_ij, posicionActualPata[nPata].y, posicionActualPata[nPata].x);
+//    infoMapa.coordenadaPata_i = ij[0];
+//    infoMapa.coordenadaPata_j = ij[1];
     res.modificacion_lambda = lambda_posible;
     res.correccion_ID = correccion_ID;
     res.correccion_x = correccion_x;
@@ -204,7 +204,7 @@ bool PlanificadorPisada(camina11::PlanificadorParametros::Request  &req,
 
     fprintf(fp2,"server_PlanificadorPisada::Pata[%d]Correccion[%.4f][%.4f], lambda[%.4f]\n",nPata+1,correccion.x,correccion.y,lambda_posible);
 
-    chatter_pub2.publish(infoMapa);
+//    chatter_pub2.publish(infoMapa);
     res.resultado=1;
     return 1;
 }
