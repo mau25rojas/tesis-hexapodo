@@ -1,0 +1,1 @@
+algoritmo de caminado de robot hexapodo para caminado sobre terrenos irregulares
